@@ -26,3 +26,12 @@ model Evidencia {
   createdAt    DateTime @default(now())
   Inspeccion   Inspeccion @relation(fields: [inspeccionId], references: [id])
 }
+
+model Usuarios {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  role          String
+  status        String   @default("ACTIVE")
+  createdAt     DateTime @default(now())
+}
