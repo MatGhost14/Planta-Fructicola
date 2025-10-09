@@ -1,0 +1,98 @@
+# ======================
+# 📦 Node.js / Vite / Prisma
+# ======================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# (Mantén los lockfiles para instalaciones reproducibles)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ======================
+# 🧪 Environment
+# ======================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ======================
+# 🧭 Build / Dist
+# ======================
+dist/
+build/
+.tmp/
+.cache/
+.vite/
+coverage/
+
+# ======================
+# 🧰 Prisma (no ignores migrations/)
+# ======================
+**/prisma/dev.db
+**/prisma/dev.db-journal
+**/prisma/*.sqlite
+**/prisma/*.db-journal
+
+# ======================
+# 🖼️ Uploads / Archivos temporales
+# (mantén la carpeta con .gitkeep)
+# ======================
+uploads/*
+!uploads/.gitkeep
+
+# ======================
+# 🧪 IDE / Sistema
+# ======================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ======================
+# 🐳 Docker / Otros
+# ======================
+docker-compose.override.yml
+*.log
+
+# ======================
+# 🧱 Backend specific
+# ======================
+backend/node_modules/
+backend/dist/
+
+# ======================
+# 🧱 Frontend specific
+# ======================
+frontend/node_modules/
+frontend/dist/
+
+# ======================
+# 🔐 Seguridad
+# ======================
+*.pem
+*.key
+*.crt
+
+# ======================
+# 🧩 Extras útiles
+# ======================
+.eslintcache
+.nyc_output/
+*.tsbuildinfo
+*.coverage
+logs/
+pids/
+*.pid
+*.pid.lock
+
+# Backend uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
