@@ -15,11 +15,10 @@ pnpm-debug.log*
 # ======================
 # 🧪 Environment
 # ======================
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Ignora archivos de entorno, todo lo que empiece por .env
+.env*
+env*
+
 
 # ======================
 # 🧭 Build / Dist
