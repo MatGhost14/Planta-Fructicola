@@ -1,4 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body{@apply bg-background text-gray-800;font-family:'Inter',sans-serif;}
+
+/* === Tema claro === */
+:root {
+  --color-primary: #2563eb;
+  --color-secondary: #1e40af;
+  --color-bg: #f5f8ff;
+  --color-card: #ffffff;
+}
+
+/* === Tema oscuro === */
+/* === Navbar oscura === */
+.navbar {
+  background-color: #0f172a; /* azul marino oscuro */
+  color: white;
+  @apply shadow-md py-4 px-6 flex items-center justify-between transition-all duration-300;
+}
+
+.navbar h1, 
+.navbar a {
+  color: white;
+}
+
+.navbar a:hover {
+  @apply text-blue-400;
+}
+
+
+/* Animaciones suaves */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

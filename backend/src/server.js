@@ -5,6 +5,11 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
+import 'dotenv/config';
+
+const FASTAPI_URL = process.env.FASTAPI_URL;
+
+
 
 const prisma = new PrismaClient();
 const app = express();
@@ -79,6 +84,70 @@ app.get('/api/inspecciones', async (req, res) => {
   });
   res.json(data);
 });
+
+// ===========================
+// 💼 HU15 - Crear usuarios (solo ADMIN)
+// ===========================
+app.post("/api/admin/users", async (req, res) => {
+  try {
+    const { email, password, role } = req.body;
+
+    // 1. Validar campos
+    if (!email || !role) {
+      return res.status(400).json({ error: "Faltan campos obligatorios" });
+    }
+
+    // 2. Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Correo electrónico inválido" });
+    }
+
+    // 3. Validar roles permitidos
+    const rolesValidos = ["ADMIN", "INSPECTOR", "GERENCIA"];
+    if (!rolesValidos.includes(role)) {
+      return res.status(400).json({ error: "Rol no permitido" });
+    }
+
+    // 4. Evitar duplicados (si ya hay Prisma configurado con User)
+    const existe = await prisma.usuario.findUnique({
+      where: { email: email },
+    });
+    if (existe) {
+      return res.status(409).json({ error: "El correo ya está registrado" });
+    }
+
+    // 5. Encriptar o asignar contraseña
+    const bcrypt = require("bcrypt");
+    const passwordFinal = password || Math.random().toString(36).slice(-10);
+    const hash = await bcrypt.hash(passwordFinal, 10);
+
+    // 6. Crear usuario en BD (ajusta el modelo si tu tabla tiene otros nombres)
+    const nuevoUsuario = await prisma.usuario.create({
+      data: {
+        email,
+        passwordHash: hash,
+        role,
+        status: "ACTIVE",
+      },
+    });
+
+    // 7. Responder al front
+    res.status(201).json({
+      message: "Usuario creado correctamente",
+      user: {
+        id: nuevoUsuario.id,
+        email: nuevoUsuario.email,
+        role: nuevoUsuario.role,
+      },
+      passwordTemporal: password ? null : passwordFinal,
+    });
+  } catch (error) {
+    console.error("Error al crear usuario:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log('✅ Backend listo en puerto', PORT));
