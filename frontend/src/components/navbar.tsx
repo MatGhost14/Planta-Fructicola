@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Sun, Moon } from "lucide-react";
-import useDarkMode from "../hooks/useDarkMode";
+
 
 export default function Navbar() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useDarkMode();
+  
 
   const linkClass = (path: string) =>
     `block px-4 py-2 rounded-lg text-sm font-medium transition ${
