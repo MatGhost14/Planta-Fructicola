@@ -1,714 +1,497 @@
 # 📚 Tutorial Completo - Sistema de Inspección de Contenedores
 
-Guía paso a paso para configurar, ejecutar y usar el sistema de inspección de contenedores.
+Guía paso a paso para usar el sistema desde la instalación hasta la creación de inspecciones.
 
 ---
 
-## 📑 Tabla de Contenidos
+## 📋 Tabla de Contenidos
 
-1. [Preparación del Entorno](#1-preparación-del-entorno)
-2. [Instalación del Proyecto](#2-instalación-del-proyecto)
-3. [Configuración de la Base de Datos](#3-configuración-de-la-base-de-datos)
-4. [Primer Inicio](#4-primer-inicio)
-5. [Uso de la Aplicación](#5-uso-de-la-aplicación)
-6. [Resolución de Problemas](#6-resolución-de-problemas)
-7. [Comandos Útiles](#7-comandos-útiles)
+1. [Instalación Inicial](#1-instalación-inicial)
+2. [Primer Login](#2-primer-login)
+3. [Navegación por Roles](#3-navegación-por-roles)
+4. [Crear una Inspección](#4-crear-una-inspección)
+5. [Ver Detalles de Inspección](#5-ver-detalles-de-inspección)
+6. [Aprobar/Rechazar (Supervisor)](#6-aprobarrechazar-supervisor)
+7. [Gestión de Usuarios (Admin)](#7-gestión-de-usuarios-admin)
+8. [Tips y Trucos](#8-tips-y-trucos)
 
 ---
 
-## 1. Preparación del Entorno
+## 1. Instalación Inicial
 
-### 📥 Paso 1.1: Instalar Software Requerido
+### Paso 1.1: Verificar Requisitos
 
-#### Python 3.10+
-
-1. Descargar desde: https://www.python.org/downloads/
-2. Durante la instalación:
-   - ✅ Marcar "Add Python to PATH"
-   - ✅ Click en "Install Now"
-3. Verificar instalación:
 ```powershell
+# Verificar Python
 python --version
-```
-Debe mostrar: `Python 3.10.x` o superior
+# Debe mostrar: Python 3.10 o superior
 
-#### Node.js 18+
-
-1. Descargar desde: https://nodejs.org/
-2. Instalar versión LTS (Long Term Support)
-3. Verificar instalación:
-```powershell
+# Verificar Node.js
 node --version
-npm --version
-```
-Debe mostrar: `v18.x.x` o superior
+# Debe mostrar: v18.0 o superior
 
-#### XAMPP 8.0+
-
-1. Descargar desde: https://www.apachefriends.org/
-2. Instalar en: `C:\xampp`
-3. Abrir **XAMPP Control Panel**
-4. Hacer click en **Start** junto a **MySQL**
-5. Verificar que el indicador esté verde
-
----
-
-## 2. Instalación del Proyecto
-
-### 📦 Paso 2.1: Obtener el Proyecto
-
-Opción A: **Clonar desde Git**
-```powershell
-git clone https://tu-repositorio.com/inspeccion-contenedores.git
-cd inspeccion-contenedores
+# Verificar MySQL (XAMPP)
+# Abrir XAMPP Control Panel y verificar que MySQL esté corriendo
 ```
 
-Opción B: **Descargar ZIP**
-1. Descargar el archivo ZIP del proyecto
-2. Extraer en: `C:\Users\TuUsuario\Desktop\Planta-`
-3. Abrir PowerShell en esa carpeta
-
-### 🚀 Paso 2.2: Instalación Automática
+### Paso 1.2: Instalar el Sistema
 
 ```powershell
-# Ejecutar el script de instalación
-.\install.ps1
-```
-
-Este script hará lo siguiente:
-1. ✅ Crear entorno virtual Python en `backend/venv/`
-2. ✅ Instalar dependencias Python desde `requirements.txt`
-3. ✅ Crear archivo `.env` con configuración por defecto
-4. ✅ Instalar dependencias de Node.js en `frontend/`
-5. ✅ Crear directorios `capturas/`
-
-**Tiempo estimado**: 5-10 minutos (dependiendo de tu conexión)
-
-### 🔍 Paso 2.3: Verificar Instalación
-
-```powershell
-# Verificar backend
-cd backend
-.\venv\Scripts\Activate.ps1
-pip list | Select-String "fastapi|sqlalchemy|pydantic"
-
-# Verificar frontend
-cd ../frontend
-npm list --depth=0 | Select-String "react|vite|typescript"
-```
-
----
-
-## 3. Configuración de la Base de Datos
-
-### 🗄️ Paso 3.1: Importar Schema
-
-#### Opción A: Usando el Script (Recomendado)
-
-```powershell
+# Navegar a la carpeta del proyecto
 cd "C:\Users\TuUsuario\Desktop\Planta-"
+
+# Ejecutar script de instalación
+.\install.ps1
+
+# Configurar base de datos
 .\setup-database.ps1
 ```
 
-#### Opción B: Manualmente con phpMyAdmin
-
-1. Abrir navegador en: http://localhost/phpmyadmin
-2. Click en **"New"** o **"Nueva"** (lado izquierdo)
-3. Nombre de la base de datos: `ImpeccionContenedor`
-4. Collation: `utf8mb4_general_ci`
-5. Click en **"Create"** o **"Crear"**
-6. Click en la pestaña **"Import"** o **"Importar"**
-7. Click en **"Choose File"** o **"Seleccionar archivo"**
-8. Seleccionar: `C:\Users\TuUsuario\Desktop\Planta-\impeccioncontenedor.sql`
-9. Scroll hasta abajo y click en **"Go"** o **"Continuar"**
-10. Esperar mensaje: **"Import has been successfully finished"**
-
-### ✅ Paso 3.2: Verificar Datos Iniciales
-
-En phpMyAdmin, ejecutar:
-
-```sql
-USE ImpeccionContenedor;
-
--- Ver tablas creadas
-SHOW TABLES;
-
--- Ver usuarios
-SELECT nombre, correo, rol FROM usuarios;
-
--- Ver plantas
-SELECT codigo, nombre FROM plantas;
-
--- Ver navieras
-SELECT codigo, nombre FROM navieras;
-```
-
-Deberías ver:
-- 11 usuarios (inspectores, supervisores, admins)
-- 12 plantas en diferentes ubicaciones
-- 5 navieras internacionales
-
-### 🔧 Paso 3.3: Configurar Conexión
-
-Editar el archivo: `backend\.env`
-
-```env
-# Base de datos
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=           # Dejar vacío si no tienes contraseña
-DB_NAME=ImpeccionContenedor
-
-# Archivos
-CAPTURAS_DIR=../capturas
-
-# Servidor
-BACKEND_PORT=8000
-
-# CORS
-CORS_ORIGINS=http://localhost:5173
-```
-
-**Nota**: Si tu MySQL tiene contraseña, agrégala en `DB_PASSWORD=tu_contraseña`
-
----
-
-## 4. Primer Inicio
-
-### 🎬 Paso 4.1: Iniciar Servicios
+### Paso 1.3: Iniciar Servicios
 
 ```powershell
-cd "C:\Users\TuUsuario\Desktop\Planta-"
+# Iniciar backend y frontend automáticamente
 .\start-dev.ps1
 ```
 
-Este script abrirá **DOS ventanas de PowerShell**:
-
-**Ventana 1 - Backend (Puerto 8000)**
-```
-Backend FastAPI
-==================
-Virtual environment activado
-Iniciando Uvicorn en http://localhost:8000
-API Docs: http://localhost:8000/docs
-
-INFO: Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
-INFO: Started reloader process
-INFO: Started server process
-INFO: Waiting for application startup.
-INFO: Application startup complete.
-```
-
-**Ventana 2 - Frontend (Puerto 5173)**
-```
-Frontend React + Vite
-=====================
-
-  VITE v5.0.11  ready in 1234 ms
-
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: use --host to expose
-  ➜  press h + enter to show help
-```
-
-### 🌐 Paso 4.2: Acceder a la Aplicación
-
-Abrir navegador en:
-
-1. **Frontend**: http://localhost:5173
-   - Interfaz principal de usuario
-   - Dashboard, inspecciones, reportes
-
-2. **Backend API**: http://localhost:8000
-   - Información de la API
-
-3. **Documentación Interactiva**: http://localhost:8000/docs
-   - Swagger UI con todos los endpoints
-   - Probar API directamente
-
-### ✅ Paso 4.3: Verificar que Todo Funciona
-
-#### Probar Backend:
-
-Abrir en navegador: http://localhost:8000/api/health
-
-Deberías ver:
-```json
-{
-  "status": "ok",
-  "timestamp": "2025-10-14T02:15:30.123456"
-}
-```
-
-#### Probar Frontend:
-
-Abrir: http://localhost:5173
-
-Deberías ver:
-- ✅ Sidebar con menú de navegación
-- ✅ Dashboard con 4 tarjetas de KPIs
-- ✅ Tabla de inspecciones recientes
+Verás dos terminales:
+- **Terminal 1**: Backend FastAPI (puerto 8000)
+- **Terminal 2**: Frontend React (puerto 5173)
 
 ---
 
-## 5. Uso de la Aplicación
+## 2. Primer Login
 
-### 📋 5.1 Crear tu Primera Inspección
+### Paso 2.1: Acceder al Sistema
 
-#### Paso a Paso:
+1. Abre tu navegador
+2. Ve a: **http://localhost:5173**
+3. Serás redirigido automáticamente a `/login`
 
-1. **Navegar a Nueva Inspección**
-   - Click en **"Nueva Inspección"** en el menú lateral
-   - O ir a: http://localhost:5173/inspeccion-nueva
+### Paso 2.2: Credenciales de Prueba
 
-2. **Completar Formulario**
-   
-   **Planta**: Seleccionar de la lista
-   - Ejemplo: "Planta Norte - Monterrey"
-   
-   **Naviera**: Seleccionar de la lista
-   - Ejemplo: "Maersk Line"
-   
-   **Número de Contenedor**: Ingresar código alfanumérico
-   - Ejemplo: `MAEU1234567`
-   - Formato típico: 4 letras + 7 números
-   
-   **Temperatura (°C)**: Opcional, para contenedores refrigerados
-   - Ejemplo: `-18.5`
-   - Rango sugerido: -25°C a -15°C
-   
-   **Observaciones**: Opcional, texto libre
-   - Ejemplo: "Contenedor en excelente estado, sellos intactos"
+El sistema viene con 3 usuarios pre-configurados:
 
-3. **Capturar Fotos**
-   
-   - Click en botón **"Abrir Cámara"**
-   - Permitir acceso a la cámara cuando el navegador lo solicite
-   - Posicionar el contenedor en el visor
-   - Click en **"Capturar Foto"**
-   - Repetir para múltiples fotos (mínimo 2 recomendado)
-   - Las fotos aparecerán como miniaturas abajo
+**Inspector:**
+```
+Email: inspector@empresa.com
+Password: password123
+```
 
-4. **Agregar Firma Digital**
-   
-   - Usar el mouse o dedo (en táctil) para dibujar firma
-   - Click en **"Limpiar"** si necesitas reiniciar
-   - La firma debe ser legible
+**Supervisor:**
+```
+Email: supervisor@empresa.com
+Password: password123
+```
 
-5. **Guardar Inspección**
-   
-   - Click en botón **"Guardar Inspección"**
-   - Esperar mensaje de éxito: "Inspección creada exitosamente"
-   - Automáticamente irás al Dashboard
+**Admin:**
+```
+Email: admin@empresa.com
+Password: password123
+```
 
-### 📊 5.2 Ver Dashboard
+### Paso 2.3: Iniciar Sesión
 
-**URL**: http://localhost:5173/
+1. Ingresa el email
+2. Ingresa la contraseña
+3. Click en "Iniciar Sesión"
+4. Serás redirigido al Dashboard
 
-El Dashboard muestra:
+### Paso 2.4: Cerrar Sesión
 
-**Tarjetas de KPI**:
-- 📦 **Total**: Todas las inspecciones
-- ⏳ **Pendientes**: Esperando revisión
-- ✅ **Aprobadas**: Inspeccionadas correctamente
-- ❌ **Rechazadas**: Con problemas
-
-**Tabla de Inspecciones Recientes**:
-- Código de inspección
-- Número de contenedor
-- Planta y Naviera
-- Estado con color
-- Fecha de inspección
-
-**Actualización en Tiempo Real**:
-- Los números se actualizan automáticamente al crear/modificar inspecciones
-
-### 🔍 5.3 Buscar y Filtrar Inspecciones
-
-**URL**: http://localhost:5173/inspecciones
-
-**Filtros Disponibles**:
-
-1. **Por Estado**:
-   - Todos
-   - Pendientes
-   - Aprobadas
-   - Rechazadas
-
-2. **Por Búsqueda**:
-   - Buscar por número de contenedor
-   - Ejemplo: Escribir "MAEU" para ver todos los contenedores de Maersk
-
-**Ver Detalles**:
-- Click en cualquier fila de la tabla
-- Ver fotos capturadas
-- Ver firma digital
-- Ver toda la información
-
-### 📈 5.4 Ver Reportes
-
-**URL**: http://localhost:5173/reportes
-
-**Información Mostrada**:
-
-**Resumen General**:
-- Total de inspecciones
-- Cantidad aprobadas
-- Cantidad pendientes
-- Cantidad rechazadas
-- Tasa de aprobación (%)
-
-**Filtros de Fecha**:
-- Fecha Desde: Seleccionar fecha inicial
-- Fecha Hasta: Seleccionar fecha final
-- Click en **"Aplicar Filtros"**
-
-**Visualización**:
-- Barras de progreso con colores
-- Porcentajes calculados automáticamente
-
-### 👥 5.5 Administrar Catálogos
-
-**URL**: http://localhost:5173/admin
-
-**Pestañas**:
-
-1. **Plantas**
-   - Ver todas las plantas
-   - Agregar nueva planta
-   - Editar existente
-   - Eliminar (si no tiene inspecciones asociadas)
-
-2. **Navieras**
-   - Ver todas las navieras
-   - Agregar nueva naviera
-   - Editar existente
-   - Eliminar (si no tiene inspecciones asociadas)
-
-3. **Usuarios**
-   - Ver todos los usuarios
-   - Agregar nuevo usuario
-   - Editar existente
-   - Cambiar rol (Inspector, Supervisor, Admin)
+1. Click en tu nombre en la barra superior
+2. Selecciona "Cerrar Sesión"
+3. O presiona F12 → Console → `localStorage.clear()` → Reload
 
 ---
 
-## 6. Resolución de Problemas
+## 3. Navegación por Roles
 
-### ❌ Problema: "Backend no inicia"
+### 3.1 Vista de Inspector
 
-**Error**: `ModuleNotFoundError: No module named 'fastapi'`
+Cuando inicias sesión como **Inspector**, verás:
 
-**Solución**:
-```powershell
-cd backend
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+#### Dashboard
+- ✅ KPIs de **tus inspecciones** solamente
+- ✅ Lista de tus últimas inspecciones
+- ❌ No ves inspecciones de otros
+
+#### Módulo Inspecciones
+- ✅ Ver lista de tus inspecciones
+- ✅ Crear nueva inspección
+- ✅ Ver detalle de tus inspecciones
+- ✅ Editar tus inspecciones (sin cambiar estado)
+- ❌ No puedes eliminar
+- ❌ No puedes aprobar/rechazar
+
+#### Botones Visibles
 ```
+✅ Nueva Inspección
+✅ Ver Detalles
+✅ Editar (solo propias)
+❌ Eliminar
+❌ Aprobar/Rechazar
+```
+
+### 3.2 Vista de Supervisor
+
+Cuando inicias sesión como **Supervisor**, verás:
+
+#### Dashboard
+- ✅ KPIs de **todas las inspecciones**
+- ✅ Gráficos y estadísticas completas
+- ✅ Filtros avanzados
+
+#### Módulo Inspecciones
+- ✅ Ver **todas** las inspecciones
+- ✅ Crear inspecciones para cualquier inspector
+- ✅ Editar cualquier inspección
+- ✅ Cambiar estados (aprobar/rechazar)
+- ✅ Eliminar inspecciones
+- ✅ Gestionar plantas y navieras
+
+#### Botones Visibles
+```
+✅ Nueva Inspección
+✅ Ver Detalles
+✅ Editar
+✅ Eliminar
+✅ Aprobar
+✅ Rechazar
+```
+
+### 3.3 Vista de Admin
+
+El **Admin** tiene acceso completo:
+
+- ✅ Todo lo del Supervisor
+- ✅ Gestión de usuarios
+- ✅ Auditoría del sistema
+- ✅ Configuración global
+- ✅ Reportes avanzados
 
 ---
 
-### ❌ Problema: "Frontend no carga"
+## 4. Crear una Inspección
 
-**Error**: `npm ERR! code ENOENT`
+### Paso 4.1: Ir al Módulo Inspecciones
 
-**Solución**:
-```powershell
-cd frontend
-npm install
-npm run dev
+1. Click en "Inspecciones" en el menú lateral
+2. Click en el botón "Nueva Inspección" (azul, esquina superior derecha)
+
+### Paso 4.2: Completar el Formulario
+
 ```
+📦 Número de Contenedor: TCLU1234567
+🏭 Planta: Selecciona de la lista
+🚢 Naviera: Selecciona de la lista
+🌡️ Temperatura: -18.5 (opcional)
+📝 Observaciones: "Contenedor en perfecto estado"
+👤 Inspector: (Auto-asignado si eres inspector)
+📅 Fecha de Inspección: (Automática o selecciona)
+```
+
+### Paso 4.3: Guardar
+
+1. Click en "Guardar" o "Crear Inspección"
+2. El sistema creará la inspección con estado "Pending"
+3. Recibirás un código único (ej: INS-2024-001)
+4. Serás redirigido a la página de subir fotos
+
+### Paso 4.4: Subir Fotos
+
+1. Click en "Subir Fotos" o arrastra archivos
+2. Selecciona múltiples fotos desde tu dispositivo
+3. Formatos permitidos: JPG, PNG
+4. Tamaño máximo: 5MB por foto
+5. Click en "Subir Todas"
+
+### Paso 4.5: Agregar Firma Digital
+
+1. Dibuja tu firma con el mouse o dedo (touch)
+2. Click en "Limpiar" si quieres rehacer
+3. Click en "Guardar Firma"
+4. La firma se almacena automáticamente
 
 ---
 
-### ❌ Problema: "Error de conexión a base de datos"
+## 5. Ver Detalles de Inspección
 
-**Error**: `sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (2003...)`
+### Paso 5.1: Acceder al Detalle
 
-**Solución**:
-1. Verificar que XAMPP esté corriendo:
-   - Abrir XAMPP Control Panel
-   - MySQL debe estar en verde "Running"
-   
-2. Verificar credenciales en `backend\.env`:
-```env
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=          # Dejar vacío o agregar contraseña
-DB_NAME=ImpeccionContenedor
+**Opción 1: Desde la lista**
+1. Ve a "Inspecciones"
+2. Click en "Ver Detalles" en cualquier fila
+
+**Opción 2: Desde el Dashboard**
+1. Click en el código de inspección (ej: INS-2024-001)
+
+### Paso 5.2: Modal de Detalle
+
+El modal muestra:
+
+```
+┌────────────────────────────────────────┐
+│ Inspección INS-2024-001                │
+│ Contenedor: TCLU1234567                │
+│ ┌────────────┐                         │
+│ │  📍 Planta │ Planta Central          │
+│ └────────────┘                         │
+│ ┌────────────┐                         │
+│ │  🚢 Naviera│ Maersk Line             │
+│ └────────────┘                         │
+│ ┌────────────┐                         │
+│ │  👤 Inspector │ Juan Pérez          │
+│ └────────────┘                         │
+│ ┌────────────┐                         │
+│ │  🌡️ Temp   │ -18.5°C                │
+│ └────────────┘                         │
+│                                        │
+│ 📸 Fotografías (4)                     │
+│ [🖼️] [🖼️] [🖼️] [🖼️]                │
+│                                        │
+│ ✍️ Firma Digital                       │
+│ [Imagen de firma]                      │
+│                                        │
+│ 📝 Observaciones                       │
+│ Contenedor en perfecto estado         │
+└────────────────────────────────────────┘
 ```
 
-3. Verificar que la base de datos exista:
-```powershell
-cd "C:\xampp\mysql\bin"
-.\mysql.exe -u root
-```
-```sql
-SHOW DATABASES LIKE 'ImpeccionContenedor';
-```
+### Paso 5.3: Ver Foto Ampliada
+
+1. Click en cualquier foto
+2. Se abre en modo lightbox (pantalla completa)
+3. Click en "X" o fuera de la imagen para cerrar
 
 ---
 
-### ❌ Problema: "Puerto ya en uso"
+## 6. Aprobar/Rechazar (Supervisor)
 
-**Error**: `Error: listen EADDRINUSE: address already in use :::8000`
+### Paso 6.1: Revisar Inspección
 
-**Solución**:
-```powershell
-# Para puerto 8000 (Backend)
-netstat -ano | findstr :8000
-taskkill /PID <número_del_PID> /F
+1. Login como **Supervisor**
+2. Ve a "Inspecciones"
+3. Filtra por estado "Pendiente"
+4. Click en "Ver Detalles"
 
-# Para puerto 5173 (Frontend)
-netstat -ano | findstr :5173
-taskkill /PID <número_del_PID> /F
+### Paso 6.2: Aprobar
+
+```
+✅ Si todo está correcto:
+1. Click en "Aprobar"
+2. (Opcional) Agrega comentario
+3. Confirma la acción
+4. Estado cambia a "Aprobada" (verde)
 ```
 
+### Paso 6.3: Rechazar
+
+```
+❌ Si hay problemas:
+1. Click en "Rechazar"
+2. OBLIGATORIO: Agrega razón del rechazo
+3. Ejemplo: "Fotos borrosas, repetir inspección"
+4. Confirma la acción
+5. Estado cambia a "Rechazada" (rojo)
+```
+
+### Paso 6.4: Notificación al Inspector
+
+El inspector recibirá:
+- ✉️ Notificación en el sistema
+- 📧 Email (si configurado)
+- 📱 Push notification (si configurado)
+
 ---
 
-### ❌ Problema: "Cámara no funciona"
+## 7. Gestión de Usuarios (Admin)
 
-**Error**: `NotAllowedError: Permission denied`
+### Paso 7.1: Acceder a Usuarios
 
-**Solución**:
-1. Permitir acceso a la cámara en el navegador
-2. En Chrome: Hacer click en el icono de candado en la barra de direcciones
-3. Permisos → Cámara → Permitir
-4. Recargar la página (F5)
+1. Login como **Admin**
+2. Click en "Administración"
+3. Click en "Usuarios"
 
-**Alternativa**:
-- Usar HTTPS en lugar de HTTP (la cámara funciona mejor con conexión segura)
-- O usar localhost (que es considerado seguro)
+### Paso 7.2: Crear Nuevo Usuario
 
----
+```
+1. Click en "Nuevo Usuario"
+2. Completa el formulario:
+   - Nombre: Juan Pérez
+   - Email: juan.perez@empresa.com
+   - Rol: Inspector / Supervisor / Admin
+   - Estado: Activo
+   - Password: (Temporal, usuario debe cambiar)
+3. Click en "Crear"
+```
 
-### ❌ Problema: "Las fotos no se guardan"
+### Paso 7.3: Editar Usuario
 
-**Error**: `500 Internal Server Error` al subir fotos
+1. Click en el ícono de editar (lápiz)
+2. Modifica los campos necesarios
+3. Click en "Guardar Cambios"
 
-**Solución**:
-```powershell
-# Verificar que existan los directorios
-cd "C:\Users\TuUsuario\Desktop\Planta-"
-Test-Path "capturas\inspecciones"
-Test-Path "capturas\firmas"
+### Paso 7.4: Desactivar Usuario
 
-# Si no existen, crearlos
-New-Item -ItemType Directory -Path "capturas\inspecciones" -Force
-New-Item -ItemType Directory -Path "capturas\firmas" -Force
+1. Click en el ícono de estado
+2. Selecciona "Inactivo"
+3. El usuario no podrá iniciar sesión
+
+### Paso 7.5: Cambiar Rol
+
+```
+⚠️ CUIDADO al cambiar roles:
+- Inspector → Supervisor: Obtiene más permisos
+- Supervisor → Inspector: Pierde permisos
+- Cualquiera → Admin: Acceso total
 ```
 
 ---
 
-## 7. Comandos Útiles
+## 8. Tips y Trucos
 
-### 🔄 Reiniciar Servicios
+### 8.1 Atajos de Teclado
 
-```powershell
-# Detener servicios (Ctrl+C en cada ventana de PowerShell)
-# Luego reiniciar:
-cd "C:\Users\TuUsuario\Desktop\Planta-"
-.\start-dev.ps1
+```
+Ctrl + K         → Abrir búsqueda rápida
+Ctrl + N         → Nueva inspección
+Ctrl + S         → Guardar cambios
+Esc              → Cerrar modales
 ```
 
-### 🧹 Limpiar Caché
+### 8.2 Filtros Rápidos
 
-```powershell
-# Backend
-cd backend
-Remove-Item __pycache__ -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item app\__pycache__ -Recurse -Force -ErrorAction SilentlyContinue
-
-# Frontend
-cd ../frontend
-Remove-Item node_modules -Recurse -Force
-Remove-Item package-lock.json -Force
-npm install
+**En Inspecciones:**
+```
+Estado:
+- Click en badge "Pendiente" → Filtra pendientes
+- Click en badge "Aprobada" → Filtra aprobadas
+- Click en badge "Rechazada" → Filtra rechazadas
 ```
 
-### 📊 Ver Logs del Backend
-
-```powershell
-cd backend
-.\venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload --port 8000 --log-level debug
+**Búsqueda:**
+```
+Busca por:
+- Número de contenedor: TCLU1234567
+- Código: INS-2024-001
+- Planta: Central
+- Inspector: Juan Pérez
 ```
 
-### 🔍 Probar API con PowerShell
+### 8.3 Exportar Datos
 
-```powershell
-# Health Check
-Invoke-RestMethod -Uri "http://localhost:8000/api/health" -Method GET
+1. Ve a "Reportes"
+2. Selecciona filtros (fechas, estado, planta)
+3. Click en "Exportar CSV"
+4. Descarga automática
 
-# Listar Inspecciones
-$response = Invoke-RestMethod -Uri "http://localhost:8000/api/inspecciones/?limit=5" -Method GET
-$response.items
+### 8.4 Modo Offline
 
-# Listar Plantas
-Invoke-RestMethod -Uri "http://localhost:8000/api/plantas/" -Method GET
-
-# Ver conteo por estado
-Invoke-RestMethod -Uri "http://localhost:8000/api/reportes/conteo-estado" -Method GET
+```
+⚠️ Funcionalidad limitada sin conexión:
+✅ Ver inspecciones cacheadas
+❌ Crear nuevas inspecciones
+❌ Subir fotos
+❌ Cambiar estados
 ```
 
-### 🗄️ Comandos MySQL Útiles
+### 8.5 Cambiar Contraseña
 
-```powershell
-# Abrir MySQL CLI
-cd "C:\xampp\mysql\bin"
-.\mysql.exe -u root
+1. Click en tu nombre (esquina superior derecha)
+2. "Mi Perfil"
+3. "Cambiar Contraseña"
+4. Ingresa:
+   - Contraseña actual
+   - Nueva contraseña
+   - Confirmar nueva contraseña
+5. Mínimo 8 caracteres
 
-# En MySQL:
-USE ImpeccionContenedor;
-SHOW TABLES;
-SELECT COUNT(*) FROM inspecciones;
-SELECT estado, COUNT(*) FROM inspecciones GROUP BY estado;
-DESCRIBE inspecciones;
+### 8.6 Solución de Problemas Comunes
+
+**"Se queda cargando"**
+```
+1. Verifica que backend esté corriendo (puerto 8000)
+2. Abre F12 → Console → Busca errores
+3. Recarga la página (Ctrl + R)
 ```
 
-### 🔄 Aplicar Migraciones de Base de Datos
-
-```powershell
-cd backend
-.\venv\Scripts\Activate.ps1
-
-# Ver estado actual
-alembic current
-
-# Ver historial
-alembic history
-
-# Aplicar todas las migraciones
-alembic upgrade head
-
-# Rollback una migración
-alembic downgrade -1
+**"No puedo subir fotos"**
+```
+1. Verifica formato: Solo JPG, PNG
+2. Verifica tamaño: Máximo 5MB
+3. Verifica permisos: Solo dueño de inspección
 ```
 
-### 📦 Actualizar Dependencias
-
-```powershell
-# Backend
-cd backend
-.\venv\Scripts\Activate.ps1
-pip list --outdated
-pip install --upgrade nombre-paquete
-
-# Frontend
-cd ../frontend
-npm outdated
-npm update
+**"No veo mis inspecciones"**
 ```
+1. Verifica tu rol (Inspector solo ve propias)
+2. Verifica filtros activos
+3. Limpia filtros con "Limpiar Filtros"
+```
+
+**"Token expirado"**
+```
+1. Cierra sesión
+2. Vuelve a ingresar
+3. Token dura 8 horas
+```
+
+### 8.7 Mejores Prácticas
+
+**Para Inspectores:**
+- ✅ Toma fotos claras y bien iluminadas
+- ✅ Incluye fotos de todos los ángulos
+- ✅ Completa observaciones detalladas
+- ✅ Firma antes de enviar
+
+**Para Supervisores:**
+- ✅ Revisa todas las fotos antes de aprobar
+- ✅ Da feedback específico al rechazar
+- ✅ Revisa inspecciones pendientes diariamente
+- ✅ Usa reportes para identificar tendencias
+
+**Para Admins:**
+- ✅ Revisa auditoría semanalmente
+- ✅ Cambia contraseñas periódicamente
+- ✅ Mantén usuarios actualizados
+- ✅ Haz respaldos de BD regularmente
 
 ---
 
-## 8. Flujo de Trabajo Recomendado
+## 9. Preguntas Frecuentes
 
-### 🌅 Al Empezar el Día
+**¿Puedo usar el sistema desde mi celular?**
+Sí, es completamente responsive. Funciona en cualquier dispositivo con navegador moderno.
 
-1. Abrir XAMPP Control Panel → Start MySQL
-2. Ejecutar: `.\start-dev.ps1`
-3. Verificar que ambos servicios inicien correctamente
-4. Abrir navegador en http://localhost:5173
+**¿Las fotos se guardan en la base de datos?**
+No, se guardan en el filesystem (carpeta `capturas/`) por eficiencia.
 
-### 📝 Durante el Trabajo
+**¿Cuántas fotos puedo subir por inspección?**
+No hay límite, pero se recomienda entre 4-8 fotos relevantes.
 
-1. Crear inspecciones según lleguen los contenedores
-2. Revisar Dashboard periódicamente
-3. Supervisores: Revisar y aprobar/rechazar pendientes
-4. Generar reportes al final del día/semana
+**¿Puedo editar una inspección aprobada?**
+Solo Admin puede editar inspecciones aprobadas.
 
-### 🌙 Al Terminar el Día
+**¿Cómo recupero mi contraseña?**
+Contacta al administrador del sistema.
 
-1. Exportar reportes si es necesario
-2. Cerrar navegador
-3. Presionar Ctrl+C en cada ventana de PowerShell
-4. Opcional: Detener MySQL en XAMPP
+**¿El sistema guarda historial de cambios?**
+Sí, en la tabla `bitacora_auditoria`. Visible para Admin.
 
 ---
 
-## 9. Tips y Mejores Prácticas
+## 📞 Soporte
 
-### 📸 Captura de Fotos
+Si tienes problemas o dudas:
 
-- ✅ Tomar al menos 2-3 fotos por inspección
-- ✅ Capturar diferentes ángulos del contenedor
-- ✅ Asegurar buena iluminación
-- ✅ Enfocar bien el número del contenedor
-- ✅ Capturar detalles de daños si existen
-
-### ✍️ Firma Digital
-
-- ✅ Usar trazo claro y legible
-- ✅ Asegurar que la firma se vea completa
-- ✅ No usar firmas genéricas (X, línea simple)
-- ✅ Debe ser identificable
-
-### 📝 Observaciones
-
-- ✅ Ser específico y claro
-- ✅ Mencionar cualquier daño visible
-- ✅ Indicar si los sellos están intactos
-- ✅ Incluir condiciones especiales (temperatura, humedad)
-
-### 🔍 Búsqueda y Filtros
-
-- ✅ Usar filtros para encontrar inspecciones rápidamente
-- ✅ Buscar por número parcial de contenedor
-- ✅ Filtrar por estado para revisiones pendientes
+1. **Revisa este tutorial**
+2. **Consulta el README.md**
+3. **Revisa IMPLEMENTACION-COMPLETADA.md**
+4. **Contacta al equipo de desarrollo**
 
 ---
 
-## 10. Glosario de Términos
+**¡Disfruta usando el sistema! 🚀**
 
-| Término | Descripción |
-|---------|-------------|
-| **Inspección** | Revisión completa de un contenedor |
-| **Planta** | Ubicación física donde se realiza la inspección |
-| **Naviera** | Compañía de transporte marítimo dueña del contenedor |
-| **Estado** | Pending (Pendiente), Approved (Aprobada), Rejected (Rechazada) |
-| **Inspector** | Usuario que realiza inspecciones |
-| **Supervisor** | Usuario que aprueba/rechaza inspecciones |
-| **Admin** | Usuario con acceso completo al sistema |
-| **API** | Interfaz de programación de aplicaciones (backend) |
-| **Endpoint** | Ruta de API específica (ej: /api/inspecciones/) |
-
----
-
-## ✅ Checklist de Verificación
-
-Usar esta lista para confirmar que todo está funcionando:
-
-- [ ] Python 3.10+ instalado
-- [ ] Node.js 18+ instalado
-- [ ] XAMPP instalado y MySQL corriendo
-- [ ] Base de datos `ImpeccionContenedor` creada
-- [ ] Datos iniciales importados
-- [ ] Backend iniciado en puerto 8000
-- [ ] Frontend iniciado en puerto 5173
-- [ ] Dashboard carga correctamente
-- [ ] Puedo ver la lista de inspecciones
-- [ ] Puedo crear una nueva inspección
-- [ ] La cámara funciona
-- [ ] Puedo capturar firma
-- [ ] Los reportes muestran datos
-- [ ] Admin panel carga catálogos
-
----
-
-## 📞 ¿Necesitas Ayuda?
-
-Si después de seguir este tutorial aún tienes problemas:
-
-1. Revisar la sección [Resolución de Problemas](#6-resolución-de-problemas)
-2. Verificar los logs del backend (ventana de PowerShell)
-3. Abrir la consola del navegador (F12) para ver errores del frontend
-4. Consultar la documentación de la API: http://localhost:8000/docs
-
----
-
-**¡Felicidades! Ya estás listo para usar el Sistema de Inspección de Contenedores 🚢**
-
-Este tutorial fue creado el 14 de octubre de 2025.
+**Última actualización:** 14 de octubre de 2025

@@ -2,19 +2,53 @@
  * Página de Login
  */
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Login: React.FC = () => {
-  const { login, isAuthenticated, loading } = useAuth();
+  const { login, logout, isAuthenticated, loading, user } = useAuth();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [forceLogin, setForceLogin] = useState(false);
 
-  // Si ya está autenticado, redirigir al dashboard
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+  // Si ya está autenticado y no se forzó el login, mostrar opción de continuar o cerrar sesión
+  if (isAuthenticated && !forceLogin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 space-y-6">
+          <div className="text-center">
+            <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Sesión Activa</h2>
+            <p className="mt-2 text-gray-600">
+              Ya tienes una sesión iniciada como <span className="font-semibold text-blue-600">{user?.nombre}</span>
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <a
+              href="/dashboard"
+              className="block w-full px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all text-center"
+            >
+              Ir al Dashboard
+            </a>
+            <button
+              onClick={async () => {
+                await logout();
+                setForceLogin(true);
+              }}
+              className="w-full px-4 py-3 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+            >
+              Iniciar sesión con otra cuenta
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

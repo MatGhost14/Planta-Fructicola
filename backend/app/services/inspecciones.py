@@ -50,7 +50,8 @@ class InspeccionService:
         fecha_desde: Optional[str] = None,
         fecha_hasta: Optional[str] = None,
         order_by: str = "inspeccionado_en",
-        order_dir: str = "desc"
+        order_dir: str = "desc",
+        id_inspector: Optional[int] = None
     ) -> Tuple[List[Inspeccion], int, int]:
         """Lista inspecciones con filtros y paginación"""
         skip = (page - 1) * page_size
@@ -79,7 +80,8 @@ class InspeccionService:
             fecha_desde=fecha_desde_dt,
             fecha_hasta=fecha_hasta_dt,
             order_by=order_by,
-            order_dir=order_dir
+            order_dir=order_dir,
+            id_inspector=id_inspector
         )
         
         total_pages = (total + page_size - 1) // page_size

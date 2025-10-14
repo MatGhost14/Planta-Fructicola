@@ -20,7 +20,8 @@ class InspeccionRepository:
         fecha_desde: Optional[datetime] = None,
         fecha_hasta: Optional[datetime] = None,
         order_by: str = "inspeccionado_en",
-        order_dir: str = "desc"
+        order_dir: str = "desc",
+        id_inspector: Optional[int] = None
     ) -> Tuple[List[Inspeccion], int]:
         """Obtener inspecciones con filtros y paginación"""
         query = db.query(Inspeccion)
@@ -45,6 +46,10 @@ class InspeccionRepository:
         
         if fecha_hasta:
             query = query.filter(Inspeccion.inspeccionado_en <= fecha_hasta)
+        
+        # Filtro por inspector (para role inspector)
+        if id_inspector:
+            query = query.filter(Inspeccion.id_inspector == id_inspector)
         
         # Contar total
         total = query.count()

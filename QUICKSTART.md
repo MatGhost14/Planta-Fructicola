@@ -1,73 +1,111 @@
-# ⚡ Inicio Rápido - Sistema de Inspección de Contenedores
+# ⚡ Inicio Rápido - 5 Minutos
 
-Guía de inicio rápido en 5 minutos.
-
----
-
-## ✅ Pre-requisitos
-
-- ✅ Python 3.10+
-- ✅ Node.js 18+
-- ✅ XAMPP con MySQL
+Guía express para tener el sistema funcionando en menos de 5 minutos.
 
 ---
 
-## 🚀 Instalación en 3 Pasos
+## 🚀 Instalación Express
 
-### 1️⃣ Instalar Dependencias
+### 1. Requisitos (2 minutos)
+
+✅ Instalar si no tienes:
+- [Python 3.10+](https://python.org)
+- [Node.js 18+](https://nodejs.org)
+- [XAMPP](https://www.apachefriends.org/) (para MySQL)
+
+### 2. Clonar/Descargar Proyecto
+
+```powershell
+cd "C:\Users\TuUsuario\Desktop"
+# Si tienes el proyecto descargado, ve a la carpeta
+cd Planta-
+```
+
+### 3. Instalar TODO (1 minuto)
 
 ```powershell
 .\install.ps1
 ```
 
-### 2️⃣ Configurar Base de Datos
+Este script instala:
+- ✅ Backend (FastAPI + dependencias)
+- ✅ Frontend (React + TypeScript)
+- ✅ Todas las librerías necesarias
+
+### 4. Configurar Base de Datos (30 segundos)
 
 ```powershell
 .\setup-database.ps1
 ```
 
-### 3️⃣ Iniciar Aplicación
+Este script:
+- ✅ Crea la BD `impeccioncontenedor`
+- ✅ Importa el schema
+- ✅ Crea usuarios de prueba
+
+### 5. Iniciar Sistema (30 segundos)
 
 ```powershell
 .\start-dev.ps1
 ```
 
----
-
-## 🌐 Acceder
-
-- **Frontend**: http://localhost:5173
-- **API Docs**: http://localhost:8000/docs
+Abre automáticamente:
+- 🟢 Backend: http://localhost:8000
+- 🟢 Frontend: http://localhost:5173
 
 ---
 
-## 📚 Documentación Completa
+## 🔐 Login Instantáneo
 
-Para instrucciones detalladas, ver:
-- [README.md](README.md) - Información general
-- [TUTORIAL.md](TUTORIAL.md) - Tutorial paso a paso completo
+Ve a **http://localhost:5173** y usa:
+
+```
+Inspector:
+📧 inspector@empresa.com
+🔑 password123
+```
 
 ---
 
-## 🐛 Problemas Comunes
+## ✨ ¡Eso es todo!
+
+Ahora puedes:
+- ✅ Ver el Dashboard
+- ✅ Crear inspecciones
+- ✅ Subir fotos
+- ✅ Ver detalles en modal
+
+---
+
+## 📚 Siguiente Paso
+
+Lee el [TUTORIAL.md](TUTORIAL.md) para aprender todas las funcionalidades.
+
+---
+
+## 🐛 Si algo falla
 
 ### Backend no inicia
 ```powershell
 cd backend
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
 ### Frontend no inicia
 ```powershell
 cd frontend
 npm install
+npm run dev
 ```
 
-### Error de BD
-- Verificar que MySQL esté corriendo en XAMPP
-- Verificar `backend\.env`
+### Base de datos no conecta
+1. Abre XAMPP Control Panel
+2. Inicia "MySQL"
+3. Ve a http://localhost/phpmyadmin
+4. Importa `impeccioncontenedor.sql`
 
 ---
 
-**¿Primera vez?** → Lee el [TUTORIAL.md](TUTORIAL.md) completo
+**¿Listo? ¡Empieza a usar el sistema! 🚀**

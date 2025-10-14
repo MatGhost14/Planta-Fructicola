@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { inspeccionesApi } from '../api';
-import type { Inspeccion, FiltrosInspeccion } from '../types';
+import type { Inspeccion, InspeccionDetalle, FiltrosInspeccion } from '../types';
 import { formatearFecha, claseEstado, textoEstado } from '../utils';
+import InspeccionModal from '../components/InspeccionModal';
 
 const Inspecciones: React.FC = () => {
   const [inspecciones, setInspecciones] = useState<Inspeccion[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtros, setFiltros] = useState<FiltrosInspeccion>({});
   const [busqueda, setBusqueda] = useState('');
+  const [selectedInspeccion, setSelectedInspeccion] = useState<InspeccionDetalle | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     cargarInspecciones();
@@ -23,6 +26,17 @@ const Inspecciones: React.FC = () => {
       console.error('Error al cargar inspecciones:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerDetalle = async (inspeccion: Inspeccion) => {
+    try {
+      // Obtener datos completos de la inspección
+      const detalleCompleto = await inspeccionesApi.obtener(inspeccion.id_inspeccion);
+      setSelectedInspeccion(detalleCompleto);
+      setModalOpen(true);
+    } catch (error) {
+      console.error('Error al cargar detalle:', error);
     }
   };
 
@@ -169,7 +183,10 @@ const Inspecciones: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-blue-600 hover:text-blue-900">
+                      <button
+                        onClick={() => handleVerDetalle(inspeccion)}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
                         Ver detalles
                       </button>
                     </td>
@@ -180,6 +197,16 @@ const Inspecciones: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Modal de detalle */}
+      <InspeccionModal
+        inspeccion={selectedInspeccion}
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedInspeccion(null);
+        }}
+      />
     </div>
   );
 };

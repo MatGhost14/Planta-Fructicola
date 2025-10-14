@@ -1,6 +1,6 @@
-# 🚢 Sistema de Inspección de Contenedores
+# 🚢 Sistema de Inspección de Contenedores Frutícolas
 
-Sistema completo de gestión de inspecciones de contenedores frutícolas con captura de fotos, firmas digitales y reportes en tiempo real.
+Sistema completo de gestión de inspecciones con autenticación JWT, control de permisos por roles, captura de fotos, firmas digitales y reportes en tiempo real.
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)](https://reactjs.org)
@@ -12,86 +12,83 @@ Sistema completo de gestión de inspecciones de contenedores frutícolas con cap
 ## 📋 Tabla de Contenidos
 
 - [Características](#-características)
-- [Arquitectura](#-arquitectura)
-- [Requisitos](#-requisitos)
-- [Instalación Rápida](#-instalación-rápida)
+- [Roles y Permisos](#-roles-y-permisos)
+- [Instalación](#-instalación)
+- [Inicio Rápido](#-inicio-rápido)
+- [Credenciales de Prueba](#-credenciales-de-prueba)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Uso](#-uso)
-- [API Endpoints](#-api-endpoints)
 - [Tecnologías](#-tecnologías)
 
 ---
 
 ## ✨ Características
 
-### 🎯 Funcionalidades Principales
+### 🔐 Sistema de Autenticación
+- ✅ **Login con JWT**: Tokens con expiración de 8 horas
+- ✅ **Contraseñas encriptadas**: bcrypt con 12 rounds
+- ✅ **Control de sesiones**: localStorage con interceptores axios
+- ✅ **Protección de rutas**: HOC ProtectedRoute por rol
+- ✅ **Auditoría**: Registro de login/logout en bitácora
 
-- ✅ **Gestión de Inspecciones**: Crear, editar, aprobar y rechazar inspecciones
-- 📸 **Captura de Fotos**: Captura múltiple de imágenes con cámara del dispositivo
-- ✍️ **Firma Digital**: Canvas HTML5 para captura de firmas (mouse y touch)
-- 📊 **Dashboard en Tiempo Real**: KPIs y estadísticas actualizadas automáticamente
-- 🔍 **Búsqueda y Filtros**: Filtrado por estado, fecha y número de contenedor
-- 📈 **Reportes**: Estadísticas con gráficos y exportación a CSV
-- 👥 **Gestión de Usuarios**: Roles (Inspector, Supervisor, Admin)
-- 🏭 **Catálogos**: Administración de Plantas y Navieras
-- 🔔 **Notificaciones**: Sistema de toasts para feedback visual
-- 🗄️ **Almacenamiento**: Archivos en filesystem (no en base de datos)
+### 👥 Gestión por Roles
+- **Inspector**: CRUD de inspecciones propias, subir fotos, firmar
+- **Supervisor**: Gestión completa de planta, aprobar/rechazar
+- **Admin**: Acceso total, gestión de usuarios y sistema
 
----
+### 📸 Inspecciones
+- ✅ **Modal de detalle**: Galería de fotos con lightbox
+- ✅ **Captura múltiple**: Soporte para múltiples fotos
+- ✅ **Firma digital**: Canvas HTML5 (mouse y touch)
+- ✅ **Estados**: Pending, Approved, Rejected
+- ✅ **Filtros avanzados**: Por estado, fecha, planta, contenedor
 
-## 🏗️ Arquitectura
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    FRONTEND (React + Vite)                   │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
-│  │ Dashboard  │  │ Inspecciones│  │  Reportes  │            │
-│  └────────────┘  └────────────┘  └────────────┘            │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                    ┌───────▼────────┐
-                    │   API REST     │
-                    │  (FastAPI)     │
-                    └───────┬────────┘
-                            │
-          ┌─────────────────┼─────────────────┐
-          │                 │                 │
-    ┌─────▼─────┐    ┌─────▼─────┐    ┌─────▼─────┐
-    │   MySQL   │    │Filesystem │    │  Static   │
-    │ Database  │    │ (capturas)│    │   Files   │
-    └───────────┘    └───────────┘    └───────────┘
-```
+### 📊 Dashboard
+- ✅ **KPIs en tiempo real**: Contadores por estado
+- ✅ **Gráficos**: Visualización de estadísticas
+- ✅ **Reportes**: Filtros personalizados
+- ✅ **Notificaciones**: Sistema de toasts
 
 ---
 
-## 📦 Requisitos
+## 🔑 Roles y Permisos
 
-| Software | Versión Mínima | Propósito |
-|----------|----------------|-----------|
-| **Python** | 3.10+ | Backend FastAPI |
-| **Node.js** | 18.0+ | Frontend React |
-| **MySQL** | 8.0+ | Base de datos |
-| **XAMPP** | 8.0+ | Servidor MySQL local |
+### Inspector (Nivel 1)
+| Módulo | Ver | Crear | Editar | Eliminar |
+|--------|-----|-------|--------|----------|
+| Mis Inspecciones | ✅ | ✅ | ✅ | ❌ |
+| Otras Inspecciones | ❌ | ❌ | ❌ | ❌ |
+| Subir Fotos | ✅ | ✅ | ❌ | ❌ |
+| Cambiar Estado | ❌ | ❌ | ❌ | ❌ |
 
-### Verificación Rápida
+### Supervisor (Nivel 2)
+| Módulo | Ver | Crear | Editar | Eliminar |
+|--------|-----|-------|--------|----------|
+| Todas las Inspecciones | ✅ | ✅ | ✅ | ✅ |
+| Aprobar/Rechazar | ✅ | ✅ | ✅ | ✅ |
+| Catálogos | ✅ | ✅ | ✅ | ✅ |
+
+### Admin (Nivel 3)
+- ✅ **Acceso total** sin restricciones
+
+---
+
+## 🚀 Instalación
+
+### Requisitos Previos
+
+| Software | Versión | Descarga |
+|----------|---------|----------|
+| Python | 3.10+ | [python.org](https://python.org) |
+| Node.js | 18.0+ | [nodejs.org](https://nodejs.org) |
+| MySQL | 8.0+ | XAMPP recomendado |
+
+### Instalación Automática
 
 ```powershell
-python --version  # Debe mostrar 3.10 o superior
-node --version   # Debe mostrar v18.0 o superior
-npm --version    # Debe mostrar 9.0 o superior
-```
+# 1. Clonar repositorio
+cd "ruta\al\proyecto"
 
----
-
-## 🚀 Instalación Rápida
-
-### Opción 1: Script Automático (Recomendado)
-
-```powershell
-# 1. Clonar o descargar el proyecto
-cd "C:\ruta\al\proyecto\Planta-"
-
-# 2. Ejecutar script de instalación
+# 2. Instalar dependencias
 .\install.ps1
 
 # 3. Configurar base de datos
@@ -101,173 +98,171 @@ cd "C:\ruta\al\proyecto\Planta-"
 .\start-dev.ps1
 ```
 
-### 🌐 Acceder a la Aplicación
+---
 
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000
-- **Documentación API**: http://localhost:8000/docs
+## ⚡ Inicio Rápido
+
+### 1. Iniciar Servicios
+
+```powershell
+.\start-dev.ps1
+```
+
+### 2. Acceder a la Aplicación
+
+| Servicio | URL |
+|----------|-----|
+| **Frontend** | http://localhost:5173 |
+| **API** | http://localhost:8000 |
+| **API Docs** | http://localhost:8000/docs |
+
+### 3. Login
+
+```
+Inspector:
+📧 inspector@empresa.com
+🔑 password123
+
+Supervisor:
+📧 supervisor@empresa.com
+🔑 password123
+
+Admin:
+📧 admin@empresa.com
+🔑 password123
+```
 
 ---
 
-## 📂 Estructura del Proyecto
+## 🎯 Credenciales de Prueba
+
+| Rol | Email | Password |
+|-----|-------|----------|
+| **Inspector** | inspector@empresa.com | password123 |
+| **Supervisor** | supervisor@empresa.com | password123 |
+| **Admin** | admin@empresa.com | password123 |
+
+> ⚠️ **IMPORTANTE**: Cambia estas contraseñas en producción
+
+---
+
+## 📁 Estructura del Proyecto
 
 ```
-Planta-/
+Planta-Fruticola/
 ├── backend/                    # Backend FastAPI
 │   ├── app/
-│   │   ├── core/              # Configuración y BD
+│   │   ├── routers/           # Endpoints con permisos
 │   │   ├── models/            # Modelos SQLAlchemy
 │   │   ├── schemas/           # Schemas Pydantic
-│   │   ├── repositories/      # Repositorios (acceso a datos)
 │   │   ├── services/          # Lógica de negocio
-│   │   ├── routers/           # Endpoints API
-│   │   ├── utils/             # Utilidades
-│   │   └── main.py            # Aplicación principal
-│   ├── alembic/               # Migraciones de BD
-│   ├── venv/                  # Entorno virtual Python
-│   ├── .env                   # Variables de entorno
-│   └── requirements.txt       # Dependencias Python
+│   │   ├── utils/
+│   │   │   └── auth.py        # JWT, bcrypt, decoradores
+│   │   └── main.py
+│   └── requirements.txt
 │
-├── frontend/                   # Frontend React + Vite
+├── frontend/                   # Frontend React
 │   ├── src/
-│   │   ├── components/        # Componentes reutilizables
-│   │   ├── pages/             # Páginas principales
-│   │   ├── services/          # API clients
-│   │   ├── store/             # Estado global (Zustand)
-│   │   ├── types/             # Tipos TypeScript
-│   │   └── utils/             # Utilidades
-│   ├── package.json           # Dependencias frontend
-│   └── vite.config.ts         # Config Vite
+│   │   ├── api/
+│   │   │   ├── auth.ts        # AuthService
+│   │   │   └── axios.ts       # Interceptor
+│   │   ├── components/
+│   │   │   ├── InspeccionModal.tsx
+│   │   │   └── ProtectedRoute.tsx
+│   │   ├── contexts/
+│   │   │   └── AuthContext.tsx
+│   │   └── pages/
+│   │       └── Login.tsx
+│   └── package.json
 │
-├── capturas/                   # Almacenamiento de archivos
-│   ├── inspecciones/          # Fotos de inspecciones
-│   └── firmas/                # Firmas digitales
-│
-├── impeccioncontenedor.sql    # Schema y datos iniciales
-├── install.ps1                # Script de instalación
-├── setup-database.ps1         # Script de configuración de BD
-├── start-dev.ps1              # Script para iniciar servicios
-├── TUTORIAL.md                # Tutorial paso a paso
-└── README.md                  # Este archivo
+├── capturas/                   # Archivos subidos
+├── impeccioncontenedor.sql     # Schema de BD
+├── start-dev.ps1              # Script de inicio
+└── README.md
 ```
-
----
-
-## 🎯 Uso
-
-### 1️⃣ Crear una Inspección
-
-1. Acceder a **Nueva Inspección** en el menú lateral
-2. Seleccionar **Planta** y **Naviera**
-3. Ingresar **Número de Contenedor**
-4. Ingresar **Temperatura** (opcional)
-5. **Capturar Fotos** con la cámara
-6. **Firmar** en el canvas
-7. Hacer clic en **Guardar Inspección**
-
-### 2️⃣ Ver Dashboard
-
-Acceder a **Dashboard** para ver KPIs en tiempo real:
-- Total de inspecciones
-- Pendientes, Aprobadas, Rechazadas
-- Tasa de aprobación
-- Inspecciones recientes
-
-### 3️⃣ Gestionar Inspecciones
-
-1. Ir a **Inspecciones**
-2. Filtrar por estado o buscar por número de contenedor
-3. Ver detalles y cambiar estado
-
----
-
-## 🔌 API Endpoints
-
-### Inspecciones
-```
-GET/POST   /api/inspecciones/
-GET/PUT/DELETE /api/inspecciones/{id}
-POST       /api/inspecciones/{id}/subir-fotos
-POST       /api/inspecciones/{id}/subir-firma
-```
-
-### Reportes
-```
-GET    /api/reportes/conteo-estado
-GET    /api/reportes/resumen
-GET    /api/reportes/exportar-csv
-```
-
-### Catálogos
-```
-GET/POST   /api/plantas/
-GET/POST   /api/navieras/
-GET/POST   /api/usuarios/
-```
-
-**Documentación Completa**: http://localhost:8000/docs
 
 ---
 
 ## 🛠️ Tecnologías
 
 ### Backend
-- **FastAPI** 0.109.0 - Framework web
-- **SQLAlchemy** 2.0.25 - ORM
-- **Pydantic** 2.5.3 - Validación
-- **MySQL** 8.0+ - Base de datos
+- **FastAPI** - Framework web
+- **SQLAlchemy** - ORM
+- **python-jose** - JWT
+- **bcrypt** - Encriptación
 
 ### Frontend
-- **React** 18.2.0 - Biblioteca UI
-- **TypeScript** 5.3.3 - Tipado estático
-- **Vite** 5.0.11 - Build tool
-- **TailwindCSS** 3.4.1 - CSS Framework
-- **Zustand** 4.5.0 - Estado global
+- **React 18** - UI library
+- **TypeScript** - Tipado
+- **TailwindCSS** - Estilos
+- **Axios** - HTTP client
+- **Lucide React** - Iconos
 
 ---
 
-## 🐛 Solución de Problemas
+## 📚 API Endpoints
 
-### Backend no inicia
+### Autenticación
+```http
+POST   /api/auth/login           # Login
+GET    /api/auth/me              # Info sesión
+POST   /api/auth/logout          # Logout
+POST   /api/auth/change-password # Cambiar password
+```
+
+### Inspecciones (Autenticado)
+```http
+GET    /api/inspecciones         # Listar (filtrado por rol)
+GET    /api/inspecciones/{id}    # Detalle
+POST   /api/inspecciones         # Crear
+PUT    /api/inspecciones/{id}    # Actualizar
+DELETE /api/inspecciones/{id}    # Eliminar
+POST   /api/inspecciones/{id}/fotos  # Subir fotos
+```
+
+**Documentación interactiva**: http://localhost:8000/docs
+
+---
+
+## 🔒 Seguridad
+
+- ✅ JWT Tokens (HS256, 8h expiración)
+- ✅ Passwords bcrypt (12 rounds)
+- ✅ CORS configurado
+- ✅ Validación Pydantic
+- ✅ Auditoría de acciones
+- ✅ Protección SQL Injection
+- ✅ Verificación de usuario activo
+
+---
+
+## 🐛 Troubleshooting
+
+### "No se pudo validar las credenciales"
+Token expirado. Cierra sesión y vuelve a ingresar.
+
+### "CORS policy blocking"
+Verifica puertos: Backend 8000, Frontend 5173.
+
+### "Module not found: jose"
 ```powershell
-# Verificar MySQL en XAMPP
-# Activar entorno virtual
 cd backend
 .\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
-
-### Frontend no inicia
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-### Error de conexión a BD
-```powershell
-# Verificar que MySQL esté corriendo en XAMPP
-# Verificar credenciales en backend/.env
+pip install python-jose[cryptography]==3.3.0
 ```
 
 ---
 
-## 📚 Scripts Disponibles
+## 📝 Scripts
 
-```powershell
-.\install.ps1           # Instala todas las dependencias
-.\setup-database.ps1    # Configura la base de datos
-.\start-dev.ps1        # Inicia backend y frontend
-```
-
----
-
-## 📞 Soporte
-
-Para soporte técnico o preguntas:
-- **Documentación API**: http://localhost:8000/docs
-- **Tutorial completo**: Ver [TUTORIAL.md](TUTORIAL.md)
+| Script | Descripción |
+|--------|-------------|
+| `install.ps1` | Instalación completa |
+| `setup-database.ps1` | Setup BD |
+| `start-dev.ps1` | Inicia servicios |
 
 ---
 
-**🚀 ¡Listo para usar!** Sigue el [TUTORIAL.md](TUTORIAL.md) para una guía paso a paso detallada.
+**Desarrollado con ❤️ usando FastAPI + React**
+
+**Última actualización:** 14 de octubre de 2025

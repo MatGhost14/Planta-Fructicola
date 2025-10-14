@@ -50,12 +50,18 @@ def decode_token(token: str) -> Optional[TokenData]:
     """Decodificar token JWT"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        id_usuario: int = payload.get("sub")
+        id_usuario_str: str = payload.get("sub")
         correo: str = payload.get("correo")
         rol: str = payload.get("rol")
         nombre: str = payload.get("nombre")
         
-        if id_usuario is None or correo is None or rol is None:
+        if id_usuario_str is None or correo is None or rol is None:
+            return None
+        
+        # Convertir id_usuario de string a int
+        try:
+            id_usuario = int(id_usuario_str)
+        except (ValueError, TypeError):
             return None
             
         return TokenData(
@@ -65,6 +71,8 @@ def decode_token(token: str) -> Optional[TokenData]:
             nombre=nombre
         )
     except JWTError:
+        return None
+    except Exception:
         return None
 
 
@@ -79,26 +87,33 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    token = credentials.credentials
-    token_data = decode_token(token)
-    
-    if token_data is None:
+    try:
+        token = credentials.credentials
+        token_data = decode_token(token)
+        
+        if token_data is None:
+            raise credentials_exception
+        
+        usuario = db.query(Usuario).filter(Usuario.id_usuario == token_data.id_usuario).first()
+        
+        if usuario is None:
+            raise credentials_exception
+        
+        if usuario.estado != 'active':
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Usuario inactivo"
+            )
+        
+        # Actualizar último acceso
+        usuario.ultimo_acceso = datetime.now()
+        db.commit()
+        
+        return usuario
+    except HTTPException:
+        raise
+    except Exception:
         raise credentials_exception
-    
-    usuario = db.query(Usuario).filter(Usuario.id_usuario == token_data.id_usuario).first()
-    
-    if usuario is None:
-        raise credentials_exception
-    
-    if usuario.estado != 'active':
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Usuario inactivo"
-        )
-    
-    # Actualizar último acceso
-    usuario.ultimo_acceso = datetime.now()
-    db.commit()
     
     return usuario
 

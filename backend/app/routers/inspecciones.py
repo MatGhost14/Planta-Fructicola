@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from ..core import get_db
+from ..models import Usuario
 from ..schemas import (
     Inspeccion,
     InspeccionDetalle,
@@ -15,6 +16,7 @@ from ..schemas import (
     Message
 )
 from ..services import inspeccion_service
+from ..utils.auth import get_current_user
 
 router = APIRouter(prefix="/inspecciones", tags=["Inspecciones"])
 
@@ -30,10 +32,15 @@ def listar_inspecciones(
     fecha_hasta: Optional[str] = None,
     order_by: str = "inspeccionado_en",
     order_dir: str = "desc",
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
 ):
     """
     Listar inspecciones con filtros y paginación
+    
+    - **Inspector**: Solo ve sus propias inspecciones
+    - **Supervisor**: Ve todas las inspecciones de sus plantas asignadas
+    - **Admin**: Ve todas las inspecciones
     
     - **q**: Búsqueda por número de contenedor o código
     - **planta**: Filtrar por ID de planta
@@ -43,6 +50,19 @@ def listar_inspecciones(
     - **order_by**: Campo para ordenar (inspeccionado_en, numero_contenedor, estado)
     - **order_dir**: Dirección (asc/desc)
     """
+    
+    # Aplicar filtros según rol
+    id_inspector = None
+    if current_user.rol == 'inspector':
+        # Inspector solo ve sus propias inspecciones
+        id_inspector = current_user.id_usuario
+    elif current_user.rol == 'supervisor':
+        # Supervisor ve todas las inspecciones de sus plantas
+        # TODO: Implementar lógica de plantas asignadas al supervisor
+        # Por ahora, si especifica planta, solo ve esa planta
+        pass
+    # Admin ve todo sin restricciones
+    
     items, total, total_pages = inspeccion_service.listar_inspecciones(
         db=db,
         page=page,
@@ -53,7 +73,8 @@ def listar_inspecciones(
         fecha_desde=fecha_desde,
         fecha_hasta=fecha_hasta,
         order_by=order_by,
-        order_dir=order_dir
+        order_dir=order_dir,
+        id_inspector=id_inspector
     )
     
     return {
@@ -66,21 +87,39 @@ def listar_inspecciones(
 
 
 @router.get("/{id_inspeccion}", response_model=InspeccionDetalle)
-def obtener_inspeccion(id_inspeccion: int, db: Session = Depends(get_db)):
+def obtener_inspeccion(
+    id_inspeccion: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
     """Obtener detalle completo de una inspección"""
-    return inspeccion_service.obtener_inspeccion(db, id_inspeccion)
+    inspeccion = inspeccion_service.obtener_inspeccion(db, id_inspeccion)
+    
+    # Verificar permisos: Inspector solo ve sus propias inspecciones
+    if current_user.rol == 'inspector' and inspeccion.id_inspector != current_user.id_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para ver esta inspección"
+        )
+    
+    return inspeccion
 
 
 @router.post("", response_model=InspeccionCreated, status_code=status.HTTP_201_CREATED)
 def crear_inspeccion(
     inspeccion_data: InspeccionCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
 ):
     """
     Crear nueva inspección (sin fotos)
     
     Retorna el ID y código para luego subir fotos con POST /inspecciones/{id}/fotos
     """
+    # Si es inspector, forzar que el id_inspector sea el usuario actual
+    if current_user.rol == 'inspector':
+        inspeccion_data.id_inspector = current_user.id_usuario
+    
     inspeccion = inspeccion_service.crear_inspeccion(db, inspeccion_data)
     
     return {
@@ -94,15 +133,43 @@ def crear_inspeccion(
 def actualizar_inspeccion(
     id_inspeccion: int,
     inspeccion_data: InspeccionUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
 ):
     """Actualizar campos de una inspección existente"""
+    # Verificar permisos: Inspector solo actualiza sus propias inspecciones
+    inspeccion = inspeccion_service.obtener_inspeccion(db, id_inspeccion)
+    
+    if current_user.rol == 'inspector':
+        if inspeccion.id_inspector != current_user.id_usuario:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No tiene permisos para editar esta inspección"
+            )
+        # Inspector no puede cambiar el estado
+        if inspeccion_data.estado and inspeccion_data.estado != inspeccion.estado:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No tiene permisos para cambiar el estado"
+            )
+    
     return inspeccion_service.actualizar_inspeccion(db, id_inspeccion, inspeccion_data)
 
 
 @router.delete("/{id_inspeccion}", response_model=Message)
-def eliminar_inspeccion(id_inspeccion: int, db: Session = Depends(get_db)):
+def eliminar_inspeccion(
+    id_inspeccion: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
     """Eliminar inspección y todos sus archivos asociados"""
+    # Solo admin y supervisor pueden eliminar
+    if current_user.rol not in ['admin', 'supervisor']:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para eliminar inspecciones"
+        )
+    
     inspeccion_service.eliminar_inspeccion(db, id_inspeccion)
     return {"mensaje": f"Inspección {id_inspeccion} eliminada exitosamente"}
 
@@ -111,7 +178,8 @@ def eliminar_inspeccion(id_inspeccion: int, db: Session = Depends(get_db)):
 async def subir_fotos(
     id_inspeccion: int,
     archivos: List[UploadFile] = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
 ):
     """
     Subir múltiples fotos para una inspección
@@ -120,6 +188,14 @@ async def subir_fotos(
     - Formatos: JPG, JPEG, PNG
     - Se guardan en capturas/inspecciones/{id_inspeccion}/
     """
+    # Verificar permisos
+    inspeccion = inspeccion_service.obtener_inspeccion(db, id_inspeccion)
+    if current_user.rol == 'inspector' and inspeccion.id_inspector != current_user.id_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para subir fotos a esta inspección"
+        )
+    
     # Validar tipos de archivo
     valid_types = {"image/jpeg", "image/jpg", "image/png"}
     for archivo in archivos:
