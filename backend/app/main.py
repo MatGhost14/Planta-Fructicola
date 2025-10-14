@@ -13,7 +13,8 @@ from .routers import (
     usuarios_router,
     inspecciones_router,
     reportes_router,
-    preferencias_router
+    preferencias_router,
+    auth_router
 )
 from .schemas import HealthResponse
 
@@ -57,6 +58,7 @@ def health_check():
     }
 
 # Registrar routers con prefijo /api
+app.include_router(auth_router, prefix="/api")
 app.include_router(plantas_router, prefix="/api")
 app.include_router(navieras_router, prefix="/api")
 app.include_router(usuarios_router, prefix="/api")
