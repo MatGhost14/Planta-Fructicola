@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@500;600;700&display=swap');
+
+/* Estilos personalizados */
+@layer components {
+  .shadow-card {
+    @apply shadow-md hover:shadow-lg transition-shadow;
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, #1E88E5 0%, #26A69A 100%);
+  }
+  
+  .nav-item {
+    @apply flex w-full items-center px-6 py-3 text-left text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors;
+  }
+  
+  .nav-item.active {
+    @apply bg-blue-50 text-blue-600;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+  
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+  
+  .signature-pad {
+    @apply border-2 border-dashed border-gray-300 rounded-lg cursor-crosshair;
+  }
+}
+
+/* Animaciones */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.toast {
+  animation: slideIn 0.3s ease-out;
+}
+
+.offline-indicator {
+  animation: pulse 2s infinite;
+}
