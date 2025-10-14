@@ -11,6 +11,7 @@ ENV/
 *.egg-info/
 dist/
 build/
+*.log
 
 # Node.js
 node_modules/
@@ -18,6 +19,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.production
+!.env.example
 
 # IDEs
 .vscode/
@@ -28,6 +35,17 @@ yarn-error.log*
 
 # OS
 .DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Temporary files
+*.tmp
+*.temp
+*~
 Thumbs.db
 desktop.ini
 
