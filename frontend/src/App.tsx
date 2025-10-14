@@ -9,6 +9,9 @@ import InspeccionNueva from './pages/InspeccionNueva';
 import Inspecciones from './pages/Inspecciones';
 import Reportes from './pages/Reportes';
 import Admin from './pages/Admin';
+import Usuarios from './pages/Usuarios';
+import Plantas from './pages/Plantas';
+import Navieras from './pages/Navieras';
 
 function App() {
   return (
@@ -27,9 +30,16 @@ function App() {
               <Route path="inspecciones" element={<Inspecciones />} />
               <Route path="reportes" element={<Reportes />} />
               
-              {/* Ruta solo para admin */}
+              {/* Rutas para supervisor/admin */}
+              <Route element={<ProtectedRoute requireRole={['supervisor', 'admin']} />}>
+                <Route path="plantas" element={<Plantas />} />
+                <Route path="navieras" element={<Navieras />} />
+              </Route>
+              
+              {/* Rutas solo para admin */}
               <Route element={<ProtectedRoute requireRole="admin" />}>
                 <Route path="admin" element={<Admin />} />
+                <Route path="usuarios" element={<Usuarios />} />
               </Route>
             </Route>
           </Route>

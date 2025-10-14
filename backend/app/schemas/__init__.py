@@ -147,6 +147,12 @@ class InspeccionUpdate(BaseModel):
     estado: Optional[Literal['pending', 'approved', 'rejected']] = None
 
 
+class InspeccionEstadoUpdate(BaseModel):
+    """Esquema para cambiar estado de inspección"""
+    estado: Literal['approved', 'rejected']
+    comentario: Optional[str] = Field(None, max_length=500)
+
+
 class Inspeccion(InspeccionBase):
     """Esquema completo de inspección (respuesta)"""
     id_inspeccion: int

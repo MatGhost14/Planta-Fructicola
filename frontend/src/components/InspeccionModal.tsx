@@ -3,19 +3,63 @@
  * Muestra toda la información de la inspección incluyendo fotos y firma
  */
 import React, { useState } from 'react';
-import { X, Image as ImageIcon, FileText, MapPin, Ship, Thermometer, Calendar, User, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { X, Image as ImageIcon, FileText, MapPin, Ship, Thermometer, Calendar, User, CheckCircle, XCircle, Clock, ThumbsUp, ThumbsDown } from 'lucide-react';
 import type { InspeccionDetalle } from '../types';
+import { inspeccionesApi } from '../api/inspecciones';
+import { useAuth } from '../contexts/AuthContext';
 
 interface InspeccionModalProps {
   inspeccion: InspeccionDetalle | null;
   isOpen: boolean;
   onClose: () => void;
+  onUpdate?: () => void;
 }
 
-const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, onClose }) => {
+const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, onClose, onUpdate }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const [comentario, setComentario] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
   if (!isOpen || !inspeccion) return null;
+
+  const canChangeStatus = user && (user.rol === 'supervisor' || user.rol === 'admin') && inspeccion.estado === 'pending';
+
+  const handleAprobar = async () => {
+    setLoading(true);
+    try {
+      await inspeccionesApi.cambiarEstado(inspeccion.id_inspeccion, 'approved', comentario || undefined);
+      setShowApprovalModal(false);
+      setComentario('');
+      if (onUpdate) onUpdate();
+      onClose();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Error al aprobar la inspección');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRechazar = async () => {
+    if (!comentario.trim()) {
+      alert('Debe proporcionar un comentario al rechazar');
+      return;
+    }
+    setLoading(true);
+    try {
+      await inspeccionesApi.cambiarEstado(inspeccion.id_inspeccion, 'rejected', comentario);
+      setShowRejectionModal(false);
+      setComentario('');
+      if (onUpdate) onUpdate();
+      onClose();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Error al rechazar la inspección');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
@@ -226,7 +270,29 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-end gap-3">
+          <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-between items-center gap-3">
+            {/* Botones de aprobación/rechazo (solo para supervisor/admin) */}
+            {canChangeStatus && (
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowApprovalModal(true)}
+                  disabled={loading}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ThumbsUp className="w-4 h-4" />
+                  Aprobar
+                </button>
+                <button
+                  onClick={() => setShowRejectionModal(true)}
+                  disabled={loading}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ThumbsDown className="w-4 h-4" />
+                  Rechazar
+                </button>
+              </div>
+            )}
+            <div className="flex-1"></div>
             <button
               onClick={onClose}
               className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -256,6 +322,107 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
             onClick={(e) => e.stopPropagation()}
           />
         </div>
+      )}
+
+      {/* Modal de aprobación */}
+      {showApprovalModal && (
+        <>
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-[70]" onClick={() => setShowApprovalModal(false)} />
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Aprobar Inspección</h3>
+              </div>
+              <p className="text-gray-600 mb-4">
+                ¿Está seguro que desea aprobar la inspección <strong>{inspeccion.codigo}</strong>?
+              </p>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Comentario (opcional)
+                </label>
+                <textarea
+                  value={comentario}
+                  onChange={(e) => setComentario(e.target.value)}
+                  placeholder="Agregar un comentario sobre la aprobación..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowApprovalModal(false)}
+                  disabled={loading}
+                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleAprobar}
+                  disabled={loading}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Aprobando...' : 'Confirmar Aprobación'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Modal de rechazo */}
+      {showRejectionModal && (
+        <>
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-[70]" onClick={() => setShowRejectionModal(false)} />
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <XCircle className="w-6 h-6 text-red-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Rechazar Inspección</h3>
+              </div>
+              <p className="text-gray-600 mb-4">
+                ¿Está seguro que desea rechazar la inspección <strong>{inspeccion.codigo}</strong>?
+              </p>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Motivo del rechazo <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={comentario}
+                  onChange={(e) => setComentario(e.target.value)}
+                  placeholder="Explique el motivo del rechazo..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  rows={4}
+                  required
+                />
+                <p className="text-sm text-gray-500 mt-1">Este comentario será visible para el inspector</p>
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowRejectionModal(false);
+                    setComentario('');
+                  }}
+                  disabled={loading}
+                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleRechazar}
+                  disabled={loading || !comentario.trim()}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Rechazando...' : 'Confirmar Rechazo'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </>
   );

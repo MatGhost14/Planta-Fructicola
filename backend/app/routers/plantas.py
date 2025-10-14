@@ -4,21 +4,38 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from ..core import get_db
+from ..models import Usuario
 from ..schemas import Planta, PlantaCreate, PlantaUpdate, Message
 from ..repositories import planta_repository
+from ..utils.auth import get_current_user, require_supervisor
 
 router = APIRouter(prefix="/plantas", tags=["Plantas"])
 
 
 @router.get("", response_model=List[Planta])
-def listar_plantas(db: Session = Depends(get_db)):
-    """Obtener todas las plantas"""
+def listar_plantas(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """
+    Obtener todas las plantas
+    
+    **Accesible para todos los usuarios autenticados**
+    """
     return planta_repository.get_all(db)
 
 
 @router.post("", response_model=Planta, status_code=status.HTTP_201_CREATED)
-def crear_planta(planta_data: PlantaCreate, db: Session = Depends(get_db)):
-    """Crear nueva planta"""
+def crear_planta(
+    planta_data: PlantaCreate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(require_supervisor)
+):
+    """
+    Crear nueva planta
+    
+    **Requiere rol: Supervisor o Admin**
+    """
     # Verificar código único
     existing = planta_repository.get_by_codigo(db, planta_data.codigo)
     if existing:
@@ -34,9 +51,14 @@ def crear_planta(planta_data: PlantaCreate, db: Session = Depends(get_db)):
 def actualizar_planta(
     id_planta: int,
     planta_data: PlantaUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(require_supervisor)
 ):
-    """Actualizar planta existente"""
+    """
+    Actualizar planta existente
+    
+    **Requiere rol: Supervisor o Admin**
+    """
     planta = planta_repository.get_by_id(db, id_planta)
     if not planta:
         raise HTTPException(
@@ -57,8 +79,16 @@ def actualizar_planta(
 
 
 @router.delete("/{id_planta}", response_model=Message)
-def eliminar_planta(id_planta: int, db: Session = Depends(get_db)):
-    """Eliminar planta"""
+def eliminar_planta(
+    id_planta: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(require_supervisor)
+):
+    """
+    Eliminar planta
+    
+    **Requiere rol: Supervisor o Admin**
+    """
     planta = planta_repository.get_by_id(db, id_planta)
     if not planta:
         raise HTTPException(

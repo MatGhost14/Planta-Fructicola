@@ -4,21 +4,38 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from ..core import get_db
+from ..models import Usuario
 from ..schemas import Naviera, NavieraCreate, NavieraUpdate, Message
 from ..repositories import naviera_repository
+from ..utils.auth import get_current_user, require_supervisor
 
 router = APIRouter(prefix="/navieras", tags=["Navieras"])
 
 
 @router.get("", response_model=List[Naviera])
-def listar_navieras(db: Session = Depends(get_db)):
-    """Obtener todas las navieras"""
+def listar_navieras(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """
+    Obtener todas las navieras
+    
+    **Accesible para todos los usuarios autenticados**
+    """
     return naviera_repository.get_all(db)
 
 
 @router.post("", response_model=Naviera, status_code=status.HTTP_201_CREATED)
-def crear_naviera(naviera_data: NavieraCreate, db: Session = Depends(get_db)):
-    """Crear nueva naviera"""
+def crear_naviera(
+    naviera_data: NavieraCreate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(require_supervisor)
+):
+    """
+    Crear nueva naviera
+    
+    **Requiere rol: Supervisor o Admin**
+    """
     # Verificar código único
     existing = naviera_repository.get_by_codigo(db, naviera_data.codigo)
     if existing:
@@ -34,9 +51,14 @@ def crear_naviera(naviera_data: NavieraCreate, db: Session = Depends(get_db)):
 def actualizar_naviera(
     id_navieras: int,
     naviera_data: NavieraUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(require_supervisor)
 ):
-    """Actualizar naviera existente"""
+    """
+    Actualizar naviera existente
+    
+    **Requiere rol: Supervisor o Admin**
+    """
     naviera = naviera_repository.get_by_id(db, id_navieras)
     if not naviera:
         raise HTTPException(
@@ -57,8 +79,16 @@ def actualizar_naviera(
 
 
 @router.delete("/{id_navieras}", response_model=Message)
-def eliminar_naviera(id_navieras: int, db: Session = Depends(get_db)):
-    """Eliminar naviera"""
+def eliminar_naviera(
+    id_navieras: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(require_supervisor)
+):
+    """
+    Eliminar naviera
+    
+    **Requiere rol: Supervisor o Admin**
+    """
     naviera = naviera_repository.get_by_id(db, id_navieras)
     if not naviera:
         raise HTTPException(

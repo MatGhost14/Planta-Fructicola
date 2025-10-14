@@ -106,4 +106,19 @@ export const inspeccionesApi = {
     );
     return response.data;
   },
+
+  /**
+   * Cambiar estado de inspección (aprobar/rechazar)
+   */
+  cambiarEstado: async (
+    id: number,
+    estado: 'approved' | 'rejected',
+    comentario?: string
+  ): Promise<InspeccionDetalle> => {
+    const response = await axios.patch<InspeccionDetalle>(
+      `/inspecciones/${id}/estado`,
+      { estado, comentario }
+    );
+    return response.data;
+  },
 };

@@ -6,7 +6,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
-  requireRole?: 'inspector' | 'supervisor' | 'admin';
+  requireRole?: 'inspector' | 'supervisor' | 'admin' | Array<'inspector' | 'supervisor' | 'admin'>;
   children?: React.ReactNode;
 }
 
@@ -32,17 +32,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requireRole, children }
 
   // Si se requiere un rol específico, verificar
   if (requireRole && user) {
-    const roleHierarchy: Record<string, number> = {
-      inspector: 1,
-      supervisor: 2,
-      admin: 3
-    };
-
-    const userLevel = roleHierarchy[user.rol] || 0;
-    const requiredLevel = roleHierarchy[requireRole] || 0;
-
-    // Si el nivel del usuario es menor al requerido, denegar acceso
-    if (userLevel < requiredLevel) {
+    const allowedRoles = Array.isArray(requireRole) ? requireRole : [requireRole];
+    
+    // Verificar si el rol del usuario está en la lista de roles permitidos
+    if (!allowedRoles.includes(user.rol as any)) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
@@ -54,7 +47,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requireRole, children }
               No tienes permisos para acceder a esta sección.
             </p>
             <p className="mt-1 text-sm text-gray-500">
-              Se requiere rol: <span className="font-semibold">{requireRole}</span>
+              Se requiere rol: <span className="font-semibold">{allowedRoles.join(' o ')}</span>
             </p>
             <button
               onClick={() => window.history.back()}

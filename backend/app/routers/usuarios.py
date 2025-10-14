@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from ..core import get_db
+from ..models import Usuario as UsuarioModel
 from ..schemas import Usuario, UsuarioCreate, UsuarioUpdate, UsuarioEstado, Message
 from ..repositories import usuario_repository
+from ..utils.auth import get_current_user, require_admin
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 
@@ -13,15 +15,28 @@ router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 @router.get("", response_model=List[Usuario])
 def listar_usuarios(
     include_inactive: bool = False,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UsuarioModel = Depends(require_admin)
 ):
-    """Obtener todos los usuarios"""
+    """
+    Obtener todos los usuarios
+    
+    **Requiere rol: Admin**
+    """
     return usuario_repository.get_all(db, include_inactive=include_inactive)
 
 
 @router.post("", response_model=Usuario, status_code=status.HTTP_201_CREATED)
-def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
-    """Crear nuevo usuario"""
+def crear_usuario(
+    usuario_data: UsuarioCreate,
+    db: Session = Depends(get_db),
+    current_user: UsuarioModel = Depends(require_admin)
+):
+    """
+    Crear nuevo usuario
+    
+    **Requiere rol: Admin**
+    """
     # Verificar correo único
     existing = usuario_repository.get_by_correo(db, usuario_data.correo)
     if existing:
@@ -37,9 +52,14 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
 def actualizar_usuario(
     id_usuario: int,
     usuario_data: UsuarioUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UsuarioModel = Depends(require_admin)
 ):
-    """Actualizar usuario existente"""
+    """
+    Actualizar usuario existente
+    
+    **Requiere rol: Admin**
+    """
     usuario = usuario_repository.get_by_id(db, id_usuario)
     if not usuario:
         raise HTTPException(
@@ -63,9 +83,14 @@ def actualizar_usuario(
 def cambiar_estado_usuario(
     id_usuario: int,
     estado_data: UsuarioEstado,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UsuarioModel = Depends(require_admin)
 ):
-    """Cambiar estado de usuario (active/inactive)"""
+    """
+    Cambiar estado de usuario (active/inactive)
+    
+    **Requiere rol: Admin**
+    """
     usuario = usuario_repository.get_by_id(db, id_usuario)
     if not usuario:
         raise HTTPException(
@@ -77,8 +102,16 @@ def cambiar_estado_usuario(
 
 
 @router.delete("/{id_usuario}", response_model=Message)
-def eliminar_usuario(id_usuario: int, db: Session = Depends(get_db)):
-    """Eliminar usuario"""
+def eliminar_usuario(
+    id_usuario: int,
+    db: Session = Depends(get_db),
+    current_user: UsuarioModel = Depends(require_admin)
+):
+    """
+    Eliminar usuario
+    
+    **Requiere rol: Admin**
+    """
     usuario = usuario_repository.get_by_id(db, id_usuario)
     if not usuario:
         raise HTTPException(

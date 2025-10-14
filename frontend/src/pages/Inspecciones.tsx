@@ -206,6 +206,7 @@ const Inspecciones: React.FC = () => {
           setModalOpen(false);
           setSelectedInspeccion(null);
         }}
+        onUpdate={cargarInspecciones}
       />
     </div>
   );

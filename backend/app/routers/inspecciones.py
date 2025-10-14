@@ -10,6 +10,7 @@ from ..schemas import (
     InspeccionDetalle,
     InspeccionCreate,
     InspeccionUpdate,
+    InspeccionEstadoUpdate,
     InspeccionCreated,
     FotoInspeccion,
     PaginatedResponse,
@@ -154,6 +155,49 @@ def actualizar_inspeccion(
             )
     
     return inspeccion_service.actualizar_inspeccion(db, id_inspeccion, inspeccion_data)
+
+
+@router.patch("/{id_inspeccion}/estado", response_model=InspeccionDetalle)
+def cambiar_estado_inspeccion(
+    id_inspeccion: int,
+    estado_data: InspeccionEstadoUpdate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """
+    Cambiar estado de una inspección (aprobar/rechazar)
+    
+    Solo supervisor y admin pueden cambiar el estado.
+    
+    - **estado**: 'approved' o 'rejected'
+    - **comentario**: Comentario opcional (requerido para rechazar)
+    """
+    # Solo supervisor y admin pueden cambiar estado
+    if current_user.rol not in ['supervisor', 'admin']:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para cambiar el estado de inspecciones"
+        )
+    
+    # Verificar que existe la inspección
+    inspeccion = inspeccion_service.obtener_inspeccion(db, id_inspeccion)
+    
+    # Validar que se proporcione comentario al rechazar
+    if estado_data.estado == 'rejected' and not estado_data.comentario:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Debe proporcionar un comentario al rechazar una inspección"
+        )
+    
+    # Actualizar estado
+    update_data = InspeccionUpdate(estado=estado_data.estado)
+    if estado_data.comentario:
+        # Agregar comentario a observaciones
+        observaciones_actuales = inspeccion.observaciones or ""
+        comentario_estado = f"\n\n--- {estado_data.estado.upper()} por {current_user.nombre} ---\n{estado_data.comentario}"
+        update_data.observaciones = observaciones_actuales + comentario_estado
+    
+    return inspeccion_service.actualizar_inspeccion(db, id_inspeccion, update_data)
 
 
 @router.delete("/{id_inspeccion}", response_model=Message)
