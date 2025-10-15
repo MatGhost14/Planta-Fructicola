@@ -5,7 +5,15 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 
-const COLORS = ['#10b981', '#ef4444', '#f59e0b', '#3b82f6'];
+// Colores profesionales y modernos según estado
+const COLORS = {
+  approved: '#10b981',  // Verde - Aprobadas
+  rejected: '#ef4444',  // Rojo - Rechazadas
+  pending: '#f59e0b',   // Amarillo - Pendientes
+  primary: '#2563eb'    // Azul - Principal
+};
+
+const CHART_COLORS = [COLORS.approved, COLORS.rejected, COLORS.pending, COLORS.primary];
 
 const Dashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
@@ -56,12 +64,14 @@ const Dashboard: React.FC = () => {
 
   const { estadisticas_generales, por_estado, por_fecha, por_planta, por_inspector } = dashboardData;
 
-  // Datos para gráfico de pastel (distribución por estado)
+  // Datos para gráfico de pastel (distribución por estado) con colores específicos
   const pieData = por_estado.map(item => ({
     name: item.estado === 'approved' ? 'Aprobadas' : 
           item.estado === 'rejected' ? 'Rechazadas' : 'Pendientes',
     value: item.cantidad,
-    porcentaje: item.porcentaje
+    porcentaje: item.porcentaje,
+    color: item.estado === 'approved' ? COLORS.approved : 
+           item.estado === 'rejected' ? COLORS.rejected : COLORS.pending
   }));
 
   return (
@@ -173,49 +183,81 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Gráfico de Pastel - Distribución por Estado */}
         <div className="bg-white rounded-lg shadow-card p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Distribución por Estado</h2>
-          <ResponsiveContainer width="100%" height={300}>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">📊 Distribución por Estado</h2>
+          <ResponsiveContainer width="100%" height={320}>
             <PieChart>
               <Pie
                 data={pieData}
                 cx="50%"
                 cy="50%"
-                labelLine={false}
+                labelLine={true}
                 label={({ name, porcentaje }: any) => `${name}: ${porcentaje.toFixed(1)}%`}
-                outerRadius={100}
+                outerRadius={110}
+                innerRadius={60}
                 fill="#8884d8"
                 dataKey="value"
+                paddingAngle={5}
               >
-                {pieData.map((_entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                {pieData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.color}
+                    stroke="#fff"
+                    strokeWidth={2}
+                  />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: '#fff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '10px'
+                }}
+              />
+              <Legend 
+                verticalAlign="bottom" 
+                height={36}
+                iconType="circle"
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
 
         {/* Gráfico de Línea - Tendencia en el Tiempo */}
         <div className="bg-white rounded-lg shadow-card p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Tendencia Temporal</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={por_fecha}>
-              <CartesianGrid strokeDasharray="3 3" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">📈 Tendencia Temporal</h2>
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart data={por_fecha} margin={{ top: 5, right: 30, left: 20, bottom: 50 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis 
                 dataKey="fecha" 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 11, fill: '#64748b' }}
                 angle={-45}
                 textAnchor="end"
                 height={80}
+                stroke="#cbd5e1"
               />
-              <YAxis />
-              <Tooltip />
+              <YAxis 
+                tick={{ fontSize: 11, fill: '#64748b' }}
+                stroke="#cbd5e1"
+              />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: '#fff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '10px'
+                }}
+              />
               <Legend />
               <Line 
                 type="monotone" 
                 dataKey="cantidad" 
-                stroke="#3b82f6" 
-                strokeWidth={2}
+                stroke={COLORS.primary}
+                strokeWidth={3}
+                dot={{ fill: COLORS.primary, strokeWidth: 2, r: 5 }}
+                activeDot={{ r: 7 }}
                 name="Inspecciones"
               />
             </LineChart>
@@ -225,21 +267,39 @@ const Dashboard: React.FC = () => {
 
       {/* Gráfico de Barras - Top 10 Plantas */}
       <div className="bg-white rounded-lg shadow-card p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Top 10 Plantas por Volumen</h2>
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={por_planta}>
-            <CartesianGrid strokeDasharray="3 3" />
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">🏭 Top 10 Plantas por Volumen</h2>
+        <ResponsiveContainer width="100%" height={380}>
+          <BarChart data={por_planta} margin={{ top: 20, right: 30, left: 20, bottom: 120 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis 
               dataKey="planta" 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 11, fill: '#64748b' }}
               angle={-45}
               textAnchor="end"
               height={120}
+              stroke="#cbd5e1"
             />
-            <YAxis />
-            <Tooltip />
+            <YAxis 
+              tick={{ fontSize: 11, fill: '#64748b' }}
+              stroke="#cbd5e1"
+            />
+            <Tooltip 
+              contentStyle={{
+                backgroundColor: '#fff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '10px'
+              }}
+              cursor={{ fill: 'rgba(37, 99, 235, 0.1)' }}
+            />
             <Legend />
-            <Bar dataKey="cantidad" fill="#10b981" name="Inspecciones" />
+            <Bar 
+              dataKey="cantidad" 
+              fill={COLORS.primary}
+              name="Inspecciones"
+              radius={[8, 8, 0, 0]}
+              maxBarSize={60}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
