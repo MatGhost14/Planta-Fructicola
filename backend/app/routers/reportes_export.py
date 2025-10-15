@@ -310,14 +310,12 @@ async def exportar_pdf(
     Genera un reporte en PDF con las inspecciones filtradas
     """
     try:
-        # Construir query
-        query = db.query(Inspeccion).join(Planta).join(Usuario).join(Naviera)
+        # Construir query base (sin JOINs, usaremos las relaciones de SQLAlchemy)
+        query = db.query(Inspeccion)
         
         # Filtrar por rol
         if current_user.rol == 'inspector':
             query = query.filter(Inspeccion.id_inspector == current_user.id_usuario)
-        elif current_user.rol == 'supervisor':
-            query = query.filter(Planta.id_planta == current_user.id_planta)
         
         # Filtros adicionales
         if fecha_desde:
@@ -390,14 +388,12 @@ async def exportar_excel(
     Genera un reporte en Excel con las inspecciones filtradas
     """
     try:
-        # Construir query (mismo que PDF)
-        query = db.query(Inspeccion).join(Planta).join(Usuario).join(Naviera)
+        # Construir query base (sin JOINs, usaremos las relaciones de SQLAlchemy)
+        query = db.query(Inspeccion)
         
         # Filtrar por rol
         if current_user.rol == 'inspector':
             query = query.filter(Inspeccion.id_inspector == current_user.id_usuario)
-        elif current_user.rol == 'supervisor':
-            query = query.filter(Planta.id_planta == current_user.id_planta)
         
         # Filtros adicionales
         if fecha_desde:
