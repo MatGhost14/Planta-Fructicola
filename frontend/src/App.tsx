@@ -19,13 +19,26 @@ import Configuracion from './pages/Configuracion';
 function AppContent() {
   const { theme } = useStore();
 
-  // Aplicar tema al cargar
+  // Aplicar tema al cargar y cuando cambie
   useEffect(() => {
+    const html = document.documentElement;
+    
+    // Remover ambas clases primero para asegurar estado limpio
+    html.classList.remove('light', 'dark');
+    
+    // Aplicar la clase correcta
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+      html.classList.add('dark');
+      html.setAttribute('data-theme', 'dark');
+      console.log('🌙 Aplicando tema oscuro desde App');
     } else {
-      document.documentElement.classList.remove('dark');
+      html.classList.add('light');
+      html.setAttribute('data-theme', 'light');
+      console.log('☀️ Aplicando tema claro desde App');
     }
+    
+    // Forzar repaint
+    void html.offsetHeight;
   }, [theme]);
 
   return (

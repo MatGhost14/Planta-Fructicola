@@ -7,7 +7,9 @@ const Configuracion: React.FC = () => {
   const { showSuccess } = useToast();
 
   const handleThemeChange = (newTheme: 'light' | 'dark') => {
+    console.log('Cambiando tema a:', newTheme);
     setTheme(newTheme);
+    console.log('Clase dark en HTML:', document.documentElement.classList.contains('dark'));
     showSuccess(`Tema ${newTheme === 'dark' ? 'oscuro' : 'claro'} activado`);
   };
 
@@ -120,7 +122,7 @@ const Configuracion: React.FC = () => {
                 </div>
 
                 {/* Miniatura */}
-                <div className="bg-white border border-gray-200 rounded-lg p-2 space-y-1.5 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 space-y-1.5 shadow-sm">
                   <div className="h-2 bg-blue-500 rounded w-1/3"></div>
                   <div className="h-2 bg-gray-200 rounded w-full"></div>
                   <div className="h-2 bg-gray-200 rounded w-2/3"></div>

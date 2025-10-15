@@ -104,7 +104,7 @@ const Reportes: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Cargando...</div>
+        <div className="text-gray-500 dark:text-gray-400">Cargando...</div>
       </div>
     );
   }
@@ -145,7 +145,7 @@ const Reportes: React.FC = () => {
         <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">🔍 Filtros</h2>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Desde
             </label>
             <input
@@ -156,7 +156,7 @@ const Reportes: React.FC = () => {
             />
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Hasta
             </label>
             <input
@@ -176,7 +176,7 @@ const Reportes: React.FC = () => {
                 setFechaHasta('');
                 setTimeout(cargarDatos, 100);
               }} 
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+              className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 rounded-lg hover:bg-gray-300"
             >
               Limpiar
             </button>
@@ -226,10 +226,10 @@ const Reportes: React.FC = () => {
             return (
               <div key={item.estado}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {textoEstado(item.estado)}
                   </span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
                     {item.total} ({porcentaje}%)
                   </span>
                 </div>

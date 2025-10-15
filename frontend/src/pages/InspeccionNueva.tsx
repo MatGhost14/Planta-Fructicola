@@ -139,12 +139,12 @@ const InspeccionNueva: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
         {/* Datos del Contenedor */}
-        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-5 sm:p-6">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">📦 Datos del Contenedor</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Número de Contenedor *
               </label>
               <input
@@ -159,7 +159,7 @@ const InspeccionNueva: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Planta *
               </label>
               <select
@@ -179,7 +179,7 @@ const InspeccionNueva: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Naviera *
               </label>
               <select
@@ -199,7 +199,7 @@ const InspeccionNueva: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Temperatura (°C)
               </label>
               <input
@@ -215,7 +215,7 @@ const InspeccionNueva: React.FC = () => {
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Observaciones
             </label>
             <textarea
@@ -230,7 +230,7 @@ const InspeccionNueva: React.FC = () => {
         </div>
 
         {/* Fotos */}
-        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">📸 Fotos *</h2>
             <button
@@ -285,7 +285,7 @@ const InspeccionNueva: React.FC = () => {
         </div>
 
         {/* Firma */}
-        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">✍️ Firma del Inspector *</h2>
             {firma && (
@@ -302,7 +302,7 @@ const InspeccionNueva: React.FC = () => {
           {!firma || mostrarFirma ? (
             <FirmaCanvas onSave={handleGuardarFirma} />
           ) : (
-            <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+            <div className="border-2 border-gray-200 dark:border-gray-700 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
               <img src={firma} alt="Firma" className="max-w-full h-auto" />
             </div>
           )}

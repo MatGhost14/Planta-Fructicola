@@ -90,7 +90,7 @@ const Navieras: React.FC = () => {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gestión de Navieras</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Gestión de Navieras</h1>
             <p className="text-sm sm:text-base text-gray-600 mt-2">Administrar compañías navieras</p>
           </div>
           <button
@@ -117,7 +117,7 @@ const Navieras: React.FC = () => {
           {navieras.map((naviera) => (
             <div
               key={naviera.id_navieras}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow p-6"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -125,7 +125,7 @@ const Navieras: React.FC = () => {
                     <Ship className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">{naviera.nombre}</h3>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{naviera.nombre}</h3>
                     <p className="text-sm text-gray-500">{naviera.codigo}</p>
                   </div>
                 </div>
@@ -168,14 +168,14 @@ const Navieras: React.FC = () => {
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setShowModal(false)} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 {editingNaviera ? 'Editar Naviera' : 'Nueva Naviera'}
               </h3>
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Código *
                     </label>
                     <input
@@ -189,7 +189,7 @@ const Navieras: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Nombre *
                     </label>
                     <input
@@ -210,7 +210,7 @@ const Navieras: React.FC = () => {
                       setShowModal(false);
                       resetForm();
                     }}
-                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors"
                   >
                     Cancelar
                   </button>

@@ -149,7 +149,7 @@ const Inspecciones: React.FC = () => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
@@ -165,10 +165,10 @@ const Inspecciones: React.FC = () => {
               ) : (
                 inspecciones.map((inspeccion) => (
                   <tr key={inspeccion.id_inspeccion} className="hover:bg-gray-50 dark:bg-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                       {inspeccion.codigo}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                       {inspeccion.numero_contenedor}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

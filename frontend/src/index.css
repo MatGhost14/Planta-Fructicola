@@ -5,6 +5,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* FORZAR tema base */
+@layer base {
+  html, body, #root {
+    @apply transition-colors duration-200;
+  }
+  
+  html.dark {
+    @apply bg-gray-900;
+    color-scheme: dark;
+  }
+  
+  html.light, html:not(.dark) {
+    @apply bg-gray-100;
+    color-scheme: light;
+  }
+}
+
 /* Estilos personalizados */
 @layer components {
   .shadow-card {

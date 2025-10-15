@@ -191,7 +191,7 @@ const Login: React.FC = () => {
           </form>
 
           {/* Footer del formulario */}
-          <div className="px-8 py-4 bg-gray-50 border-t border-gray-200">
+          <div className="px-8 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
             <p className="text-xs text-center text-gray-600">
               Sistema de Inspección de Contenedores Frutícolas
             </p>

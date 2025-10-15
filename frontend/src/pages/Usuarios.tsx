@@ -139,7 +139,7 @@ const Usuarios: React.FC = () => {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Gestión de Usuarios</h1>
             <p className="text-sm sm:text-base text-gray-600 mt-2">Administrar cuentas de acceso al sistema</p>
           </div>
           <button
@@ -162,7 +162,7 @@ const Usuarios: React.FC = () => {
           <p className="text-gray-600 mt-4">Cargando usuarios...</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
@@ -183,16 +183,16 @@ const Usuarios: React.FC = () => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {usuarios.map((usuario) => (
                 <tr key={usuario.id_usuario} className="hover:bg-gray-50 dark:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <UserIcon className="w-5 h-5 text-gray-600" />
+                        <UserIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{usuario.nombre}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{usuario.nombre}</div>
                         <div className="text-sm text-gray-500">{usuario.correo}</div>
                       </div>
                     </div>
@@ -248,14 +248,14 @@ const Usuarios: React.FC = () => {
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setShowModal(false)} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
               </h3>
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Nombre completo *
                     </label>
                     <input
@@ -267,7 +267,7 @@ const Usuarios: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Correo electrónico *
                     </label>
                     <input
@@ -279,7 +279,7 @@ const Usuarios: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Rol *
                     </label>
                     <select
@@ -294,7 +294,7 @@ const Usuarios: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Contraseña {editingUser ? '(dejar vacío para no cambiar)' : '*'}
                     </label>
                     <input
@@ -316,7 +316,7 @@ const Usuarios: React.FC = () => {
                       setShowModal(false);
                       resetForm();
                     }}
-                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors"
                   >
                     Cancelar
                   </button>
