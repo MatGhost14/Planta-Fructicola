@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.post("/login", response_model=LoginResponse)
-def login(credentials: LoginRequest, request: Request, db: Session = Depends(get_db)):
+async def login(request: Request, credentials: LoginRequest, db: Session = Depends(get_db)):
     """Login de usuario"""
     client_ip = request.client.host if request.client else "unknown"
     
