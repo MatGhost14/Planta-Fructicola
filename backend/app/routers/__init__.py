@@ -6,6 +6,7 @@ from .reportes import router as reportes_router
 from .preferencias import router as preferencias_router
 from .auth import router as auth_router
 from .estadisticas import router as estadisticas_router
+from .reportes_export import router as reportes_export_router
 
 __all__ = [
     "plantas_router",
@@ -15,5 +16,6 @@ __all__ = [
     "reportes_router",
     "preferencias_router",
     "auth_router",
-    "estadisticas_router"
+    "estadisticas_router",
+    "reportes_export_router"
 ]
