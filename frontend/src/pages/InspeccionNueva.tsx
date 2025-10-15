@@ -128,7 +128,7 @@ const InspeccionNueva: React.FC = () => {
   return (
     <div className="py-2">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Nueva Inspección</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">Nueva Inspección</h1>
         <button
           onClick={() => navigate('/inspecciones')}
           className="btn-secondary"
@@ -232,7 +232,7 @@ const InspeccionNueva: React.FC = () => {
         {/* Fotos */}
         <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">📸 Fotos *</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">📸 Fotos *</h2>
             <button
               type="button"
               onClick={() => setMostrarCamara(!mostrarCamara)}
@@ -278,7 +278,7 @@ const InspeccionNueva: React.FC = () => {
           </div>
 
           {fotos.length === 0 && !mostrarCamara && (
-            <p className="text-gray-500 text-center py-8">
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
               No hay fotos capturadas. Haz clic en "Capturar Foto" para agregar.
             </p>
           )}
@@ -287,7 +287,7 @@ const InspeccionNueva: React.FC = () => {
         {/* Firma */}
         <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">✍️ Firma del Inspector *</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">✍️ Firma del Inspector *</h2>
             {firma && (
               <button
                 type="button"

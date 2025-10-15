@@ -164,7 +164,7 @@ const Usuarios: React.FC = () => {
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Usuario
@@ -185,7 +185,7 @@ const Usuarios: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {usuarios.map((usuario) => (
-                <tr key={usuario.id_usuario} className="hover:bg-gray-50">
+                <tr key={usuario.id_usuario} className="hover:bg-gray-50 dark:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">

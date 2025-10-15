@@ -86,7 +86,7 @@ const Admin: React.FC = () => {
       </div>
 
       {/* Contenido */}
-      <div className="bg-white rounded-lg shadow-card">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card">
         {loading ? (
           <div className="p-8 text-center text-gray-500">Cargando...</div>
         ) : (
