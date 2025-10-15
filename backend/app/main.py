@@ -20,7 +20,8 @@ from .routers import (
     inspecciones_router,
     reportes_router,
     preferencias_router,
-    auth_router
+    auth_router,
+    estadisticas_router
 )
 from .schemas import HealthResponse
 
@@ -86,6 +87,9 @@ app.include_router(usuarios_router, prefix="/api")
 app.include_router(inspecciones_router, prefix="/api")
 app.include_router(reportes_router, prefix="/api")
 app.include_router(preferencias_router, prefix="/api")
+app.include_router(estadisticas_router, prefix="/api")
+
+logger.info("✅ Todos los routers registrados")
 
 
 # Root endpoint

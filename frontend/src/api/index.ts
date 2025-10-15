@@ -8,3 +8,5 @@ export { usuariosApi } from './usuarios';
 export { inspeccionesApi } from './inspecciones';
 export { reportesApi } from './reportes';
 export { preferenciasApi } from './preferencias';
+export { estadisticasApi } from './estadisticas';
+export type { DashboardData } from './estadisticas';
