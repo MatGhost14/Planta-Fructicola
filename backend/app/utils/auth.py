@@ -7,14 +7,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from ..core.database import get_db
+from ..core.settings import settings
 from ..models import Usuario
 from ..schemas.auth import TokenData
 
-
-# Configuración
-SECRET_KEY = "tu-clave-secreta-super-segura-cambiar-en-produccion"  # TODO: Mover a variables de entorno
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 480  # 8 horas
 
 # Contexto de encriptación
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -39,17 +35,17 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
 
 def decode_token(token: str) -> Optional[TokenData]:
     """Decodificar token JWT"""
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         id_usuario_str: str = payload.get("sub")
         correo: str = payload.get("correo")
         rol: str = payload.get("rol")

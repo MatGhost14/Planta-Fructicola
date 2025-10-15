@@ -9,7 +9,7 @@ from ..repositories import inspeccion_repository, foto_repository
 from ..schemas import InspeccionCreate, InspeccionUpdate
 from ..models import Inspeccion, FotoInspeccion
 from ..utils import save_upload_file, delete_file_safe, get_mime_type
-from ..core.config import settings
+from ..core.settings import settings
 
 
 class InspeccionService:

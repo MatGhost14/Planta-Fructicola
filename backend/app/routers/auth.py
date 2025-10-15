@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from ..core.database import get_db
+from ..core.settings import settings
 from ..models import Usuario, BitacoraAuditoria
 from ..schemas.auth import LoginRequest, LoginResponse, TokenData, SessionInfo, PasswordChange
 from ..utils.auth import (
@@ -10,8 +11,7 @@ from ..utils.auth import (
     get_password_hash, 
     create_access_token,
     get_current_active_user,
-    get_user_permissions,
-    ACCESS_TOKEN_EXPIRE_MINUTES
+    get_user_permissions
 )
 
 
@@ -45,7 +45,7 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
         )
     
     # Crear token
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={
             "sub": str(usuario.id_usuario),  # Convertir a string
@@ -73,7 +73,7 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
             rol=usuario.rol,
             nombre=usuario.nombre
         ),
-        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
 
 
@@ -138,7 +138,7 @@ async def change_password(
 @router.post("/refresh")
 async def refresh_token(current_user: Usuario = Depends(get_current_active_user)):
     """Renovar token de acceso"""
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={
             "sub": current_user.id_usuario,
@@ -157,5 +157,5 @@ async def refresh_token(current_user: Usuario = Depends(get_current_active_user)
             rol=current_user.rol,
             nombre=current_user.nombre
         ),
-        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
