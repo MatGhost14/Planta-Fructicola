@@ -20,6 +20,25 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
     };
   }, []);
 
+  // Efecto para asegurar que el video se reanude cuando fotoCapturada se limpia
+  useEffect(() => {
+    if (fotoCapturada === null && videoRef.current && stream) {
+      // Pequeño delay para asegurar que el DOM se actualice
+      const timer = setTimeout(() => {
+        if (videoRef.current && !videoRef.current.paused) {
+          return; // Ya está reproduciéndose
+        }
+        if (videoRef.current) {
+          videoRef.current.play().catch(err => {
+            console.warn('Video play() llamado en useEffect:', err);
+          });
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [fotoCapturada, stream]);
+
   const iniciarCamara = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -78,10 +97,16 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
     setFotoCapturada(null);
     setCapturing(false);
     
-    // Reanudar video
-    if (videoRef.current) {
-      videoRef.current.play();
-    }
+    // Reanudar video inmediatamente con verificación
+    requestAnimationFrame(() => {
+      if (videoRef.current) {
+        videoRef.current.play().catch(err => {
+          console.error('Error al reanudar video:', err);
+          // Intentar reiniciar la cámara si falla
+          iniciarCamara();
+        });
+      }
+    });
   };
 
   const guardarFoto = () => {
@@ -97,12 +122,21 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
     // Guardar foto actual y preparar para siguiente
     if (fotoCapturada) {
       onCapture(fotoCapturada);
-      setFotoCapturada(null);
       
-      // Reanudar video para nueva captura
-      if (videoRef.current) {
-        videoRef.current.play();
-      }
+      // Resetear estado PRIMERO
+      setFotoCapturada(null);
+      setCapturing(false);
+      
+      // Luego reanudar video con animationFrame para mejor sincronización
+      requestAnimationFrame(() => {
+        if (videoRef.current) {
+          videoRef.current.play().catch(err => {
+            console.error('Error al reanudar video:', err);
+            // Intentar reiniciar la cámara si falla
+            iniciarCamara();
+          });
+        }
+      });
     }
   };
 
@@ -162,6 +196,7 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
                       ref={videoRef}
                       autoPlay
                       playsInline
+                      muted
                       className="w-full h-full"
                       style={{ objectFit: 'contain' }}
                     />
