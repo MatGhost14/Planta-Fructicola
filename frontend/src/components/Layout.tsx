@@ -42,7 +42,7 @@ const Layout: React.FC = () => {
     { path: '/plantas', label: 'Plantas', icon: Building, roles: ['supervisor', 'admin'] },
     { path: '/navieras', label: 'Navieras', icon: Ship, roles: ['supervisor', 'admin'] },
     { path: '/usuarios', label: 'Usuarios', icon: Users, roles: ['admin'] },
-    { path: '/admin', label: 'Configuración', icon: Settings, roles: ['admin'] },
+    { path: '/configuracion', label: 'Configuración', icon: Settings, roles: ['inspector', 'supervisor', 'admin'] },
   ];
 
   const visibleMenuItems = menuItems.filter(item => 
@@ -52,23 +52,23 @@ const Layout: React.FC = () => {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg z-30 px-4 py-3">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-700 dark:to-blue-900 text-white shadow-lg z-30 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 hover:bg-blue-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-blue-700 dark:hover:bg-blue-800 rounded-lg transition-colors"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <div>
               <h1 className="text-lg font-bold">Inspección</h1>
-              <p className="text-xs text-blue-200">Contenedores</p>
+              <p className="text-xs text-blue-200 dark:text-blue-300">Contenedores</p>
             </div>
           </div>
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center">
             <span className="text-white text-sm font-semibold">
               {user?.nombre?.charAt(0) || 'U'}
             </span>
@@ -79,14 +79,14 @@ const Layout: React.FC = () => {
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/50 z-20"
+          className="lg:hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-20"
           onClick={closeMobileMenu}
         />
       )}
 
       {/* Sidebar - Desktop y Mobile */}
       <div className={`
-        fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-blue-600 to-blue-800 text-white shadow-lg z-40
+        fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-blue-600 to-blue-800 dark:from-blue-700 dark:to-blue-900 text-white shadow-lg z-40
         transform transition-transform duration-300 ease-in-out
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
@@ -94,7 +94,7 @@ const Layout: React.FC = () => {
         {/* Desktop Header (oculto en mobile) */}
         <div className="hidden lg:block p-6">
           <h1 className="text-2xl font-bold mb-2">Inspección</h1>
-          <p className="text-blue-200 text-sm">Contenedores Frutícolas</p>
+          <p className="text-blue-200 dark:text-blue-300 text-sm">Contenedores Frutícolas</p>
         </div>
 
         {/* Mobile Header spacing */}
@@ -108,7 +108,7 @@ const Layout: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 onClick={closeMobileMenu}
-                className={`flex items-center px-6 py-3 hover:bg-blue-700 transition-colors ${isActive(item.path)}`}
+                className={`flex items-center px-6 py-3 hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors ${isActive(item.path)}`}
               >
                 <Icon className="w-5 h-5 mr-3" />
                 <span className="text-sm sm:text-base">{item.label}</span>
@@ -117,22 +117,22 @@ const Layout: React.FC = () => {
           })}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 bg-blue-900 bg-opacity-50">
+        <div className="absolute bottom-0 left-0 right-0 bg-blue-900 dark:bg-blue-950 bg-opacity-50">
           <div className="p-4 sm:p-6">
             <div className="flex items-center mb-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-semibold">
                   {user?.nombre?.charAt(0) || 'U'}
                 </span>
               </div>
               <div className="ml-3 flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{user?.nombre || 'Usuario'}</p>
-                <p className="text-xs text-blue-200 capitalize">{user?.rol || 'inspector'}</p>
+                <p className="text-xs text-blue-200 dark:text-blue-300 capitalize">{user?.rol || 'inspector'}</p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm font-medium"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 rounded-lg transition-colors text-sm font-medium"
             >
               <LogOut className="w-4 h-4" />
               Cerrar Sesión
