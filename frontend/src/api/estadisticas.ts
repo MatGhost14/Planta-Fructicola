@@ -2,34 +2,36 @@ import axios from './axios';
 
 interface EstadisticasGeneral {
   total_inspecciones: number;
-  total_aprobadas: number;
-  total_rechazadas: number;
-  total_pendientes: number;
-  promedio_tiempo_respuesta?: number;
+  pendientes: number;
+  aprobadas: number;
+  rechazadas: number;
+  total_usuarios: number;
+  total_plantas: number;
+  total_navieras: number;
 }
 
 interface InspeccionPorEstado {
   estado: string;
-  total: number;
+  cantidad: number;
   porcentaje: number;
 }
 
 interface InspeccionPorFecha {
   fecha: string;
-  total: number;
+  cantidad: number;
 }
 
 interface InspeccionPorPlanta {
-  nombre_planta: string;
-  total: number;
+  planta: string;
+  cantidad: number;
 }
 
 interface InspeccionPorInspector {
-  nombre_completo: string;
-  total_inspeccionadas: number;
+  inspector: string;
+  total: number;
+  pendientes: number;
   aprobadas: number;
   rechazadas: number;
-  pendientes: number;
 }
 
 export interface DashboardData {

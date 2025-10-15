@@ -3,7 +3,7 @@ Router de estadísticas y dashboard
 """
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, case
 from datetime import datetime, timedelta
 from typing import Optional
 import logging
@@ -42,7 +42,7 @@ def get_dashboard_data(
     if not fecha_hasta:
         fecha_hasta_dt = datetime.now()
     else:
-        fecha_hasta_dt = datetime.strptime(fecha_desde, "%Y-%m-%d")
+        fecha_hasta_dt = datetime.strptime(fecha_hasta, "%Y-%m-%d")
     
     if not fecha_desde:
         fecha_desde_dt = fecha_hasta_dt - timedelta(days=30)
@@ -130,9 +130,9 @@ def get_dashboard_data(
     por_inspector_raw = db.query(
         Usuario.nombre.label('inspector'),
         func.count(Inspeccion.id_inspeccion).label('total'),
-        func.sum(func.if_(Inspeccion.estado == 'pending', 1, 0)).label('pendientes'),
-        func.sum(func.if_(Inspeccion.estado == 'approved', 1, 0)).label('aprobadas'),
-        func.sum(func.if_(Inspeccion.estado == 'rejected', 1, 0)).label('rechazadas')
+        func.sum(case((Inspeccion.estado == 'pending', 1), else_=0)).label('pendientes'),
+        func.sum(case((Inspeccion.estado == 'approved', 1), else_=0)).label('aprobadas'),
+        func.sum(case((Inspeccion.estado == 'rejected', 1), else_=0)).label('rechazadas')
     ).join(
         Inspeccion, Usuario.id_usuario == Inspeccion.id_inspector
     ).filter(

@@ -60,7 +60,7 @@ const Dashboard: React.FC = () => {
   const pieData = por_estado.map(item => ({
     name: item.estado === 'approved' ? 'Aprobadas' : 
           item.estado === 'rejected' ? 'Rechazadas' : 'Pendientes',
-    value: item.total,
+    value: item.cantidad,
     porcentaje: item.porcentaje
   }));
 
@@ -130,7 +130,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Pendientes</p>
-              <p className="text-3xl font-bold text-yellow-600">{estadisticas_generales.total_pendientes}</p>
+              <p className="text-3xl font-bold text-yellow-600">{estadisticas_generales.pendientes}</p>
             </div>
             <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,7 +144,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Aprobadas</p>
-              <p className="text-3xl font-bold text-green-600">{estadisticas_generales.total_aprobadas}</p>
+              <p className="text-3xl font-bold text-green-600">{estadisticas_generales.aprobadas}</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,7 +158,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Rechazadas</p>
-              <p className="text-3xl font-bold text-red-600">{estadisticas_generales.total_rechazadas}</p>
+              <p className="text-3xl font-bold text-red-600">{estadisticas_generales.rechazadas}</p>
             </div>
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,12 +181,12 @@ const Dashboard: React.FC = () => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, porcentaje }) => `${name}: ${porcentaje.toFixed(1)}%`}
+                label={({ name, porcentaje }: any) => `${name}: ${porcentaje.toFixed(1)}%`}
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
               >
-                {pieData.map((entry, index) => (
+                {pieData.map((_entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -213,7 +213,7 @@ const Dashboard: React.FC = () => {
               <Legend />
               <Line 
                 type="monotone" 
-                dataKey="total" 
+                dataKey="cantidad" 
                 stroke="#3b82f6" 
                 strokeWidth={2}
                 name="Inspecciones"
@@ -230,7 +230,7 @@ const Dashboard: React.FC = () => {
           <BarChart data={por_planta}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
-              dataKey="nombre_planta" 
+              dataKey="planta" 
               tick={{ fontSize: 12 }}
               angle={-45}
               textAnchor="end"
@@ -239,7 +239,7 @@ const Dashboard: React.FC = () => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="total" fill="#10b981" name="Inspecciones" />
+            <Bar dataKey="cantidad" fill="#10b981" name="Inspecciones" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -282,17 +282,17 @@ const Dashboard: React.FC = () => {
                 </tr>
               ) : (
                 por_inspector.map((inspector, index) => {
-                  const tasaAprobacion = inspector.total_inspeccionadas > 0
-                    ? (inspector.aprobadas / inspector.total_inspeccionadas * 100).toFixed(1)
+                  const tasaAprobacion = inspector.total > 0
+                    ? (inspector.aprobadas / inspector.total * 100).toFixed(1)
                     : '0.0';
                   
                   return (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {inspector.nombre_completo}
+                        {inspector.inspector}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
-                        {inspector.total_inspeccionadas}
+                        {inspector.total}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                         <span className="text-green-600 font-semibold">{inspector.aprobadas}</span>
