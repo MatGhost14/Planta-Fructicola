@@ -248,16 +248,17 @@ const InspeccionNueva: React.FC = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {fotos.map((foto, index) => (
-              <div key={index} className="relative group">
+              <div key={index} className="relative group bg-gray-100 rounded-lg overflow-hidden">
                 <img
                   src={foto}
                   alt={`Foto ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg"
+                  className="w-full h-40 object-contain"
                 />
                 <button
                   type="button"
                   onClick={() => handleEliminarFoto(index)}
-                  className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-700"
+                  title="Eliminar foto"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

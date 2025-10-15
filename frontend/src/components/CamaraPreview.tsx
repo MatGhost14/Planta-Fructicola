@@ -21,7 +21,12 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture }) => {
   const iniciarCamara = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: 1280, height: 720 }
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1920, max: 3840 },
+          height: { ideal: 1080, max: 2160 },
+          aspectRatio: { ideal: 16/9 }
+        }
       });
       
       if (videoRef.current) {
@@ -50,11 +55,15 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture }) => {
     const context = canvas.getContext('2d');
 
     if (context) {
+      // Usar las dimensiones reales del video para mejor calidad
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0);
       
-      const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      // Dibujar imagen con mejor calidad
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      // Aumentar calidad JPEG a 0.95 (de 0.8)
+      const imageDataUrl = canvas.toDataURL('image/jpeg', 0.95);
       onCapture(imageDataUrl);
 
       // Efecto flash
@@ -63,35 +72,54 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture }) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative bg-gray-900 rounded-lg overflow-hidden">
       {error ? (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
           {error}
         </div>
       ) : (
         <>
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            className="w-full rounded-lg bg-black"
-            style={{ maxHeight: '400px', objectFit: 'cover' }}
-          />
+          {/* Video preview */}
+          <div className="relative flex items-center justify-center min-h-[300px] max-h-[600px]">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full h-full rounded-lg"
+              style={{ objectFit: 'contain' }}
+            />
+          </div>
+          
           <canvas ref={canvasRef} className="hidden" />
           
+          {/* Efecto flash al capturar */}
           {capturing && (
-            <div className="absolute inset-0 bg-white opacity-80 rounded-lg" />
+            <div className="absolute inset-0 bg-white opacity-80 animate-pulse" />
           )}
 
-          <button
-            type="button"
-            onClick={capturarFoto}
-            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
-          >
-            <div className="w-14 h-14 border-4 border-blue-600 rounded-full flex items-center justify-center">
-              <div className="w-10 h-10 bg-blue-600 rounded-full" />
-            </div>
-          </button>
+          {/* Botón de captura mejorado */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
+            <button
+              type="button"
+              onClick={capturarFoto}
+              className="mx-auto block w-20 h-20 bg-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+              title="Capturar foto"
+            >
+              <div className="w-[72px] h-[72px] border-4 border-blue-500 rounded-full flex items-center justify-center">
+                <div className="w-14 h-14 bg-blue-500 rounded-full" />
+              </div>
+            </button>
+            
+            {/* Texto de ayuda */}
+            <p className="text-center text-white text-sm mt-3 drop-shadow-lg">
+              📸 Toca el botón para capturar
+            </p>
+          </div>
+
+          {/* Indicador de resolución */}
+          <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium">
+            🎥 HD
+          </div>
         </>
       )}
     </div>
