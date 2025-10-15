@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
     <div className="py-2">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Dashboard Estadísticas</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Dashboard Estadísticas</h1>
         
         {/* Filtros de fecha - Responsive */}
         <form onSubmit={handleFiltrar} className="flex flex-col sm:flex-row gap-3">
@@ -86,19 +86,19 @@ const Dashboard: React.FC = () => {
             type="date"
             value={fechaDesde}
             onChange={(e) => setFechaDesde(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm flex-1 sm:flex-none"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm flex-1 sm:flex-none"
             placeholder="Desde"
           />
           <input
             type="date"
             value={fechaHasta}
             onChange={(e) => setFechaHasta(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm flex-1 sm:flex-none"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm flex-1 sm:flex-none"
             placeholder="Hasta"
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-sm font-medium"
           >
             Filtrar
           </button>
@@ -109,7 +109,7 @@ const Dashboard: React.FC = () => {
               setFechaHasta('');
               setTimeout(cargarDatos, 100);
             }}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 text-sm font-medium"
           >
             Limpiar
           </button>
@@ -117,62 +117,62 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Rango de fechas actual */}
-      <div className="mb-6 text-sm text-gray-600">
+      <div className="mb-6 text-sm text-gray-600 dark:text-gray-400">
         Período: {dashboardData.fecha_desde} a {dashboardData.fecha_hasta}
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-card p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Total Inspecciones</p>
-              <p className="text-3xl font-bold text-gray-800">{estadisticas_generales.total_inspecciones}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Total Inspecciones</p>
+              <p className="text-3xl font-bold text-gray-800 dark:text-gray-100">{estadisticas_generales.total_inspecciones}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-card p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Pendientes</p>
-              <p className="text-3xl font-bold text-yellow-600">{estadisticas_generales.pendientes}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Pendientes</p>
+              <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-500">{estadisticas_generales.pendientes}</p>
             </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-card p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Aprobadas</p>
-              <p className="text-3xl font-bold text-green-600">{estadisticas_generales.aprobadas}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Aprobadas</p>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-500">{estadisticas_generales.aprobadas}</p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-green-600 dark:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-card p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Rechazadas</p>
-              <p className="text-3xl font-bold text-red-600">{estadisticas_generales.rechazadas}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Rechazadas</p>
+              <p className="text-3xl font-bold text-red-600 dark:text-red-500">{estadisticas_generales.rechazadas}</p>
             </div>
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-red-600 dark:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -183,8 +183,8 @@ const Dashboard: React.FC = () => {
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
         {/* Gráfico de Pastel - Distribución por Estado */}
-        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">📊 Distribución por Estado</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-5 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-5 sm:mb-6">📊 Distribución por Estado</h2>
           <ResponsiveContainer width="100%" height={320}>
             <PieChart>
               <Pie
@@ -226,8 +226,8 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Gráfico de Línea - Tendencia en el Tiempo */}
-        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">📈 Tendencia Temporal</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-5 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-5 sm:mb-6">📈 Tendencia Temporal</h2>
           <ResponsiveContainer width="100%" height={320}>
             <LineChart data={por_fecha} margin={{ top: 5, right: 30, left: 20, bottom: 50 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -267,8 +267,8 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Gráfico de Barras - Top 10 Plantas */}
-      <div className="bg-white rounded-lg shadow-card p-5 sm:p-6 mb-8">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">🏭 Top 10 Plantas con Mayor Actividad</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-5 sm:p-6 mb-8">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-5 sm:mb-6">🏭 Top 10 Plantas con Mayor Actividad</h2>
         <ResponsiveContainer width="100%" height={380}>
           <BarChart data={por_planta} margin={{ top: 20, right: 30, left: 20, bottom: 120 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -306,38 +306,38 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Tabla de Performance por Inspector */}
-      <div className="bg-white rounded-lg shadow-card">
-        <div className="p-5 sm:p-6 border-b border-gray-200">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">👤 Performance por Inspector</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card">
+        <div className="p-5 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">👤 Performance por Inspector</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Inspector
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Total
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Aprobadas
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Rechazadas
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Pendientes
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Tasa Aprobación
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {por_inspector.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                     No hay datos de inspectores en este período
                   </td>
                 </tr>
@@ -348,23 +348,23 @@ const Dashboard: React.FC = () => {
                     : '0.0';
                   
                   return (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                         {inspector.inspector}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900 dark:text-gray-100">
                         {inspector.total}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                        <span className="text-green-600 font-semibold">{inspector.aprobadas}</span>
+                        <span className="text-green-600 dark:text-green-500 font-semibold">{inspector.aprobadas}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                        <span className="text-red-600 font-semibold">{inspector.rechazadas}</span>
+                        <span className="text-red-600 dark:text-red-500 font-semibold">{inspector.rechazadas}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                        <span className="text-yellow-600 font-semibold">{inspector.pendientes}</span>
+                        <span className="text-yellow-600 dark:text-yellow-500 font-semibold">{inspector.pendientes}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-semibold text-blue-600">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-semibold text-blue-600 dark:text-blue-400">
                         {tasaAprobacion}%
                       </td>
                     </tr>
