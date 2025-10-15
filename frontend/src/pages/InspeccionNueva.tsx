@@ -58,6 +58,11 @@ const InspeccionNueva: React.FC = () => {
   const handleCapturarFoto = (imageDataUrl: string) => {
     setFotos([...fotos, imageDataUrl]);
     showSuccess('Foto capturada correctamente');
+    // NO cerramos la cámara aquí - eso lo maneja el componente CamaraPreview
+  };
+
+  const handleCerrarCamara = () => {
+    setMostrarCamara(false);
   };
 
   const handleEliminarFoto = (index: number) => {
@@ -245,7 +250,7 @@ const InspeccionNueva: React.FC = () => {
             <div className="mb-4">
               <CamaraPreview 
                 onCapture={handleCapturarFoto}
-                onClose={() => setMostrarCamara(false)}
+                onClose={handleCerrarCamara}
               />
             </div>
           )}

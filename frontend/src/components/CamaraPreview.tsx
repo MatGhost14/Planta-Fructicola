@@ -74,6 +74,7 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
   };
 
   const tomarDeNuevo = () => {
+    // Anular la foto y preparar cámara para nueva captura
     setFotoCapturada(null);
     setCapturing(false);
     
@@ -84,13 +85,16 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
   };
 
   const guardarFoto = () => {
+    // Guardar foto y CERRAR la cámara completamente
     if (fotoCapturada) {
       onCapture(fotoCapturada);
       detenerCamara();
+      onClose(); // ← IMPORTANTE: Cerrar el modal
     }
   };
 
   const tomarOtraFoto = () => {
+    // Guardar foto actual y preparar para siguiente
     if (fotoCapturada) {
       onCapture(fotoCapturada);
       setFotoCapturada(null);
