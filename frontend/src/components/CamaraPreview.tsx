@@ -22,16 +22,28 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
 
   // Efecto para asegurar que el video se reanude cuando fotoCapturada se limpia
   useEffect(() => {
+    console.log('🔄 useEffect triggered - fotoCapturada:', fotoCapturada, 'stream:', !!stream, 'videoRef:', !!videoRef.current);
+    
     if (fotoCapturada === null && videoRef.current && stream) {
+      console.log('▶️ Intentando reanudar video...');
+      
       // Pequeño delay para asegurar que el DOM se actualice
       const timer = setTimeout(() => {
-        if (videoRef.current && !videoRef.current.paused) {
-          return; // Ya está reproduciéndose
-        }
         if (videoRef.current) {
-          videoRef.current.play().catch(err => {
-            console.warn('Video play() llamado en useEffect:', err);
-          });
+          const video = videoRef.current;
+          console.log('📊 Estado del video - paused:', video.paused, 'readyState:', video.readyState);
+          
+          // Forzar play() sin importar el estado actual
+          video.play()
+            .then(() => {
+              console.log('✅ Video reanudado exitosamente');
+            })
+            .catch(err => {
+              console.error('❌ Video play() en useEffect falló:', err);
+              // Si falla, reiniciar cámara
+              console.log('🔄 Reiniciando cámara...');
+              iniciarCamara();
+            });
         }
       }, 100);
       
@@ -70,6 +82,7 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
   const capturarFoto = () => {
     if (!videoRef.current || !canvasRef.current) return;
 
+    console.log('📸 Capturando foto...');
     setCapturing(true);
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -86,6 +99,7 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
       // Pausar video cuando se captura
       if (videoRef.current) {
         videoRef.current.pause();
+        console.log('⏸️ Video pausado después de captura');
       }
 
       setTimeout(() => setCapturing(false), 200);
@@ -94,49 +108,33 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
 
   const tomarDeNuevo = () => {
     // Anular la foto y preparar cámara para nueva captura
+    // NO guardar la foto, solo descartarla
+    console.log('🔄 Tomar de Nuevo - Descartando foto');
     setFotoCapturada(null);
     setCapturing(false);
-    
-    // Reanudar video inmediatamente con verificación
-    requestAnimationFrame(() => {
-      if (videoRef.current) {
-        videoRef.current.play().catch(err => {
-          console.error('Error al reanudar video:', err);
-          // Intentar reiniciar la cámara si falla
-          iniciarCamara();
-        });
-      }
-    });
+    // El useEffect se encargará de reanudar el video
   };
 
   const guardarFoto = () => {
     // Guardar foto y CERRAR la cámara completamente
     if (fotoCapturada) {
+      console.log('✅ Guardar y Terminar - Guardando foto y cerrando');
       onCapture(fotoCapturada);
       detenerCamara();
-      onClose(); // ← IMPORTANTE: Cerrar el modal
+      onClose();
     }
   };
 
   const tomarOtraFoto = () => {
     // Guardar foto actual y preparar para siguiente
     if (fotoCapturada) {
+      console.log('💾 Guardar y Tomar Otra - Guardando y preparando para siguiente');
       onCapture(fotoCapturada);
       
-      // Resetear estado PRIMERO
+      // Resetear estado para permitir nueva captura
       setFotoCapturada(null);
       setCapturing(false);
-      
-      // Luego reanudar video con animationFrame para mejor sincronización
-      requestAnimationFrame(() => {
-        if (videoRef.current) {
-          videoRef.current.play().catch(err => {
-            console.error('Error al reanudar video:', err);
-            // Intentar reiniciar la cámara si falla
-            iniciarCamara();
-          });
-        }
-      });
+      // El useEffect se encargará de reanudar el video
     }
   };
 
