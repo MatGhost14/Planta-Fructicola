@@ -3,6 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from datetime import timedelta
 import logging
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from ..core.database import get_db
 from ..core.settings import settings
@@ -20,11 +22,13 @@ from ..utils.auth import (
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
 logger = logging.getLogger(__name__)
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/login", response_model=LoginResponse)
+@limiter.limit("5/minute")
 async def login(request: Request, credentials: LoginRequest, db: Session = Depends(get_db)):
-    """Login de usuario"""
+    """Login de usuario - Rate limit: 5 intentos por minuto"""
     client_ip = request.client.host if request.client else "unknown"
     
     # Buscar usuario por correo

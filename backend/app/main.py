@@ -5,6 +5,9 @@ from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 import os
 import logging
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from .core.settings import settings
 from .core.logging import setup_logging
