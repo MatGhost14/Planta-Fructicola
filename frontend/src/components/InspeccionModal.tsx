@@ -7,6 +7,7 @@ import { X, Image as ImageIcon, FileText, MapPin, Ship, Thermometer, Calendar, U
 import type { InspeccionDetalle } from '../types';
 import { inspeccionesApi } from '../api/inspecciones';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from './ToastProvider';
 
 interface InspeccionModalProps {
   inspeccion: InspeccionDetalle | null;
@@ -22,6 +23,7 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
   const [comentario, setComentario] = useState('');
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const { showSuccess, showError, showWarning } = useToast();
 
   if (!isOpen || !inspeccion) return null;
 
@@ -33,10 +35,11 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
       await inspeccionesApi.cambiarEstado(inspeccion.id_inspeccion, 'approved', comentario || undefined);
       setShowApprovalModal(false);
       setComentario('');
+      showSuccess('Inspección aprobada exitosamente');
       if (onUpdate) onUpdate();
       onClose();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error al aprobar la inspección');
+      showError(error.response?.data?.detail || 'Error al aprobar la inspección');
     } finally {
       setLoading(false);
     }
@@ -44,7 +47,7 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
 
   const handleRechazar = async () => {
     if (!comentario.trim()) {
-      alert('Debe proporcionar un comentario al rechazar');
+      showWarning('Debe proporcionar un comentario al rechazar');
       return;
     }
     setLoading(true);
@@ -52,10 +55,11 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
       await inspeccionesApi.cambiarEstado(inspeccion.id_inspeccion, 'rejected', comentario);
       setShowRejectionModal(false);
       setComentario('');
+      showSuccess('Inspección rechazada');
       if (onUpdate) onUpdate();
       onClose();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error al rechazar la inspección');
+      showError(error.response?.data?.detail || 'Error al rechazar la inspección');
     } finally {
       setLoading(false);
     }

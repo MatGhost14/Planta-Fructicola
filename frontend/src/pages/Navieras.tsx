@@ -5,9 +5,11 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Ship, Anchor } from 'lucide-react';
 import axios from '../api/axios';
+import { useToast } from '../components/ToastProvider';
 import type { Naviera, NavieraCreate, NavieraUpdate } from '../types';
 
 const Navieras: React.FC = () => {
+  const { showSuccess, showError, confirm } = useToast();
   const [navieras, setNavieras] = useState<Naviera[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -28,7 +30,7 @@ const Navieras: React.FC = () => {
       setNavieras(response.data);
     } catch (error: any) {
       console.error('Error al cargar navieras:', error);
-      alert(error.response?.data?.detail || 'Error al cargar navieras');
+      showError(error.response?.data?.detail || 'Error al cargar navieras');
     } finally {
       setLoading(false);
     }
@@ -40,16 +42,16 @@ const Navieras: React.FC = () => {
       if (editingNaviera) {
         const updateData: NavieraUpdate = formData;
         await axios.put(`/navieras/${editingNaviera.id_navieras}`, updateData);
-        alert('Naviera actualizada exitosamente');
+        showSuccess('Naviera actualizada exitosamente');
       } else {
         await axios.post('/navieras', formData);
-        alert('Naviera creada exitosamente');
+        showSuccess('Naviera creada exitosamente');
       }
       setShowModal(false);
       resetForm();
       cargarNavieras();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error al guardar naviera');
+      showError(error.response?.data?.detail || 'Error al guardar naviera');
     }
   };
 
@@ -63,13 +65,14 @@ const Navieras: React.FC = () => {
   };
 
   const handleDelete = async (id: number, nombre: string) => {
-    if (!confirm(`¿Está seguro que desea eliminar la naviera "${nombre}"?`)) return;
+    const confirmed = await confirm(`¿Está seguro que desea eliminar la naviera "${nombre}"?`);
+    if (!confirmed) return;
     try {
       await axios.delete(`/navieras/${id}`);
-      alert('Naviera eliminada exitosamente');
+      showSuccess('Naviera eliminada exitosamente');
       cargarNavieras();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error al eliminar naviera');
+      showError(error.response?.data?.detail || 'Error al eliminar naviera');
     }
   };
 

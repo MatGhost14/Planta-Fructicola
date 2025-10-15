@@ -5,9 +5,11 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, MapPin, Building } from 'lucide-react';
 import axios from '../api/axios';
+import { useToast } from '../components/ToastProvider';
 import type { Planta, PlantaCreate, PlantaUpdate } from '../types';
 
 const Plantas: React.FC = () => {
+  const { showSuccess, showError, confirm } = useToast();
   const [plantas, setPlantas] = useState<Planta[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -29,7 +31,7 @@ const Plantas: React.FC = () => {
       setPlantas(response.data);
     } catch (error: any) {
       console.error('Error al cargar plantas:', error);
-      alert(error.response?.data?.detail || 'Error al cargar plantas');
+      showError(error.response?.data?.detail || 'Error al cargar plantas');
     } finally {
       setLoading(false);
     }
@@ -41,16 +43,16 @@ const Plantas: React.FC = () => {
       if (editingPlanta) {
         const updateData: PlantaUpdate = formData;
         await axios.put(`/plantas/${editingPlanta.id_planta}`, updateData);
-        alert('Planta actualizada exitosamente');
+        showSuccess('Planta actualizada exitosamente');
       } else {
         await axios.post('/plantas', formData);
-        alert('Planta creada exitosamente');
+        showSuccess('Planta creada exitosamente');
       }
       setShowModal(false);
       resetForm();
       cargarPlantas();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error al guardar planta');
+      showError(error.response?.data?.detail || 'Error al guardar planta');
     }
   };
 
@@ -65,13 +67,14 @@ const Plantas: React.FC = () => {
   };
 
   const handleDelete = async (id: number, nombre: string) => {
-    if (!confirm(`¿Está seguro que desea eliminar la planta "${nombre}"?`)) return;
+    const confirmed = await confirm(`¿Está seguro que desea eliminar la planta "${nombre}"?`);
+    if (!confirmed) return;
     try {
       await axios.delete(`/plantas/${id}`);
-      alert('Planta eliminada exitosamente');
+      showSuccess('Planta eliminada exitosamente');
       cargarPlantas();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error al eliminar planta');
+      showError(error.response?.data?.detail || 'Error al eliminar planta');
     }
   };
 

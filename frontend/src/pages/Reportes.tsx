@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { reportesApi, axios } from '../api';
+import { useToast } from '../components/ToastProvider';
 import type { ConteoEstado, ResumenReporte } from '../types';
 import { textoEstado } from '../utils';
 
 const Reportes: React.FC = () => {
+  const { showError, showSuccess } = useToast();
   const [resumen, setResumen] = useState<ResumenReporte | null>(null);
   const [conteo, setConteo] = useState<ConteoEstado[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,9 +59,10 @@ const Reportes: React.FC = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+      showSuccess('Reporte PDF generado exitosamente');
     } catch (error) {
       console.error('Error al exportar PDF:', error);
-      alert('Error al generar el reporte PDF');
+      showError('Error al generar el reporte PDF');
     } finally {
       setExportando(false);
     }
@@ -85,9 +88,10 @@ const Reportes: React.FC = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+      showSuccess('Reporte Excel generado exitosamente');
     } catch (error) {
       console.error('Error al exportar Excel:', error);
-      alert('Error al generar el reporte Excel');
+      showError('Error al generar el reporte Excel');
     } finally {
       setExportando(false);
     }

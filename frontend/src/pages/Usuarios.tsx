@@ -5,9 +5,11 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Edit, Trash2, Shield, Mail, User as UserIcon, RefreshCw } from 'lucide-react';
 import axios from '../api/axios';
+import { useToast } from '../components/ToastProvider';
 import type { Usuario, UsuarioCreate, UsuarioUpdate } from '../types';
 
 const Usuarios: React.FC = () => {
+  const { showSuccess, showError, confirm } = useToast();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -30,7 +32,7 @@ const Usuarios: React.FC = () => {
       setUsuarios(response.data);
     } catch (error: any) {
       console.error('Error al cargar usuarios:', error);
-      alert(error.response?.data?.detail || 'Error al cargar usuarios');
+      showError(error.response?.data?.detail || 'Error al cargar usuarios');
     } finally {
       setLoading(false);
     }
@@ -48,17 +50,17 @@ const Usuarios: React.FC = () => {
           password: formData.password || undefined,
         };
         await axios.put(`/usuarios/${editingUser.id_usuario}`, updateData);
-        alert('Usuario actualizado exitosamente');
+        showSuccess('Usuario actualizado exitosamente');
       } else {
         // Crear
         await axios.post('/usuarios', formData);
-        alert('Usuario creado exitosamente');
+        showSuccess('Usuario creado exitosamente');
       }
       setShowModal(false);
       resetForm();
       cargarUsuarios();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error al guardar usuario');
+      showError(error.response?.data?.detail || 'Error al guardar usuario');
     }
   };
 
@@ -74,13 +76,14 @@ const Usuarios: React.FC = () => {
   };
 
   const handleDelete = async (id: number, nombre: string) => {
-    if (!confirm(`¿Está seguro que desea eliminar al usuario "${nombre}"?`)) return;
+    const confirmed = await confirm(`¿Está seguro que desea eliminar al usuario "${nombre}"?`);
+    if (!confirmed) return;
     try {
       await axios.delete(`/usuarios/${id}`);
-      alert('Usuario eliminado exitosamente');
+      showSuccess('Usuario eliminado exitosamente');
       cargarUsuarios();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error al eliminar usuario');
+      showError(error.response?.data?.detail || 'Error al eliminar usuario');
     }
   };
 
@@ -90,7 +93,7 @@ const Usuarios: React.FC = () => {
       await axios.patch(`/usuarios/${usuario.id_usuario}/estado`, { estado: nuevoEstado });
       cargarUsuarios();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error al cambiar estado');
+      showError(error.response?.data?.detail || 'Error al cambiar estado');
     }
   };
 

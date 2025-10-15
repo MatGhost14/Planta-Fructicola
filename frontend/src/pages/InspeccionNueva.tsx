@@ -242,7 +242,10 @@ const InspeccionNueva: React.FC = () => {
 
           {mostrarCamara && (
             <div className="mb-4">
-              <CamaraPreview onCapture={handleCapturarFoto} />
+              <CamaraPreview 
+                onCapture={handleCapturarFoto}
+                onClose={() => setMostrarCamara(false)}
+              />
             </div>
           )}
 

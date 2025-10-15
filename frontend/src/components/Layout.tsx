@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from './ToastProvider';
 import { 
   LayoutDashboard, 
   Plus, 
@@ -16,13 +17,15 @@ import {
 const Layout: React.FC = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { confirm } = useToast();
 
   const isActive = (path: string) => {
     return location.pathname === path ? 'bg-blue-700' : '';
   };
 
-  const handleLogout = () => {
-    if (confirm('¿Está seguro que desea cerrar sesión?')) {
+  const handleLogout = async () => {
+    const confirmed = await confirm('¿Está seguro que desea cerrar sesión?');
+    if (confirmed) {
       logout();
     }
   };
