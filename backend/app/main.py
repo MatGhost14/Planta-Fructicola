@@ -4,8 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 import os
+import logging
 
 from .core.settings import settings
+from .core.logging import setup_logging
+from .middleware import LoggingMiddleware
 from .utils import ensure_dir
 from .routers import (
     plantas_router,
@@ -17,6 +20,14 @@ from .routers import (
     auth_router
 )
 from .schemas import HealthResponse
+
+# Configurar logging
+setup_logging()
+logger = logging.getLogger(__name__)
+
+logger.info(f"🚀 Iniciando {settings.APP_NAME} v{settings.APP_VERSION}")
+logger.info(f"Entorno: {settings.ENVIRONMENT}")
+logger.info(f"Debug mode: {settings.DEBUG}")
 
 # Crear directorios necesarios
 ensure_dir(settings.CAPTURAS_DIR)
@@ -32,6 +43,9 @@ app = FastAPI(
     redoc_url="/redoc" if settings.DEBUG else None
 )
 
+# Middleware de logging (debe ir PRIMERO)
+app.add_middleware(LoggingMiddleware)
+
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
@@ -42,6 +56,8 @@ app.add_middleware(
     expose_headers=["*"],
     max_age=3600,
 )
+
+logger.info(f"CORS configurado: {', '.join(settings.cors_origins)}")
 
 # Montar archivos estáticos
 app.mount(

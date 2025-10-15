@@ -1,9 +1,12 @@
 """Router de autenticación"""
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from datetime import timedelta
+import logging
+
 from ..core.database import get_db
 from ..core.settings import settings
+from ..middleware import security_event_logger
 from ..models import Usuario, BitacoraAuditoria
 from ..schemas.auth import LoginRequest, LoginResponse, TokenData, SessionInfo, PasswordChange
 from ..utils.auth import (
@@ -16,15 +19,19 @@ from ..utils.auth import (
 
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/login", response_model=LoginResponse)
-def login(credentials: LoginRequest, db: Session = Depends(get_db)):
+def login(credentials: LoginRequest, request: Request, db: Session = Depends(get_db)):
     """Login de usuario"""
+    client_ip = request.client.host if request.client else "unknown"
+    
     # Buscar usuario por correo
     usuario = db.query(Usuario).filter(Usuario.correo == credentials.correo).first()
     
     if not usuario:
+        security_event_logger.log_login_failure(credentials.correo, client_ip, "Usuario no existe")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo o contraseña incorrectos"
@@ -32,6 +39,7 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     
     # Verificar contraseña
     if not usuario.password_hash or not verify_password(credentials.password, usuario.password_hash):
+        security_event_logger.log_login_failure(credentials.correo, client_ip, "Contraseña incorrecta")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo o contraseña incorrectos"
@@ -39,10 +47,14 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     
     # Verificar estado activo
     if usuario.estado != 'active':
+        security_event_logger.log_login_failure(credentials.correo, client_ip, "Usuario inactivo")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Usuario inactivo. Contacte al administrador."
         )
+    
+    # Login exitoso - log de seguridad
+    security_event_logger.log_login_success(usuario.correo, client_ip)
     
     # Crear token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -60,10 +72,12 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     bitacora = BitacoraAuditoria(
         id_usuario=usuario.id_usuario,
         accion="LOGIN",
-        detalles=f"Login exitoso desde aplicación web"
+        detalles=f"Login exitoso desde {client_ip}"
     )
     db.add(bitacora)
     db.commit()
+    
+    logger.info(f"Usuario {usuario.correo} inició sesión correctamente")
     
     return LoginResponse(
         access_token=access_token,
