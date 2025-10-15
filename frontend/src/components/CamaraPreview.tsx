@@ -20,6 +20,16 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
     };
   }, []);
 
+  // Efecto para mantener el srcObject asignado
+  useEffect(() => {
+    if (videoRef.current && stream && !fotoCapturada) {
+      if (videoRef.current.srcObject !== stream) {
+        console.log('🔧 Asignando srcObject al video');
+        videoRef.current.srcObject = stream;
+      }
+    }
+  }, [stream, fotoCapturada]);
+
   // Efecto para asegurar que el video se reanude cuando fotoCapturada se limpia
   useEffect(() => {
     console.log('🔄 useEffect triggered - fotoCapturada:', fotoCapturada, 'stream:', !!stream, 'videoRef:', !!videoRef.current);
@@ -27,23 +37,41 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
     if (fotoCapturada === null && videoRef.current && stream) {
       console.log('▶️ Intentando reanudar video...');
       
+      const video = videoRef.current;
+      
+      // Verificar si el video tiene el stream asignado
+      if (!video.srcObject) {
+        console.log('⚠️ Video sin srcObject, reasignando stream...');
+        video.srcObject = stream;
+      }
+      
       // Pequeño delay para asegurar que el DOM se actualice
       const timer = setTimeout(() => {
         if (videoRef.current) {
           const video = videoRef.current;
-          console.log('📊 Estado del video - paused:', video.paused, 'readyState:', video.readyState);
+          console.log('📊 Estado del video - paused:', video.paused, 'readyState:', video.readyState, 'srcObject:', !!video.srcObject);
           
-          // Forzar play() sin importar el estado actual
-          video.play()
-            .then(() => {
-              console.log('✅ Video reanudado exitosamente');
-            })
-            .catch(err => {
-              console.error('❌ Video play() en useEffect falló:', err);
-              // Si falla, reiniciar cámara
-              console.log('🔄 Reiniciando cámara...');
-              iniciarCamara();
-            });
+          // Si readyState es 0, esperar a que cargue
+          if (video.readyState === 0) {
+            console.log('⏳ Video no listo, esperando evento loadedmetadata...');
+            const handleLoadedMetadata = () => {
+              console.log('✅ Video metadata cargada, reproduciendo...');
+              video.play()
+                .then(() => console.log('✅ Video reanudado exitosamente'))
+                .catch(err => console.error('❌ Play falló después de metadata:', err));
+              video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            };
+            video.addEventListener('loadedmetadata', handleLoadedMetadata);
+          } else {
+            // Video listo, reproducir directamente
+            video.play()
+              .then(() => {
+                console.log('✅ Video reanudado exitosamente');
+              })
+              .catch(err => {
+                console.error('❌ Video play() en useEffect falló:', err);
+              });
+          }
         }
       }, 100);
       
@@ -64,6 +92,10 @@ const CamaraPreview: React.FC<CamaraPreviewProps> = ({ onCapture, onClose }) => 
       
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        // Forzar play después de asignar srcObject
+        await videoRef.current.play().catch(err => {
+          console.warn('Play en iniciarCamara:', err);
+        });
       }
       setStream(mediaStream);
       setError('');
