@@ -88,13 +88,13 @@ const Plantas: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="py-2">
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Gestión de Plantas</h1>
-            <p className="text-gray-600 mt-1">Administrar ubicaciones de inspección</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gestión de Plantas</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-2">Administrar ubicaciones de inspección</p>
           </div>
           <button
             onClick={() => {

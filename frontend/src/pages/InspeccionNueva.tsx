@@ -121,9 +121,9 @@ const InspeccionNueva: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="py-2">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Nueva Inspección</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Nueva Inspección</h1>
         <button
           onClick={() => navigate('/inspecciones')}
           className="btn-secondary"
@@ -132,10 +132,10 @@ const InspeccionNueva: React.FC = () => {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
         {/* Datos del Contenedor */}
-        <div className="bg-white rounded-lg shadow-card p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Datos del Contenedor</h2>
+        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">📦 Datos del Contenedor</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -225,9 +225,9 @@ const InspeccionNueva: React.FC = () => {
         </div>
 
         {/* Fotos */}
-        <div className="bg-white rounded-lg shadow-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Fotos *</h2>
+        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">📸 Fotos *</h2>
             <button
               type="button"
               onClick={() => setMostrarCamara(!mostrarCamara)}
@@ -280,9 +280,9 @@ const InspeccionNueva: React.FC = () => {
         </div>
 
         {/* Firma */}
-        <div className="bg-white rounded-lg shadow-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Firma del Inspector *</h2>
+        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">✍️ Firma del Inspector *</h2>
             {firma && (
               <button
                 type="button"

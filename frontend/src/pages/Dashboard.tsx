@@ -75,10 +75,10 @@ const Dashboard: React.FC = () => {
   }));
 
   return (
-    <div>
+    <div className="py-2">
       {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Dashboard Estadísticas</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Dashboard Estadísticas</h1>
         
         {/* Filtros de fecha - Responsive */}
         <form onSubmit={handleFiltrar} className="flex flex-col sm:flex-row gap-3">
@@ -181,10 +181,10 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
         {/* Gráfico de Pastel - Distribución por Estado */}
-        <div className="bg-white rounded-lg shadow-card p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">📊 Distribución por Estado</h2>
+        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">📊 Distribución por Estado</h2>
           <ResponsiveContainer width="100%" height={320}>
             <PieChart>
               <Pie
@@ -226,8 +226,8 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Gráfico de Línea - Tendencia en el Tiempo */}
-        <div className="bg-white rounded-lg shadow-card p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">📈 Tendencia Temporal</h2>
+        <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">📈 Tendencia Temporal</h2>
           <ResponsiveContainer width="100%" height={320}>
             <LineChart data={por_fecha} margin={{ top: 5, right: 30, left: 20, bottom: 50 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -267,8 +267,8 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Gráfico de Barras - Top 10 Plantas */}
-      <div className="bg-white rounded-lg shadow-card p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">🏭 Top 10 Plantas por Volumen</h2>
+      <div className="bg-white rounded-lg shadow-card p-5 sm:p-6 mb-8">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">🏭 Top 10 Plantas con Mayor Actividad</h2>
         <ResponsiveContainer width="100%" height={380}>
           <BarChart data={por_planta} margin={{ top: 20, right: 30, left: 20, bottom: 120 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -307,8 +307,8 @@ const Dashboard: React.FC = () => {
 
       {/* Tabla de Performance por Inspector */}
       <div className="bg-white rounded-lg shadow-card">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">Performance por Inspector</h2>
+        <div className="p-5 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">👤 Performance por Inspector</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">

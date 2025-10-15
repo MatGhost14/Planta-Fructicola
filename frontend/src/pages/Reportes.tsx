@@ -110,9 +110,9 @@ const Reportes: React.FC = () => {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Reportes y Estadísticas</h1>
+    <div className="py-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Reportes y Estadísticas</h1>
         
         {/* Botones de exportación */}
         <div className="flex gap-3">
@@ -141,8 +141,8 @@ const Reportes: React.FC = () => {
       </div>
 
       {/* Filtros de Fecha */}
-      <div className="bg-white rounded-lg shadow-card p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Filtros</h2>
+      <div className="bg-white rounded-lg shadow-card p-5 sm:p-6 mb-6 sm:mb-8">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">🔍 Filtros</h2>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -186,29 +186,29 @@ const Reportes: React.FC = () => {
 
       {/* Resumen General */}
       {resumen && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-card p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Total Inspecciones</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-2 sm:mb-3">Total Inspecciones</h3>
             <p className="text-3xl font-bold text-gray-800">{resumen.total_inspecciones}</p>
           </div>
-          <div className="bg-white rounded-lg shadow-card p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Aprobadas</h3>
-            <p className="text-3xl font-bold text-green-600">{resumen.aprobadas}</p>
-            <p className="text-sm text-gray-500 mt-1">
+          <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-2 sm:mb-3">Aprobadas</h3>
+            <p className="text-2xl sm:text-3xl font-bold text-green-600">{resumen.aprobadas}</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
               {calcularPorcentaje(resumen.aprobadas, resumen.total_inspecciones)}%
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-card p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Pendientes</h3>
-            <p className="text-3xl font-bold text-yellow-600">{resumen.pendientes}</p>
-            <p className="text-sm text-gray-500 mt-1">
+          <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-2 sm:mb-3">Pendientes</h3>
+            <p className="text-2xl sm:text-3xl font-bold text-yellow-600">{resumen.pendientes}</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
               {calcularPorcentaje(resumen.pendientes, resumen.total_inspecciones)}%
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-card p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Rechazadas</h3>
-            <p className="text-3xl font-bold text-red-600">{resumen.rechazadas}</p>
-            <p className="text-sm text-gray-500 mt-1">
+          <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-2 sm:mb-3">Rechazadas</h3>
+            <p className="text-2xl sm:text-3xl font-bold text-red-600">{resumen.rechazadas}</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
               {calcularPorcentaje(resumen.rechazadas, resumen.total_inspecciones)}%
             </p>
           </div>
@@ -216,8 +216,8 @@ const Reportes: React.FC = () => {
       )}
 
       {/* Gráfico de Barras */}
-      <div className="bg-white rounded-lg shadow-card p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">Distribución por Estado</h2>
+      <div className="bg-white rounded-lg shadow-card p-5 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">📊 Distribución por Estado</h2>
         <div className="space-y-4">
           {conteo.map((item) => {
             const total = conteo.reduce((sum, c) => sum + c.total, 0);
