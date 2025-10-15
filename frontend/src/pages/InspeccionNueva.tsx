@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { inspeccionesApi, plantasApi, navierasApi } from '../api';
 import { useStore } from '../store';
+import { useToast } from '../components/ToastProvider';
 import CamaraPreview from '../components/CamaraPreview';
 import FirmaCanvas from '../components/FirmaCanvas';
 import { dataURLtoBlob, blobToFile } from '../utils';
@@ -9,7 +10,8 @@ import type { Planta, Naviera } from '../types';
 
 const InspeccionNueva: React.FC = () => {
   const navigate = useNavigate();
-  const { usuarioActual, addToast } = useStore();
+  const { usuarioActual } = useStore();
+  const { showSuccess, showError, showWarning } = useToast();
   
   const [plantas, setPlantas] = useState<Planta[]>([]);
   const [navieras, setNavieras] = useState<Naviera[]>([]);
@@ -42,7 +44,7 @@ const InspeccionNueva: React.FC = () => {
       setNavieras(navierasData);
     } catch (error) {
       console.error('Error al cargar catálogos:', error);
-      addToast('Error al cargar catálogos', 'error');
+      showError('Error al cargar catálogos');
     }
   };
 
@@ -55,8 +57,7 @@ const InspeccionNueva: React.FC = () => {
 
   const handleCapturarFoto = (imageDataUrl: string) => {
     setFotos([...fotos, imageDataUrl]);
-    setMostrarCamara(false);
-    addToast('Foto capturada correctamente', 'exito');
+    showSuccess('Foto capturada correctamente');
   };
 
   const handleEliminarFoto = (index: number) => {
@@ -66,19 +67,19 @@ const InspeccionNueva: React.FC = () => {
   const handleGuardarFirma = (imageDataUrl: string) => {
     setFirma(imageDataUrl);
     setMostrarFirma(false);
-    addToast('Firma guardada correctamente', 'exito');
+    showSuccess('Firma guardada correctamente');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (fotos.length === 0) {
-      addToast('Debes capturar al menos una foto', 'error');
+      showWarning('Debes capturar al menos una foto');
       return;
     }
 
     if (!firma) {
-      addToast('Debes agregar la firma', 'error');
+      showWarning('Debes agregar la firma');
       return;
     }
 
@@ -109,11 +110,11 @@ const InspeccionNueva: React.FC = () => {
       const firmaFile = blobToFile(firmaBlob, 'firma.png');
       await inspeccionesApi.subirFirma(inspeccionCreada.id_inspeccion, firmaFile);
 
-      addToast(`Inspección ${inspeccionCreada.codigo} creada exitosamente`, 'exito');
+      showSuccess(`Inspección ${inspeccionCreada.codigo} creada exitosamente`);
       navigate('/inspecciones');
     } catch (error: any) {
       console.error('Error al crear inspección:', error);
-      addToast(error.response?.data?.detail || 'Error al crear inspección', 'error');
+      showError(error.response?.data?.detail || 'Error al crear inspección');
     } finally {
       setLoading(false);
     }

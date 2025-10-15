@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from './ToastProvider';
@@ -11,13 +11,16 @@ import {
   Ship, 
   Users, 
   Settings,
-  LogOut
+  LogOut,
+  Menu,
+  X
 } from 'lucide-react';
 
 const Layout: React.FC = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { confirm } = useToast();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path ? 'bg-blue-700' : '';
@@ -46,40 +49,83 @@ const Layout: React.FC = () => {
     user && item.roles.includes(user.rol)
   );
 
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-blue-600 to-blue-800 text-white shadow-lg z-10">
-        <div className="p-6">
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg z-30 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 hover:bg-blue-700 rounded-lg transition-colors"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+            <div>
+              <h1 className="text-lg font-bold">Inspección</h1>
+              <p className="text-xs text-blue-200">Contenedores</p>
+            </div>
+          </div>
+          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-sm font-semibold">
+              {user?.nombre?.charAt(0) || 'U'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-20"
+          onClick={closeMobileMenu}
+        />
+      )}
+
+      {/* Sidebar - Desktop y Mobile */}
+      <div className={`
+        fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-blue-600 to-blue-800 text-white shadow-lg z-40
+        transform transition-transform duration-300 ease-in-out
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0
+      `}>
+        {/* Desktop Header (oculto en mobile) */}
+        <div className="hidden lg:block p-6">
           <h1 className="text-2xl font-bold mb-2">Inspección</h1>
           <p className="text-blue-200 text-sm">Contenedores Frutícolas</p>
         </div>
 
-        <nav className="mt-6 flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 240px)' }}>
+        {/* Mobile Header spacing */}
+        <div className="lg:hidden h-16" />
+
+        <nav className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 240px)' }}>
           {visibleMenuItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={closeMobileMenu}
                 className={`flex items-center px-6 py-3 hover:bg-blue-700 transition-colors ${isActive(item.path)}`}
               >
                 <Icon className="w-5 h-5 mr-3" />
-                {item.label}
+                <span className="text-sm sm:text-base">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 bg-blue-900 bg-opacity-50">
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <div className="flex items-center mb-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-semibold">
                   {user?.nombre?.charAt(0) || 'U'}
                 </span>
               </div>
-              <div className="ml-3 flex-1">
+              <div className="ml-3 flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{user?.nombre || 'Usuario'}</p>
                 <p className="text-xs text-blue-200 capitalize">{user?.rol || 'inspector'}</p>
               </div>
@@ -96,7 +142,7 @@ const Layout: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="ml-64 p-8">
+      <div className="pt-16 lg:pt-0 lg:ml-64 p-4 sm:p-6 lg:p-8">
         <Outlet />
       </div>
     </div>
