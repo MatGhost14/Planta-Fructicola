@@ -57,7 +57,7 @@ class Settings(BaseSettings):
     DB_PORT: int = 3306
     DB_USER: str = "root"
     DB_PASSWORD: str = ""
-    DB_NAME: str = "ImpeccionContenedor"
+    DB_NAME: str = "inspeccioncontenedor"
     
     # Pool de conexiones para mejor rendimiento
     DB_POOL_SIZE: int = 10  # Conexiones simultáneas en el pool
@@ -95,7 +95,7 @@ class Settings(BaseSettings):
             str: URL en formato mysql+pymysql://user:pass@host:port/db
             
         Example:
-            mysql+pymysql://root:password@localhost:3306/ImpeccionContenedor
+            mysql+pymysql://root:password@localhost:3306/inspeccioncontenedor
         """
         return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
     

@@ -8,6 +8,11 @@ Guía express para tener el sistema funcionando en menos de 5 minutos.
 
 ### 1. Requisitos (2 minutos)
 
+**Opción A: Docker (Recomendado)**
+✅ Instalar solo:
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+**Opción B: Tradicional**
 ✅ Instalar si no tienes:
 - [Python 3.10+](https://python.org)
 - [Node.js 18+](https://nodejs.org)
@@ -21,37 +26,26 @@ cd "C:\Users\TuUsuario\Desktop"
 cd Planta-
 ```
 
-### 3. Instalar TODO (1 minuto)
+### 3. Iniciar Sistema (1 minuto)
 
-```powershell
-.\install.ps1
+**Opción A: Docker (Recomendado para Colaboradores)**
+```cmd
+.\start-docker.bat
 ```
 
-Este script instala:
-- ✅ Backend (FastAPI + dependencias)
-- ✅ Frontend (React + TypeScript)
-- ✅ Todas las librerías necesarias
-
-### 4. Configurar Base de Datos (30 segundos)
-
-```powershell
-.\setup-database.ps1
+**Opción B: Script Tradicional**
+```cmd
+.\start-system-simple.bat
 ```
 
-Este script:
-- ✅ Crea la BD `impeccioncontenedor`
-- ✅ Importa el schema
-- ✅ Crea usuarios de prueba
-
-### 5. Iniciar Sistema (30 segundos)
-
-```powershell
-.\start-dev.ps1
-```
-
-Abre automáticamente:
-- 🟢 Backend: http://localhost:8000
-- 🟢 Frontend: http://localhost:5173
+**Docker automáticamente:**
+- ✅ Instala todas las dependencias
+- ✅ Configura MySQL en contenedor
+- ✅ Crea la BD `inspeccioncontenedor`
+- ✅ Importa el schema de la base de datos
+- ✅ Inicia el backend (FastAPI) en puerto 8000
+- ✅ Inicia el frontend (React) en puerto 5173
+- ✅ Sin problemas de dependencias
 
 ---
 
@@ -61,7 +55,15 @@ Ve a **http://localhost:5173** y usa:
 
 ```
 Inspector:
-📧 inspector@empresa.com
+📧 juan.diaz@empresa.com
+🔑 password123
+
+Supervisor:
+📧 maria.lopez@empresa.com
+🔑 password123
+
+Admin:
+📧 carlos.ruiz@empresa.com
 🔑 password123
 ```
 
@@ -85,26 +87,47 @@ Lee el [TUTORIAL.md](TUTORIAL.md) para aprender todas las funcionalidades.
 
 ## 🐛 Si algo falla
 
-### Backend no inicia
-```powershell
-cd backend
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+### Docker no inicia
+```cmd
+# Verificar Docker
+docker --version
+
+# Ver logs
+.\docker-logs.bat
+
+# Reiniciar contenedores
+docker-compose restart
 ```
 
-### Frontend no inicia
-```powershell
+### Contenedores no se construyen
+```cmd
+# Limpiar y reconstruir
+docker-compose down
+docker-compose up --build -d
+```
+
+### Puerto ya en uso
+```cmd
+# Detener contenedores
+.\stop-docker.bat
+
+# Cambiar puertos en docker-compose.yml
+# Luego reiniciar
+.\start-docker.bat
+```
+
+### Script Tradicional (si no usas Docker)
+```cmd
+# Backend
+cd backend
+.\venv\Scripts\Activate.ps1
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Frontend
 cd frontend
 npm install
 npm run dev
 ```
-
-### Base de datos no conecta
-1. Abre XAMPP Control Panel
-2. Inicia "MySQL"
-3. Ve a http://localhost/phpmyadmin
-4. Importa `impeccioncontenedor.sql`
 
 ---
 

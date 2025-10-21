@@ -76,27 +76,46 @@ Sistema completo de gestión de inspecciones con autenticación JWT, control de 
 
 ### Requisitos Previos
 
+**Opción 1: Instalación Tradicional**
+
 | Software | Versión | Descarga |
 |----------|---------|----------|
 | Python | 3.10+ | [python.org](https://python.org) |
 | Node.js | 18.0+ | [nodejs.org](https://nodejs.org) |
 | MySQL | 8.0+ | XAMPP recomendado |
 
+**Opción 2: Docker (Recomendado para Colaboradores)**
+
+| Software | Versión | Descarga |
+|----------|---------|----------|
+| Docker Desktop | 4.0+ | [docker.com](https://www.docker.com/products/docker-desktop/) |
+
 ### Instalación Automática
 
-```powershell
-# 1. Clonar repositorio
-cd "ruta\al\proyecto"
+**Opción 1: Docker (Recomendado para Colaboradores)**
+```cmd
+# 1. Navegar al directorio del proyecto
+cd "C:\Users\Jesus R\Desktop\Planta-"
 
-# 2. Instalar dependencias
-.\install.ps1
-
-# 3. Configurar base de datos
-.\setup-database.ps1
-
-# 4. Iniciar servicios
-.\start-dev.ps1
+# 2. Ejecutar con Docker
+.\start-docker.bat
 ```
+
+**Opción 2: Script PowerShell (Tradicional)**
+```powershell
+# 1. Navegar al directorio del proyecto
+cd "C:\Users\Jesus R\Desktop\Planta-"
+
+# 2. Ejecutar script de inicio completo
+.\start-system-simple.bat
+```
+
+**Docker automáticamente:**
+- ✅ Instala todas las dependencias
+- ✅ Configura MySQL en contenedor
+- ✅ Inicia backend (FastAPI) en puerto 8000
+- ✅ Inicia frontend (React) en puerto 5173
+- ✅ Sin problemas de dependencias
 
 ---
 
@@ -104,31 +123,39 @@ cd "ruta\al\proyecto"
 
 ### 1. Iniciar Servicios
 
-```powershell
-.\start-dev.ps1
+**Opción A: Docker (Recomendado para Colaboradores)**
+```cmd
+# Desde el directorio raíz del proyecto
+.\start-docker.bat
+```
+
+**Opción B: Script Tradicional**
+```cmd
+# Desde el directorio raíz del proyecto
+.\start-system-simple.bat
 ```
 
 ### 2. Acceder a la Aplicación
 
-| Servicio | URL |
-|----------|-----|
-| **Frontend** | http://localhost:5173 |
-| **API** | http://localhost:8000 |
-| **API Docs** | http://localhost:8000/docs |
+| Servicio | URL | Descripción |
+|----------|-----|-------------|
+| **Frontend** | http://localhost:5173 | Interfaz de usuario |
+| **API** | http://localhost:8000 | Backend FastAPI |
+| **API Docs** | http://localhost:8000/docs | Documentación interactiva |
 
 ### 3. Login
 
 ```
 Inspector:
-📧 inspector@empresa.com
+📧 juan.diaz@empresa.com
 🔑 password123
 
 Supervisor:
-📧 supervisor@empresa.com
+📧 maria.lopez@empresa.com
 🔑 password123
 
 Admin:
-📧 admin@empresa.com
+📧 carlos.ruiz@empresa.com
 🔑 password123
 ```
 
@@ -138,9 +165,9 @@ Admin:
 
 | Rol | Email | Password |
 |-----|-------|----------|
-| **Inspector** | inspector@empresa.com | password123 |
-| **Supervisor** | supervisor@empresa.com | password123 |
-| **Admin** | admin@empresa.com | password123 |
+| **Inspector** | juan.diaz@empresa.com | password123 |
+| **Supervisor** | maria.lopez@empresa.com | password123 |
+| **Admin** | carlos.ruiz@empresa.com | password123 |
 
 > ⚠️ **IMPORTANTE**: Cambia estas contraseñas en producción
 
@@ -176,8 +203,10 @@ Planta-Fruticola/
 │   └── package.json
 │
 ├── capturas/                   # Archivos subidos
-├── impeccioncontenedor.sql     # Schema de BD
-├── start-dev.ps1              # Script de inicio
+├── database/
+│   └── inspeccioncontenedor.sql # Schema de BD
+├── docs/                       # Documentación
+├── start-system.ps1            # Script de inicio unificado
 └── README.md
 ```
 
@@ -244,6 +273,20 @@ Token expirado. Cierra sesión y vuelve a ingresar.
 ### "CORS policy blocking"
 Verifica puertos: Backend 8000, Frontend 5173.
 
+### "Module not found: app"
+```powershell
+cd backend
+.\venv\Scripts\Activate.ps1
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### "Could not read package.json"
+```powershell
+cd frontend
+npm install
+npm run dev -- --port 5173
+```
+
 ### "Module not found: jose"
 ```powershell
 cd backend
@@ -253,13 +296,18 @@ pip install python-jose[cryptography]==3.3.0
 
 ---
 
-## 📝 Scripts
+## 📝 Archivos Principales
 
-| Script | Descripción |
-|--------|-------------|
-| `install.ps1` | Instalación completa |
-| `setup-database.ps1` | Setup BD |
-| `start-dev.ps1` | Inicia servicios |
+| Archivo | Descripción |
+|---------|-------------|
+| `start-docker.bat` | **Script principal Docker** - Recomendado para colaboradores |
+| `start-system-simple.bat` | Script tradicional de inicio |
+| `docker-compose.yml` | Configuración de contenedores Docker |
+| `README.md` | Documentación completa del proyecto |
+| `QUICKSTART.md` | Guía de inicio rápido (5 minutos) |
+| `backend/Dockerfile` | Configuración Docker para backend |
+| `frontend/Dockerfile` | Configuración Docker para frontend |
+| `database/inspeccioncontenedor.sql` | Schema de la base de datos |
 
 ---
 

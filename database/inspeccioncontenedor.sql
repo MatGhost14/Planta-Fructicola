@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-10-2025 a las 06:48:41
+-- Tiempo de generación: 21-10-2025 a las 16:06:36
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `impeccioncontenedor`
+-- Base de datos: `inspeccioncontenedor`
 --
 
 -- --------------------------------------------------------
@@ -51,6 +51,13 @@ CREATE TABLE `bitacora_auditoria` (
   `detalles` text DEFAULT NULL,
   `creado_en` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `bitacora_auditoria`
+--
+
+INSERT INTO `bitacora_auditoria` (`id_evento`, `id_usuario`, `accion`, `detalles`, `creado_en`) VALUES
+(1, 2, 'LOGOUT', 'Logout desde aplicación web', '2025-10-21 11:05:37');
 
 -- --------------------------------------------------------
 
@@ -224,9 +231,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `password_hash`, `rol`, `estado`, `ultimo_acceso`, `creado_en`, `actualizado_en`) VALUES
-(1, 'Juan Díaz', 'juan.diaz@empresa.com', NULL, 'inspector', 'active', NULL, '2025-10-14 00:44:46', '2025-10-14 00:44:46'),
-(2, 'María López', 'maria.lopez@empresa.com', NULL, 'supervisor', 'active', NULL, '2025-10-14 00:44:46', '2025-10-14 00:44:46'),
-(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', NULL, 'admin', 'active', NULL, '2025-10-14 00:44:46', '2025-10-14 00:44:46');
+(1, 'Juan Díaz', 'juan.diaz@empresa.com', '\\.JDuTg.vju.vn6KR/ksUGwqytYt6nNiGYTJ.mih9C', 'inspector', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:03:02'),
+(2, 'María López', 'maria.lopez@empresa.com', '\\/LewY5QK7TBR3vXjpe', 'supervisor', 'active', '2025-10-21 11:05:37', '2025-10-14 00:44:46', '2025-10-21 11:05:37'),
+(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', '\\/LewY5QK7TBR3vXjpe', 'admin', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:00:30');
 
 -- --------------------------------------------------------
 
@@ -360,7 +367,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `bitacora_auditoria`
 --
 ALTER TABLE `bitacora_auditoria`
-  MODIFY `id_evento` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_evento` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `fotos_inspeccion`

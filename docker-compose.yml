@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: planta_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: inspeccioncontenedor
+      MYSQL_USER: planta_user
+      MYSQL_PASSWORD: planta_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/inspeccioncontenedor.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - planta_network
+    restart: unless-stopped
+
+  # Backend FastAPI
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: planta_backend
+    environment:
+      - DATABASE_URL=mysql://planta_user:planta_password@mysql:3306/inspeccioncontenedor
+      - SECRET_KEY=tu_clave_secreta_super_segura_aqui
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./capturas:/app/capturas
+    depends_on:
+      - mysql
+    networks:
+      - planta_network
+    restart: unless-stopped
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: planta_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - planta_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  planta_network:
+    driver: bridge

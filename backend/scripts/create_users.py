@@ -42,13 +42,13 @@ try:
         host='localhost',
         user='root',
         password='',  # Cambiar si tienes contraseña en XAMPP
-        database='impeccioncontenedor',
+        database='inspecciocontenedor',
         charset='utf8mb4'
     )
     
     cursor = conexion.cursor()
     
-    print("\nConectado a la base de datos 'impeccioncontenedor'")
+    print("\nConectado a la base de datos 'inspecciocontenedor'")
     
     # Actualizar usuarios existentes sin contraseña
     cursor.execute("""
