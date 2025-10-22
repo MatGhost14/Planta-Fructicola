@@ -12,8 +12,8 @@ from ..models import Usuario
 from ..schemas.auth import TokenData
 
 
-# Contexto de encriptación
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Contexto de encriptación - usando pbkdf2_sha256 que es más confiable
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 # Security scheme
 security = HTTPBearer()

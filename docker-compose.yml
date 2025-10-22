@@ -4,14 +4,14 @@ services:
   # Base de datos MySQL
   mysql:
     image: mysql:8.0
-    container_name: planta_mysql
+    container_name: planta-mysql
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: inspeccioncontenedor
       MYSQL_USER: planta_user
       MYSQL_PASSWORD: planta_password
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database/inspeccioncontenedor.sql:/docker-entrypoint-initdb.d/init.sql

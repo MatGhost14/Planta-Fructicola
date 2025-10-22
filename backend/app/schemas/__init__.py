@@ -1,5 +1,5 @@
 """Schemas Pydantic para validación y serialización"""
-from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
 from typing import Optional, List, Literal
 from datetime import datetime
 
