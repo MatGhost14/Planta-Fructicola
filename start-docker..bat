@@ -51,9 +51,9 @@ echo ✓ API Docs:      http://localhost:8000/docs
 echo ✓ Frontend:      http://localhost:5173
 echo.
 echo 🔑 Credenciales de prueba:
-echo   Inspector:  juan.diaz@empresa.com / password123
-echo   Supervisor: maria.lopez@empresa.com / password123
-echo   Admin:      carlos.ruiz@empresa.com / password123
+echo   Inspector:  juan.diaz@empresa.com / 123456
+echo   Supervisor: maria.lopez@empresa.com / 123456
+echo   Admin:      carlos.ruiz@empresa.com / 123456
 echo.
 echo 💡 Los servicios se ejecutan en ventanas separadas
 echo    Puedes cerrar esta ventana sin afectar el sistema

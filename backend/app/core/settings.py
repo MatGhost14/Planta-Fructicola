@@ -71,7 +71,7 @@ class Settings(BaseSettings):
     # ==========================================
     # GESTIÓN DE ARCHIVOS
     # ==========================================
-    CAPTURAS_DIR: str = "../capturas"  # Directorio de imágenes de inspecciones
+    CAPTURAS_DIR: str = "/app/capturas"  # Directorio de imágenes de inspecciones
     MAX_FILE_SIZE: int = 10485760  # Tamaño máximo de archivo: 10MB
     
     # ==========================================
