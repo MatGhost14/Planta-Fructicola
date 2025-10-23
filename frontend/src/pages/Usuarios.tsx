@@ -3,7 +3,7 @@
  * Solo accesible para Admin
  */
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Edit, Trash2, Shield, Mail, User as UserIcon, RefreshCw } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Shield, User as UserIcon } from 'lucide-react';
 import axios from '../api/axios';
 import { useToast } from '../components/ToastProvider';
 import type { Usuario, UsuarioCreate, UsuarioUpdate } from '../types';

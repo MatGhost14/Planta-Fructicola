@@ -202,7 +202,7 @@ const Login: React.FC = () => {
         </div>
 
         {/* Información de roles (solo desarrollo) */}
-        {import.meta.env.DEV && (
+        {import.meta.env.MODE === 'development' && (
           <div className="mt-4 bg-white rounded-lg shadow p-4">
             <p className="text-xs font-semibold text-gray-700 mb-2">🔧 Credenciales de prueba:</p>
             <div className="text-xs text-gray-600 space-y-1">

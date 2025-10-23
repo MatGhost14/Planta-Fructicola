@@ -13,7 +13,7 @@ const COLORS = {
   primary: '#2563eb'    // Azul - Principal
 };
 
-const CHART_COLORS = [COLORS.approved, COLORS.rejected, COLORS.pending, COLORS.primary];
+// const CHART_COLORS = [COLORS.approved, COLORS.rejected, COLORS.pending, COLORS.primary];
 
 const Dashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
