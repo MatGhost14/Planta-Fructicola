@@ -75,19 +75,6 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const getToastStyles = (type: ToastType) => {
-    switch (type) {
-      case 'success':
-        return 'bg-green-500 text-white';
-      case 'error':
-        return 'bg-red-500 text-white';
-      case 'warning':
-        return 'bg-yellow-500 text-white';
-      case 'info':
-        return 'bg-blue-500 text-white';
-    }
-  };
-
   const getToastIcon = (type: ToastType) => {
     switch (type) {
       case 'success':

@@ -116,7 +116,7 @@ const FirmaCanvas: React.FC<FirmaCanvasProps> = ({ onSave }) => {
           onTouchMove={(e) => {
             draw(getTouchPos(e));
           }}
-          onTouchEnd={(e) => {
+          onTouchEnd={() => {
             stopDrawing();
           }}
         />
