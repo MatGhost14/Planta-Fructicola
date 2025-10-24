@@ -59,13 +59,8 @@ const Login: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    try {
-      await login({ correo, password });
-    } catch (error) {
-      // Error ya manejado por el context
-    } finally {
-      setIsSubmitting(false);
-    }
+    await login({ correo, password });
+    setIsSubmitting(false);
   };
 
   if (loading) {
@@ -204,11 +199,11 @@ const Login: React.FC = () => {
         {/* Información de roles (solo desarrollo) */}
         {import.meta.env.MODE === 'development' && (
           <div className="mt-4 bg-white rounded-lg shadow p-4">
-            <p className="text-xs font-semibold text-gray-700 mb-2">🔧 Credenciales de prueba:</p>
+            <p className="text-xs font-semibold text-gray-700 mb-2">🔑 Credenciales de prueba:</p>
             <div className="text-xs text-gray-600 space-y-1">
-              <p><strong>Inspector:</strong> inspector@empresa.com / password123</p>
-              <p><strong>Supervisor:</strong> supervisor@empresa.com / password123</p>
-              <p><strong>Admin:</strong> admin@empresa.com / password123</p>
+              <p><strong>Inspector:</strong> juan.diaz@empresa.com / 123456</p>
+              <p><strong>Supervisor:</strong> maria.lopez@empresa.com / 123456</p>
+              <p><strong>Admin:</strong> carlos.ruiz@empresa.com / 123456</p>
             </div>
           </div>
         )}

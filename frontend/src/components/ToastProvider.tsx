@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -36,15 +36,26 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogData | null>(null);
 
+  const removeToast = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
   const showToast = useCallback((message: string, type: ToastType = 'info') => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
-
-    // Auto-eliminar después de 5 segundos
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, 5000);
   }, []);
+
+  // Cerrar toast con tecla ESC
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && toasts.length > 0) {
+        removeToast(toasts[0].id);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [toasts, removeToast]);
 
   const showSuccess = useCallback((message: string) => showToast(message, 'success'), [showToast]);
   const showError = useCallback((message: string) => showToast(message, 'error'), [showToast]);
@@ -62,10 +73,6 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       confirmDialog.resolve(value);
       setConfirmDialog(null);
     }
-  };
-
-  const removeToast = (id: number) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
   const getToastStyles = (type: ToastType) => {
@@ -123,47 +130,85 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     >
       {children}
 
-      {/* Toast Container */}
-      <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 max-w-md">
-        {toasts.map((toast) => (
+      {/* Toast Container - Popup Centrado - Solo muestra el primer toast de la cola */}
+      {toasts.length > 0 && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+          onClick={() => removeToast(toasts[0].id)}
+        >
           <div
-            key={toast.id}
-            className={`${getToastStyles(toast.type)} shadow-lg rounded-lg p-4 flex items-start gap-3 animate-slide-in-right`}
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full p-6 animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex-shrink-0">{getToastIcon(toast.type)}</div>
-            <p className="flex-1 text-sm font-medium">{toast.message}</p>
-            <button
-              onClick={() => removeToast(toast.id)}
-              className="flex-shrink-0 hover:opacity-80 transition-opacity"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-start gap-4 mb-4">
+              <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+                toasts[0].type === 'success' ? 'bg-green-100 dark:bg-green-900' :
+                toasts[0].type === 'error' ? 'bg-red-100 dark:bg-red-900' :
+                toasts[0].type === 'warning' ? 'bg-yellow-100 dark:bg-yellow-900' :
+                'bg-blue-100 dark:bg-blue-900'
+              }`}>
+                <div className={
+                  toasts[0].type === 'success' ? 'text-green-600 dark:text-green-300' :
+                  toasts[0].type === 'error' ? 'text-red-600 dark:text-red-300' :
+                  toasts[0].type === 'warning' ? 'text-yellow-600 dark:text-yellow-300' :
+                  'text-blue-600 dark:text-blue-300'
+                }>
+                  {getToastIcon(toasts[0].type)}
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  {toasts[0].type === 'success' ? 'Éxito' :
+                   toasts[0].type === 'error' ? 'Error' :
+                   toasts[0].type === 'warning' ? 'Advertencia' :
+                   'Información'}
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">{toasts[0].message}</p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              {toasts.length > 1 && (
+                <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                  +{toasts.length - 1} más
+                </span>
+              )}
+              <button
+                onClick={() => removeToast(toasts[0].id)}
+                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                  toasts[0].type === 'success' ? 'bg-green-600 hover:bg-green-700 text-white' :
+                  toasts[0].type === 'error' ? 'bg-red-600 hover:bg-red-700 text-white' :
+                  toasts[0].type === 'warning' ? 'bg-yellow-600 hover:bg-yellow-700 text-white' :
+                  'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                Aceptar
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
       {/* Confirm Dialog */}
       {confirmDialog && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6 animate-scale-in">
-            <div className="flex items-start gap-3 mb-6">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full p-6 animate-scale-in">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
+                <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" />
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar acción</h3>
-                <p className="text-gray-600 text-sm">{confirmDialog.message}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Confirmar acción</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">{confirmDialog.message}</p>
               </div>
             </div>
 
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => handleConfirm(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
               >
                 Cancelar
               </button>

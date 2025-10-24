@@ -217,8 +217,3 @@ export interface FotoCapturada {
   timestamp: string;
 }
 
-export interface ToastMessage {
-  id: string;
-  mensaje: string;
-  tipo: 'exito' | 'error' | 'info' | 'warning';
-}

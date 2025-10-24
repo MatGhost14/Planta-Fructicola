@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { plantasApi, navierasApi, usuariosApi } from '../api';
-import { useStore } from '../store';
+import { useToast } from '../components/ToastProvider';
 import type { Planta, Naviera, Usuario } from '../types';
 
 const Admin: React.FC = () => {
@@ -9,7 +9,7 @@ const Admin: React.FC = () => {
   const [navieras, setNavieras] = useState<Naviera[]>([]);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
-  const { addToast } = useStore();
+  const { showError } = useToast();
 
   useEffect(() => {
     cargarDatos();
@@ -30,7 +30,7 @@ const Admin: React.FC = () => {
       }
     } catch (error) {
       console.error('Error al cargar datos:', error);
-      addToast('Error al cargar datos', 'error');
+      showError('Error al cargar datos');
     } finally {
       setLoading(false);
     }

@@ -105,20 +105,18 @@ const FirmaCanvas: React.FC<FirmaCanvasProps> = ({ onSave }) => {
           width={600}
           height={200}
           className="w-full signature-pad cursor-crosshair"
+          style={{ touchAction: 'none' }}
           onMouseDown={(e) => startDrawing(getMousePos(e))}
           onMouseMove={(e) => draw(getMousePos(e))}
           onMouseUp={stopDrawing}
           onMouseLeave={stopDrawing}
           onTouchStart={(e) => {
-            e.preventDefault();
             startDrawing(getTouchPos(e));
           }}
           onTouchMove={(e) => {
-            e.preventDefault();
             draw(getTouchPos(e));
           }}
           onTouchEnd={(e) => {
-            e.preventDefault();
             stopDrawing();
           }}
         />

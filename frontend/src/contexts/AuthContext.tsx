@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService, { LoginCredentials, TokenData, SessionInfo } from '../api/auth';
-import { useStore } from '../store';
+import { useToast } from '../components/ToastProvider';
 
 interface AuthContextType {
   user: TokenData | null;
@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const addToast = useStore((state) => state.addToast);
+  const { showSuccess, showError, showInfo } = useToast();
 
   // Inicializar autenticación al cargar
   useEffect(() => {
@@ -79,14 +79,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const session = await authService.getSessionInfo();
       setSessionInfo(session);
       
-      addToast(`¡Bienvenido ${response.usuario.nombre}!`, 'exito');
+      showSuccess(`¡Bienvenido ${response.usuario.nombre}!`);
       
       // Redirigir según rol
       navigate('/dashboard');
     } catch (error: any) {
       const message = error.response?.data?.detail || 'Error al iniciar sesión';
-      addToast(message, 'error');
-      throw error;
+      showError(message);
+      // No lanzamos el error para evitar re-renders que cierren el toast
     }
   };
 
@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await authService.logout();
       setUser(null);
       setSessionInfo(null);
-      addToast('Sesión cerrada', 'info');
+      showInfo('Sesión cerrada');
       navigate('/login');
     } catch (error) {
       console.error('Error en logout:', error);

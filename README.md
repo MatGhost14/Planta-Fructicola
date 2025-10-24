@@ -46,7 +46,15 @@ Sistema completo de gestión de inspecciones con autenticación JWT, control de 
 - ✅ **KPIs en tiempo real**: Contadores por estado
 - ✅ **Gráficos**: Visualización de estadísticas
 - ✅ **Reportes**: Filtros personalizados
-- ✅ **Notificaciones**: Sistema de toasts
+- ✅ **Notificaciones**: Sistema de mensajes modales centrados
+
+### 🎨 Sistema de Notificaciones
+- ✅ **Popups Modales**: Mensajes centrados en pantalla
+- ✅ **No Auto-Cierre**: Requieren interacción del usuario
+- ✅ **Múltiples Opciones de Cierre**: Botón "Aceptar", clic fuera, o tecla ESC
+- ✅ **Sistema de Cola**: Un mensaje a la vez, con indicador de pendientes
+- ✅ **Tema Oscuro**: Soporte completo para tema claro/oscuro
+- ✅ **4 Tipos**: Éxito (verde), Error (rojo), Advertencia (amarillo), Info (azul)
 
 ---
 
@@ -226,6 +234,8 @@ Planta-Fruticola/
 - **TailwindCSS** - Estilos
 - **Axios** - HTTP client
 - **Lucide React** - Iconos
+- **Zustand** - State management
+- **React Router** - Navegación
 
 ---
 
@@ -313,4 +323,4 @@ pip install python-jose[cryptography]==3.3.0
 
 **Desarrollado con ❤️ usando FastAPI + React**
 
-**Última actualización:** 14 de octubre de 2025
+**Última actualización:** 24 de octubre de 2025

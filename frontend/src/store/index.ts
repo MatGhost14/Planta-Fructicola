@@ -3,16 +3,10 @@
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { ToastMessage } from '../types';
 
 type Theme = 'light' | 'dark';
 
 interface AppState {
-  // Toasts
-  toasts: ToastMessage[];
-  addToast: (mensaje: string, tipo?: ToastMessage['tipo']) => void;
-  removeToast: (id: string) => void;
-  
   // Tema
   theme: Theme;
   setTheme: (theme: Theme) => void;
@@ -30,26 +24,6 @@ interface AppState {
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
-      // Toasts
-      toasts: [],
-      addToast: (mensaje, tipo = 'exito') => {
-        const id = `toast-${Date.now()}`;
-        set((state) => ({
-          toasts: [...state.toasts, { id, mensaje, tipo }],
-        }));
-        
-        // Auto-remover después de 3 segundos
-        setTimeout(() => {
-          set((state) => ({
-            toasts: state.toasts.filter((t) => t.id !== id),
-          }));
-        }, 3000);
-      },
-      removeToast: (id) =>
-        set((state) => ({
-          toasts: state.toasts.filter((t) => t.id !== id),
-        })),
-      
       // Tema
       theme: 'light',
       setTheme: (theme) => {
