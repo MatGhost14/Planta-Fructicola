@@ -146,7 +146,7 @@ docker-compose logs -f
 
 ### 1. Iniciar Servicios
 
-**Opción A: Docker (Recomendado)**
+**Opción A: Script Automático (Recomendado)**
 ```cmd
 # Desde el directorio raíz del proyecto
 .\start-docker.bat
@@ -158,7 +158,19 @@ docker-compose logs -f
 docker-compose up -d
 ```
 
-### 2. Acceder a la Aplicación
+### 2. Scripts Disponibles
+
+| Script | Descripción | Uso |
+|--------|-------------|-----|
+| `start-docker.bat` | **Iniciar todo el sistema** | `.\start-docker.bat` |
+| `stop-docker.bat` | Detener todos los servicios | `.\stop-docker.bat` |
+| `docker-restart.bat` | Reiniciar servicios | `.\docker-restart.bat` |
+| `docker-status.bat` | Verificar estado del sistema | `.\docker-status.bat` |
+| `docker-logs.bat` | Ver logs en tiempo real | `.\docker-logs.bat` |
+| `docker-clean.bat` | Limpieza completa (elimina datos) | `.\docker-clean.bat` |
+| `docker-dev.bat` | Modo desarrollo (solo BD) | `.\docker-dev.bat` |
+
+### 3. Acceder a la Aplicación
 
 | Servicio | URL | Descripción |
 |----------|-----|-------------|
@@ -166,7 +178,7 @@ docker-compose up -d
 | **API** | http://localhost:8000 | Backend FastAPI |
 | **API Docs** | http://localhost:8000/docs | Documentación interactiva |
 
-### 3. Login
+### 4. Login
 
 ```
 Inspector:
@@ -238,7 +250,12 @@ Planta-Fruticola/
 ├── docker-compose.yml          # Orquestación Docker
 ├── start-docker.bat           # Script de inicio Docker
 ├── stop-docker.bat            # Script de parada Docker
+├── docker-restart.bat         # Script de reinicio
+├── docker-status.bat          # Script de verificación de estado
 ├── docker-logs.bat            # Script para ver logs
+├── docker-clean.bat           # Script de limpieza completa
+├── docker-dev.bat             # Script de modo desarrollo
+├── INICIO-RAPIDO.md           # Guía rápida para colaboradores
 └── README.md
 ```
 
@@ -303,14 +320,14 @@ POST   /api/inspecciones/{id}/fotos  # Subir fotos
 
 ### "Error al cargar catálogos" / CORS Policy Blocking
 ```cmd
-# Verificar que los contenedores estén corriendo
-docker ps
+# Verificar estado del sistema
+.\docker-status.bat
 
 # Reiniciar el backend para aplicar configuración CORS
 docker restart planta_backend
 
-# Verificar logs del backend
-docker logs planta_backend
+# Ver logs en tiempo real
+.\docker-logs.bat
 ```
 
 ### "No se pudo validar las credenciales"
@@ -327,14 +344,14 @@ docker exec planta-mysql mysql -u planta_user -pplanta_password inspeccionconten
 
 ### "Sin respuesta del servidor"
 ```cmd
-# Verificar que todos los servicios estén corriendo
-docker-compose ps
+# Verificar estado del sistema
+.\docker-status.bat
 
 # Reiniciar todos los servicios
-docker-compose restart
+.\docker-restart.bat
 
 # Ver logs en tiempo real
-docker-compose logs -f
+.\docker-logs.bat
 ```
 
 ### "Module not found" en desarrollo local
@@ -360,7 +377,12 @@ npm run dev -- --port 5173
 |---------|-------------|
 | `start-docker.bat` | **Script principal Docker** - Inicio automático |
 | `stop-docker.bat` | Script para detener servicios |
+| `docker-restart.bat` | Script para reiniciar servicios |
+| `docker-status.bat` | Script para verificar estado del sistema |
 | `docker-logs.bat` | Script para ver logs en tiempo real |
+| `docker-clean.bat` | Script de limpieza completa (elimina datos) |
+| `docker-dev.bat` | Script de modo desarrollo (solo BD) |
+| `INICIO-RAPIDO.md` | **Guía rápida para colaboradores** |
 | `docker-compose.yml` | Configuración de contenedores Docker |
 | `README.md` | Documentación completa del proyecto |
 | `backend/Dockerfile` | Configuración Docker para backend |
@@ -371,7 +393,32 @@ npm run dev -- --port 5173
 
 ## 🛠️ Mantenimiento
 
-### Comandos Docker Útiles
+### Scripts de Gestión
+
+```cmd
+# Iniciar todo el sistema
+.\start-docker.bat
+
+# Verificar estado del sistema
+.\docker-status.bat
+
+# Ver logs en tiempo real
+.\docker-logs.bat
+
+# Reiniciar servicios
+.\docker-restart.bat
+
+# Detener todos los servicios
+.\stop-docker.bat
+
+# Limpieza completa (elimina datos)
+.\docker-clean.bat
+
+# Modo desarrollo (solo BD)
+.\docker-dev.bat
+```
+
+### Comandos Docker Manuales
 
 ```cmd
 # Ver estado de contenedores
@@ -403,6 +450,31 @@ docker exec planta-mysql mysqldump -u planta_user -pplanta_password inspeccionco
 
 # Restaurar backup
 docker exec -i planta-mysql mysql -u planta_user -pplanta_password inspeccioncontenedor < backup.sql
+```
+
+---
+
+## 👥 Para Colaboradores
+
+### 🚀 Inicio Rápido
+1. **Clonar el repositorio**
+2. **Ejecutar**: `.\start-docker.bat`
+3. **Acceder**: http://localhost:5173
+4. **Login**: juan.diaz@empresa.com / 123456
+
+### 📋 Guía Completa
+- **Inicio rápido**: Ver `INICIO-RAPIDO.md`
+- **Scripts disponibles**: Ver tabla de scripts arriba
+- **Solución de problemas**: Ver sección de troubleshooting
+
+### 🔧 Desarrollo
+```cmd
+# Modo desarrollo (solo BD)
+.\docker-dev.bat
+
+# Luego iniciar backend y frontend localmente
+cd backend && python -m venv venv && .\venv\Scripts\Activate.ps1 && pip install -r requirements.txt && uvicorn app.main:app --reload
+cd frontend && npm install && npm run dev
 ```
 
 ---
