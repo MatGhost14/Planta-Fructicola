@@ -39,6 +39,15 @@ if errorlevel 1 (
 )
 
 echo.
+echo [Usuarios de Prueba]
+docker exec planta-mysql mysql -u planta_user -pplanta_password inspeccioncontenedor -e "SELECT COUNT(*) as total_usuarios FROM usuarios;" 2>nul
+if errorlevel 1 (
+    echo ❌ No se pueden verificar los usuarios
+) else (
+    echo ✅ Usuarios de prueba disponibles
+)
+
+echo.
 echo ==========================================
 echo   Informacion del Sistema
 echo ==========================================

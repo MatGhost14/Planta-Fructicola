@@ -38,6 +38,9 @@ Si no tienes Docker, descárgalo de: https://www.docker.com/products/docker-desk
 | `docker-logs.bat` | Ver logs en tiempo real |
 | `docker-clean.bat` | Limpieza completa (elimina datos) |
 | `docker-dev.bat` | Modo desarrollo (solo BD) |
+| `verify-users.bat` | Verificar usuarios de prueba |
+| `init-users.bat` | Inicializar usuarios si faltan |
+| `test-system.bat` | **Prueba completa del sistema** |
 
 ## 🔧 Solución de Problemas
 
@@ -72,6 +75,32 @@ docker restart planta_backend
 
 # Reiniciar todo
 .\docker-restart.bat
+```
+
+### "Error de login" / "Credenciales incorrectas"
+```cmd
+# Verificar usuarios
+.\verify-users.bat
+
+# Si no hay usuarios, inicializar
+.\init-users.bat
+
+# Limpiar y reiniciar desde cero
+.\docker-clean.bat
+.\start-docker.bat
+```
+
+### "No se pueden verificar los usuarios"
+```cmd
+# Verificar estado de la base de datos
+.\docker-status.bat
+
+# Si la BD no responde, reiniciar
+.\docker-restart.bat
+
+# Si persiste, limpiar todo
+.\docker-clean.bat
+.\start-docker.bat
 ```
 
 ## 📊 Comandos Docker Útiles

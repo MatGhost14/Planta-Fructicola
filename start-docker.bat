@@ -79,8 +79,21 @@ if errorlevel 1 (
 )
 
 echo.
-echo Verificando conectividad...
+echo Verificando conectividad de la base de datos...
 timeout /t 10 /nobreak >nul
+
+echo.
+echo Verificando que los usuarios de prueba esten disponibles...
+docker exec planta-mysql mysql -u planta_user -pplanta_password inspeccioncontenedor -e "SELECT COUNT(*) as usuarios FROM usuarios;" >nul 2>&1
+if errorlevel 1 (
+    echo ⚠️  Base de datos aun no esta lista, esperando...
+    timeout /t 10 /nobreak >nul
+    goto wait_loop
+)
+
+echo.
+echo Verificando API del backend...
+timeout /t 5 /nobreak >nul
 
 echo.
 echo ==========================================

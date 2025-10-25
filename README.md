@@ -169,6 +169,9 @@ docker-compose up -d
 | `docker-logs.bat` | Ver logs en tiempo real | `.\docker-logs.bat` |
 | `docker-clean.bat` | Limpieza completa (elimina datos) | `.\docker-clean.bat` |
 | `docker-dev.bat` | Modo desarrollo (solo BD) | `.\docker-dev.bat` |
+| `verify-users.bat` | Verificar usuarios de prueba | `.\verify-users.bat` |
+| `init-users.bat` | Inicializar usuarios si faltan | `.\init-users.bat` |
+| `test-system.bat` | **Prueba completa del sistema** | `.\test-system.bat` |
 
 ### 3. Acceder a la Aplicación
 
@@ -328,6 +331,19 @@ docker restart planta_backend
 
 # Ver logs en tiempo real
 .\docker-logs.bat
+```
+
+### "Error de login" / "Credenciales incorrectas"
+```cmd
+# Verificar usuarios de prueba
+.\verify-users.bat
+
+# Si no hay usuarios, inicializar
+.\init-users.bat
+
+# Limpiar y reiniciar desde cero
+.\docker-clean.bat
+.\start-docker.bat
 ```
 
 ### "No se pudo validar las credenciales"

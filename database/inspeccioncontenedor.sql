@@ -231,9 +231,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `password_hash`, `rol`, `estado`, `ultimo_acceso`, `creado_en`, `actualizado_en`) VALUES
-(1, 'Juan Díaz', 'juan.diaz@empresa.com', '$pbkdf2-sha256$29000$x3gvZYyxVorRGqM0BsCY0w$z1j9dByBjO4RY67/yUdHY9vxAB75WBLAw5iPiSOnbJc', 'inspector', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:03:02'),
-(2, 'María López', 'maria.lopez@empresa.com', '$pbkdf2-sha256$29000$2/s/p5SSUurdu9day1nLGQ$4RUft/vKtpDb/T1oQh2EME9Ht5iTfOQyDDjsWK73BgU', 'supervisor', 'active', '2025-10-21 11:05:37', '2025-10-14 00:44:46', '2025-10-21 11:05:37'),
-(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', '$pbkdf2-sha256$29000$WYvxvjdGCKHUureW8p4Tog$JP9IjJL080ymHHteC5oPnM8xvVSe/2sSTc6kYIY.zJ0', 'admin', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:00:30');
+(1, 'Juan Díaz', 'juan.diaz@empresa.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/7QzK8K2', 'inspector', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:03:02'),
+(2, 'María López', 'maria.lopez@empresa.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/7QzK8K2', 'supervisor', 'active', '2025-10-21 11:05:37', '2025-10-14 00:44:46', '2025-10-21 11:05:37'),
+(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/7QzK8K2', 'admin', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:00:30');
 
 -- --------------------------------------------------------
 
