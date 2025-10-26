@@ -109,6 +109,8 @@ cd "C:\Users\Jesus R\Desktop\Planta-"
 .\start-docker.bat
 ```
 
+> 📖 **Para más detalles**: Ver [SETUP.md](SETUP.md) - Guía completa de configuración
+
 **Opción 2: Script PowerShell (Tradicional)**
 ```powershell
 # 1. Navegar al directorio del proyecto
@@ -156,15 +158,15 @@ cd "C:\Users\Jesus R\Desktop\Planta-"
 ```
 Inspector:
 📧 juan.diaz@empresa.com
-🔑 password123
+🔑 123456
 
 Supervisor:
 📧 maria.lopez@empresa.com
-🔑 password123
+🔑 123456
 
 Admin:
 📧 carlos.ruiz@empresa.com
-🔑 password123
+🔑 123456
 ```
 
 ---
@@ -173,9 +175,9 @@ Admin:
 
 | Rol | Email | Password |
 |-----|-------|----------|
-| **Inspector** | juan.diaz@empresa.com | password123 |
-| **Supervisor** | maria.lopez@empresa.com | password123 |
-| **Admin** | carlos.ruiz@empresa.com | password123 |
+| **Inspector** | juan.diaz@empresa.com | 123456 |
+| **Supervisor** | maria.lopez@empresa.com | 123456 |
+| **Admin** | carlos.ruiz@empresa.com | 123456 |
 
 > ⚠️ **IMPORTANTE**: Cambia estas contraseñas en producción
 
@@ -311,16 +313,27 @@ pip install python-jose[cryptography]==3.3.0
 | Archivo | Descripción |
 |---------|-------------|
 | `start-docker.bat` | **Script principal Docker** - Recomendado para colaboradores |
-| `start-system-simple.bat` | Script tradicional de inicio |
+| `reset-docker.bat` | Script para limpiar y resetear Docker |
+| `stop-docker.bat` | Script para detener contenedores |
+| `SETUP.md` | 📖 **Guía completa de configuración** |
+| `QUICKSTART.md` | ⚡ Guía de inicio rápido (5 minutos) |
 | `docker-compose.yml` | Configuración de contenedores Docker |
-| `README.md` | Documentación completa del proyecto |
-| `QUICKSTART.md` | Guía de inicio rápido (5 minutos) |
+| `backend/entrypoint.sh` | Script de inicialización del backend |
 | `backend/Dockerfile` | Configuración Docker para backend |
 | `frontend/Dockerfile` | Configuración Docker para frontend |
-| `database/inspeccioncontenedor.sql` | Schema de la base de datos |
+| `database/inspeccioncontenedor.sql` | Schema completo de la base de datos |
+
+---
+
+## 📖 Documentación Adicional
+
+- **[SETUP.md](SETUP.md)** - Guía completa de configuración para colaboradores
+- **[QUICKSTART.md](QUICKSTART.md)** - Inicio rápido en 5 minutos
+- **[docs/README_backend.md](docs/README_backend.md)** - Documentación del backend
+- **[docs/README_frontend.md](docs/README_frontend.md)** - Documentación del frontend
 
 ---
 
 **Desarrollado con ❤️ usando FastAPI + React**
 
-**Última actualización:** 24 de octubre de 2025
+**Última actualización:** 26 de octubre de 2025

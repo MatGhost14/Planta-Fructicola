@@ -56,15 +56,15 @@ Ve a **http://localhost:5173** y usa:
 ```
 Inspector:
 📧 juan.diaz@empresa.com
-🔑 password123
+🔑 123456
 
 Supervisor:
 📧 maria.lopez@empresa.com
-🔑 password123
+🔑 123456
 
 Admin:
 📧 carlos.ruiz@empresa.com
-🔑 password123
+🔑 123456
 ```
 
 ---
@@ -81,7 +81,8 @@ Ahora puedes:
 
 ## 📚 Siguiente Paso
 
-Lee el [TUTORIAL.md](TUTORIAL.md) para aprender todas las funcionalidades.
+- 📖 Lee [SETUP.md](SETUP.md) para documentación completa de configuración
+- 🎓 Lee el [TUTORIAL.md](TUTORIAL.md) para aprender todas las funcionalidades
 
 ---
 
@@ -99,11 +100,13 @@ docker --version
 docker-compose restart
 ```
 
-### Contenedores no se construyen
+### Contenedores no se construyen o BD tiene problemas
 ```cmd
-# Limpiar y reconstruir
-docker-compose down
-docker-compose up --build -d
+# Limpiar y reconstruir COMPLETAMENTE
+.\reset-docker.bat
+
+# Luego reiniciar
+.\start-docker.bat
 ```
 
 ### Puerto ya en uso

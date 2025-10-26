@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-10-2025 a las 16:06:36
+-- Tiempo de generación: 26-10-2025 a las 04:55:00
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -57,7 +57,15 @@ CREATE TABLE `bitacora_auditoria` (
 --
 
 INSERT INTO `bitacora_auditoria` (`id_evento`, `id_usuario`, `accion`, `detalles`, `creado_en`) VALUES
-(1, 2, 'LOGOUT', 'Logout desde aplicación web', '2025-10-21 11:05:37');
+(1, 2, 'LOGOUT', 'Logout desde aplicación web', '2025-10-21 11:05:37'),
+(2, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-21 11:11:03'),
+(3, 2, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-21 11:11:39'),
+(4, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-21 11:11:54'),
+(5, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-21 11:15:43'),
+(6, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-21 11:18:27'),
+(7, 1, 'Inspección creada', 'Contenedor: ewrwer (INS_1761056771478)', '2025-10-21 11:26:11'),
+(8, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-21 12:33:37'),
+(9, 1, 'LOGOUT', 'Logout desde aplicación web', '2025-10-21 12:35:23');
 
 -- --------------------------------------------------------
 
@@ -75,6 +83,14 @@ CREATE TABLE `fotos_inspeccion` (
   `tomada_en` datetime DEFAULT NULL,
   `creado_en` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `fotos_inspeccion`
+--
+
+INSERT INTO `fotos_inspeccion` (`id_foto`, `id_inspeccion`, `foto_path`, `mime_type`, `hash_hex`, `orden`, `tomada_en`, `creado_en`) VALUES
+(1, 1, '/capturas/inspecciones/1/20251021_112611_565246.jpg', 'image/jpeg', 'e556a5002b94557acfef17e9e78136613760e7ddcf2846316d4b3d690e2aaf2e', 0, '2025-10-21 11:26:11', '2025-10-21 11:26:11'),
+(2, 1, '/capturas/inspecciones/1/20251021_112611_585744.jpg', 'image/jpeg', 'f770f654fdcd3b5d42bbb509fd1d0743f8cb7b8af04fa6b72007bf8b05bed01d', 1, '2025-10-21 11:26:11', '2025-10-21 11:26:11');
 
 -- --------------------------------------------------------
 
@@ -97,6 +113,13 @@ CREATE TABLE `inspecciones` (
   `creado_en` datetime NOT NULL DEFAULT current_timestamp(),
   `actualizado_en` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `inspecciones`
+--
+
+INSERT INTO `inspecciones` (`id_inspeccion`, `codigo`, `numero_contenedor`, `id_planta`, `id_navieras`, `temperatura_c`, `observaciones`, `firma_path`, `id_inspector`, `estado`, `inspeccionado_en`, `creado_en`, `actualizado_en`) VALUES
+(1, 'INS_1761056771478', 'ewrwer', 3, 3, 25.00, 'prueba', '/capturas/firmas/1_1761056771.png', 1, 'pending', '2025-10-21 11:26:11', '2025-10-21 11:26:11', '2025-10-21 11:26:11');
 
 --
 -- Disparadores `inspecciones`
@@ -169,7 +192,7 @@ INSERT INTO `plantas` (`id_planta`, `codigo`, `nombre`, `ubicacion`, `creado_en`
 (2, 'sur', 'Planta Sur', 'Sector Sur', '2025-10-14 00:44:45', '2025-10-14 00:44:45'),
 (3, 'este', 'Planta Este', 'Sector Este', '2025-10-14 00:44:45', '2025-10-14 00:44:45'),
 (4, 'oeste', 'Planta Oeste', 'Sector Oeste', '2025-10-14 00:44:45', '2025-10-14 00:44:45'),
-(5, '', 'Planta Norte', 'Monterrey', '2025-10-14 01:34:54', '2025-10-14 01:34:54');
+(5, 'norte2', 'Planta Norte', 'Monterrey', '2025-10-14 01:34:54', '2025-10-21 11:22:05');
 
 -- --------------------------------------------------------
 
@@ -231,9 +254,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `password_hash`, `rol`, `estado`, `ultimo_acceso`, `creado_en`, `actualizado_en`) VALUES
-(1, 'Juan Díaz', 'juan.diaz@empresa.com', '\\.JDuTg.vju.vn6KR/ksUGwqytYt6nNiGYTJ.mih9C', 'inspector', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:03:02'),
-(2, 'María López', 'maria.lopez@empresa.com', '\\/LewY5QK7TBR3vXjpe', 'supervisor', 'active', '2025-10-21 11:05:37', '2025-10-14 00:44:46', '2025-10-21 11:05:37'),
-(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', '\\/LewY5QK7TBR3vXjpe', 'admin', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:00:30');
+(1, 'Juan Díaz', 'juan.diaz@empresa.com', '$2b$12$SVcZg5CCoyntUX/gMzsSA.GR94bOM/u1Pl2fH6r/eEhULAuJSZHxK', 'inspector', 'active', '2025-10-21 12:35:23', '2025-10-14 00:44:46', '2025-10-21 12:35:23'),
+(2, 'María López', 'maria.lopez@empresa.com', '$2b$12$SVcZg5CCoyntUX/gMzsSA.GR94bOM/u1Pl2fH6r/eEhULAuJSZHxK', 'supervisor', 'active', '2025-10-21 11:05:37', '2025-10-14 00:44:46', '2025-10-21 11:10:41'),
+(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', '$2b$12$SVcZg5CCoyntUX/gMzsSA.GR94bOM/u1Pl2fH6r/eEhULAuJSZHxK', 'admin', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:10:41');
 
 -- --------------------------------------------------------
 
@@ -367,19 +390,19 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `bitacora_auditoria`
 --
 ALTER TABLE `bitacora_auditoria`
-  MODIFY `id_evento` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_evento` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `fotos_inspeccion`
 --
 ALTER TABLE `fotos_inspeccion`
-  MODIFY `id_foto` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_foto` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `inspecciones`
 --
 ALTER TABLE `inspecciones`
-  MODIFY `id_inspeccion` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_inspeccion` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `navieras`

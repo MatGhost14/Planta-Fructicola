@@ -16,6 +16,12 @@ services:
     networks:
       - planta_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "planta_user", "-pplanta_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Backend FastAPI
   backend:
@@ -32,10 +38,17 @@ services:
     volumes:
       - ./capturas:/app/capturas
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - planta_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/docs')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Frontend React
   frontend:
@@ -49,7 +62,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     networks:
       - planta_network
     restart: unless-stopped

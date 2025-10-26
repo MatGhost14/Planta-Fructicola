@@ -20,11 +20,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar código de la aplicación
 COPY . .
 
+# Copiar y dar permisos al script de entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Crear directorio para capturas si no existe
 RUN mkdir -p /app/capturas/firmas /app/capturas/inspecciones
 
 # Exponer puerto
 EXPOSE 8000
+
+# Usar entrypoint para inicialización
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Comando para ejecutar la aplicación
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

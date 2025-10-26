@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Tests
+tests/
+test_*.py
+
+# Documentation
+*.md
+docs/
+
+# Git
+.git/
+.gitignore
+
+# Alembic cache (no las migraciones)
+alembic/versions/__pycache__/
+
+# Capturas locales (se montan como volumen)
+capturas/
+
+# Environment
+.env
+.env.local
+*.env.example
+env.example
+
+# Scripts de desarrollo (usuarios vienen en SQL)
+scripts/
+
