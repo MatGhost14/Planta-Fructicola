@@ -6,6 +6,7 @@ Sistema completo de gestión de inspecciones con autenticación JWT, control de 
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)](https://reactjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript)](https://www.typescriptlang.org)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql)](https://www.mysql.com)
+[![Docker](https://img.shields.io/badge/Docker-4.0+-2496ED?logo=docker)](https://www.docker.com)
 
 ---
 
@@ -18,6 +19,8 @@ Sistema completo de gestión de inspecciones con autenticación JWT, control de 
 - [Credenciales de Prueba](#-credenciales-de-prueba)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Tecnologías](#-tecnologías)
+- [Solución de Problemas](#-solución-de-problemas)
+- [Mantenimiento](#-mantenimiento)
 
 ---
 
@@ -55,6 +58,14 @@ Sistema completo de gestión de inspecciones con autenticación JWT, control de 
 - ✅ **Sistema de Cola**: Un mensaje a la vez, con indicador de pendientes
 - ✅ **Tema Oscuro**: Soporte completo para tema claro/oscuro
 - ✅ **4 Tipos**: Éxito (verde), Error (rojo), Advertencia (amarillo), Info (azul)
+
+### 🐳 Docker & Contenedores
+- ✅ **Docker Compose**: Orquestación completa de servicios
+- ✅ **Base de datos MySQL**: Contenedor con datos de prueba
+- ✅ **Backend FastAPI**: Contenedor con dependencias Python
+- ✅ **Frontend React**: Contenedor con build optimizado
+- ✅ **CORS configurado**: Comunicación entre contenedores
+- ✅ **Volúmenes persistentes**: Datos y archivos subidos
 
 ---
 
@@ -100,24 +111,25 @@ Sistema completo de gestión de inspecciones con autenticación JWT, control de 
 
 ### Instalación Automática
 
-**Opción 1: Docker (Recomendado para Colaboradores)**
+**Opción 1: Docker (Recomendado)**
 ```cmd
 # 1. Navegar al directorio del proyecto
-cd "C:\Users\Jesus R\Desktop\Planta-"
+cd "C:\Users\HP\Desktop\Planta-Fruticola"
 
 # 2. Ejecutar con Docker
 .\start-docker.bat
 ```
 
-> 📖 **Para más detalles**: Ver [SETUP.md](SETUP.md) - Guía completa de configuración
-
-**Opción 2: Script PowerShell (Tradicional)**
-```powershell
+**Opción 2: Docker Compose Manual**
+```cmd
 # 1. Navegar al directorio del proyecto
-cd "C:\Users\Jesus R\Desktop\Planta-"
+cd "C:\Users\HP\Desktop\Planta-Fruticola"
 
-# 2. Ejecutar script de inicio completo
-.\start-system-simple.bat
+# 2. Iniciar todos los servicios
+docker-compose up -d
+
+# 3. Ver logs en tiempo real
+docker-compose logs -f
 ```
 
 **Docker automáticamente:**
@@ -125,6 +137,7 @@ cd "C:\Users\Jesus R\Desktop\Planta-"
 - ✅ Configura MySQL en contenedor
 - ✅ Inicia backend (FastAPI) en puerto 8000
 - ✅ Inicia frontend (React) en puerto 5173
+- ✅ Configura CORS correctamente
 - ✅ Sin problemas de dependencias
 
 ---
@@ -133,19 +146,34 @@ cd "C:\Users\Jesus R\Desktop\Planta-"
 
 ### 1. Iniciar Servicios
 
-**Opción A: Docker (Recomendado para Colaboradores)**
+**Opción A: Script Automático (Recomendado)**
 ```cmd
 # Desde el directorio raíz del proyecto
 .\start-docker.bat
 ```
 
-**Opción B: Script Tradicional**
+**Opción B: Docker Compose Manual**
 ```cmd
 # Desde el directorio raíz del proyecto
-.\start-system-simple.bat
+docker-compose up -d
 ```
 
-### 2. Acceder a la Aplicación
+### 2. Scripts Disponibles
+
+| Script | Descripción | Uso |
+|--------|-------------|-----|
+| `start-docker.bat` | **Iniciar todo el sistema** | `.\start-docker.bat` |
+| `stop-docker.bat` | Detener todos los servicios | `.\stop-docker.bat` |
+| `docker-restart.bat` | Reiniciar servicios | `.\docker-restart.bat` |
+| `docker-status.bat` | Verificar estado del sistema | `.\docker-status.bat` |
+| `docker-logs.bat` | Ver logs en tiempo real | `.\docker-logs.bat` |
+| `docker-clean.bat` | Limpieza completa (elimina datos) | `.\docker-clean.bat` |
+| `docker-dev.bat` | Modo desarrollo (solo BD) | `.\docker-dev.bat` |
+| `verify-users.bat` | Verificar usuarios de prueba | `.\verify-users.bat` |
+| `init-users.bat` | Inicializar usuarios si faltan | `.\init-users.bat` |
+| `test-system.bat` | **Prueba completa del sistema** | `.\test-system.bat` |
+
+### 3. Acceder a la Aplicación
 
 | Servicio | URL | Descripción |
 |----------|-----|-------------|
@@ -153,7 +181,7 @@ cd "C:\Users\Jesus R\Desktop\Planta-"
 | **API** | http://localhost:8000 | Backend FastAPI |
 | **API Docs** | http://localhost:8000/docs | Documentación interactiva |
 
-### 3. Login
+### 4. Login
 
 ```
 Inspector:
@@ -189,34 +217,48 @@ Admin:
 Planta-Fruticola/
 ├── backend/                    # Backend FastAPI
 │   ├── app/
+│   │   ├── core/              # Configuración central
 │   │   ├── routers/           # Endpoints con permisos
 │   │   ├── models/            # Modelos SQLAlchemy
 │   │   ├── schemas/           # Schemas Pydantic
 │   │   ├── services/          # Lógica de negocio
-│   │   ├── utils/
-│   │   │   └── auth.py        # JWT, bcrypt, decoradores
+│   │   ├── repositories/      # Acceso a datos
+│   │   ├── middleware/        # Middleware personalizado
+│   │   ├── utils/             # Utilidades
 │   │   └── main.py
-│   └── requirements.txt
+│   ├── alembic/               # Migraciones de BD
+│   ├── scripts/               # Scripts de administración
+│   ├── tests/                 # Tests unitarios
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── wait_for_db.py
 │
 ├── frontend/                   # Frontend React
 │   ├── src/
-│   │   ├── api/
-│   │   │   ├── auth.ts        # AuthService
-│   │   │   └── axios.ts       # Interceptor
-│   │   ├── components/
-│   │   │   ├── InspeccionModal.tsx
-│   │   │   └── ProtectedRoute.tsx
-│   │   ├── contexts/
-│   │   │   └── AuthContext.tsx
-│   │   └── pages/
-│   │       └── Login.tsx
+│   │   ├── api/               # Servicios API
+│   │   ├── components/        # Componentes reutilizables
+│   │   ├── contexts/          # Contextos React
+│   │   ├── pages/             # Páginas principales
+│   │   ├── store/             # Estado global (Zustand)
+│   │   ├── types/             # Definiciones TypeScript
+│   │   └── utils/             # Utilidades
+│   ├── Dockerfile
 │   └── package.json
 │
 ├── capturas/                   # Archivos subidos
+│   ├── inspecciones/          # Fotos de inspecciones
+│   └── firmas/                # Firmas digitales
 ├── database/
 │   └── inspeccioncontenedor.sql # Schema de BD
-├── docs/                       # Documentación
-├── start-system.ps1            # Script de inicio unificado
+├── docker-compose.yml          # Orquestación Docker
+├── start-docker.bat           # Script de inicio Docker
+├── stop-docker.bat            # Script de parada Docker
+├── docker-restart.bat         # Script de reinicio
+├── docker-status.bat          # Script de verificación de estado
+├── docker-logs.bat            # Script para ver logs
+├── docker-clean.bat           # Script de limpieza completa
+├── docker-dev.bat             # Script de modo desarrollo
+├── INICIO-RAPIDO.md           # Guía rápida para colaboradores
 └── README.md
 ```
 
@@ -277,33 +319,70 @@ POST   /api/inspecciones/{id}/fotos  # Subir fotos
 
 ---
 
-## 🐛 Troubleshooting
+## 🔧 Solución de Problemas
+
+### "Error al cargar catálogos" / CORS Policy Blocking
+```cmd
+# Verificar estado del sistema
+.\docker-status.bat
+
+# Reiniciar el backend para aplicar configuración CORS
+docker restart planta_backend
+
+# Ver logs en tiempo real
+.\docker-logs.bat
+```
+
+### "Error de login" / "Credenciales incorrectas"
+```cmd
+# Verificar usuarios de prueba
+.\verify-users.bat
+
+# Si no hay usuarios, inicializar
+.\init-users.bat
+
+# Limpiar y reiniciar desde cero
+.\docker-clean.bat
+.\start-docker.bat
+```
 
 ### "No se pudo validar las credenciales"
 Token expirado. Cierra sesión y vuelve a ingresar.
 
-### "CORS policy blocking"
-Verifica puertos: Backend 8000, Frontend 5173.
+### "500 Internal Server Error" en /api/plantas
+```cmd
+# Verificar datos en la base de datos
+docker exec planta-mysql mysql -u planta_user -pplanta_password inspeccioncontenedor -e "SELECT * FROM plantas;"
 
-### "Module not found: app"
-```powershell
-cd backend
-.\venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# Si hay registros con código vacío, corregirlos
+docker exec planta-mysql mysql -u planta_user -pplanta_password inspeccioncontenedor -e "UPDATE plantas SET codigo = 'centro' WHERE codigo = '';"
 ```
 
-### "Could not read package.json"
+### "Sin respuesta del servidor"
+```cmd
+# Verificar estado del sistema
+.\docker-status.bat
+
+# Reiniciar todos los servicios
+.\docker-restart.bat
+
+# Ver logs en tiempo real
+.\docker-logs.bat
+```
+
+### "Module not found" en desarrollo local
 ```powershell
+# Backend
+cd backend
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Frontend
 cd frontend
 npm install
 npm run dev -- --port 5173
-```
-
-### "Module not found: jose"
-```powershell
-cd backend
-.\venv\Scripts\Activate.ps1
-pip install python-jose[cryptography]==3.3.0
 ```
 
 ---
@@ -312,28 +391,110 @@ pip install python-jose[cryptography]==3.3.0
 
 | Archivo | Descripción |
 |---------|-------------|
-| `start-docker.bat` | **Script principal Docker** - Recomendado para colaboradores |
-| `reset-docker.bat` | Script para limpiar y resetear Docker |
-| `stop-docker.bat` | Script para detener contenedores |
-| `SETUP.md` | 📖 **Guía completa de configuración** |
-| `QUICKSTART.md` | ⚡ Guía de inicio rápido (5 minutos) |
+| `start-docker.bat` | **Script principal Docker** - Inicio automático |
+| `stop-docker.bat` | Script para detener servicios |
+| `docker-restart.bat` | Script para reiniciar servicios |
+| `docker-status.bat` | Script para verificar estado del sistema |
+| `docker-logs.bat` | Script para ver logs en tiempo real |
+| `docker-clean.bat` | Script de limpieza completa (elimina datos) |
+| `docker-dev.bat` | Script de modo desarrollo (solo BD) |
+| `INICIO-RAPIDO.md` | **Guía rápida para colaboradores** |
 | `docker-compose.yml` | Configuración de contenedores Docker |
-| `backend/entrypoint.sh` | Script de inicialización del backend |
+| `README.md` | Documentación completa del proyecto |
 | `backend/Dockerfile` | Configuración Docker para backend |
 | `frontend/Dockerfile` | Configuración Docker para frontend |
-| `database/inspeccioncontenedor.sql` | Schema completo de la base de datos |
+| `database/inspeccioncontenedor.sql` | Schema de la base de datos |
 
 ---
 
-## 📖 Documentación Adicional
+## 🛠️ Mantenimiento
 
-- **[SETUP.md](SETUP.md)** - Guía completa de configuración para colaboradores
-- **[QUICKSTART.md](QUICKSTART.md)** - Inicio rápido en 5 minutos
-- **[docs/README_backend.md](docs/README_backend.md)** - Documentación del backend
-- **[docs/README_frontend.md](docs/README_frontend.md)** - Documentación del frontend
+### Scripts de Gestión
+
+```cmd
+# Iniciar todo el sistema
+.\start-docker.bat
+
+# Verificar estado del sistema
+.\docker-status.bat
+
+# Ver logs en tiempo real
+.\docker-logs.bat
+
+# Reiniciar servicios
+.\docker-restart.bat
+
+# Detener todos los servicios
+.\stop-docker.bat
+
+# Limpieza completa (elimina datos)
+.\docker-clean.bat
+
+# Modo desarrollo (solo BD)
+.\docker-dev.bat
+```
+
+### Comandos Docker Manuales
+
+```cmd
+# Ver estado de contenedores
+docker ps
+
+# Ver logs de un servicio específico
+docker logs planta_backend
+docker logs planta_frontend
+docker logs planta-mysql
+
+# Reiniciar un servicio
+docker restart planta_backend
+
+# Detener todos los servicios
+docker-compose down
+
+# Limpiar contenedores no utilizados
+docker system prune -f
+
+# Ver logs en tiempo real
+docker-compose logs -f
+```
+
+### Backup de Base de Datos
+
+```cmd
+# Crear backup
+docker exec planta-mysql mysqldump -u planta_user -pplanta_password inspeccioncontenedor > backup.sql
+
+# Restaurar backup
+docker exec -i planta-mysql mysql -u planta_user -pplanta_password inspeccioncontenedor < backup.sql
+```
 
 ---
 
-**Desarrollado con ❤️ usando FastAPI + React**
+## 👥 Para Colaboradores
 
-**Última actualización:** 26 de octubre de 2025
+### 🚀 Inicio Rápido
+1. **Clonar el repositorio**
+2. **Ejecutar**: `.\start-docker.bat`
+3. **Acceder**: http://localhost:5173
+4. **Login**: juan.diaz@empresa.com / 123456
+
+### 📋 Guía Completa
+- **Inicio rápido**: Ver `INICIO-RAPIDO.md`
+- **Scripts disponibles**: Ver tabla de scripts arriba
+- **Solución de problemas**: Ver sección de troubleshooting
+
+### 🔧 Desarrollo
+```cmd
+# Modo desarrollo (solo BD)
+.\docker-dev.bat
+
+# Luego iniciar backend y frontend localmente
+cd backend && python -m venv venv && .\venv\Scripts\Activate.ps1 && pip install -r requirements.txt && uvicorn app.main:app --reload
+cd frontend && npm install && npm run dev
+```
+
+---
+
+**Desarrollado con ❤️ usando FastAPI + React + Docker**
+
+**Última actualización:** 25 de octubre de 2025

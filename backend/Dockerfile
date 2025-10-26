@@ -30,7 +30,7 @@ RUN mkdir -p /app/capturas/firmas /app/capturas/inspecciones
 # Exponer puerto
 EXPOSE 8000
 
-# Usar entrypoint para inicialización
+# Usar entrypoint para inicialización (espera MySQL y verifica BD)
 ENTRYPOINT ["/entrypoint.sh"]
 
 # Comando para ejecutar la aplicación

@@ -30,9 +30,15 @@ services:
       dockerfile: Dockerfile
     container_name: planta_backend
     environment:
-      - DATABASE_URL=mysql://planta_user:planta_password@mysql:3306/inspeccioncontenedor
+      - DATABASE_URL=mysql+pymysql://planta_user:planta_password@mysql:3306/inspeccioncontenedor
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=planta_user
+      - DB_PASSWORD=planta_password
+      - DB_NAME=inspeccioncontenedor
       - SECRET_KEY=tu_clave_secreta_super_segura_aqui
       - CAPTURAS_DIR=/app/capturas
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
     ports:
       - "8000:8000"
     volumes:
