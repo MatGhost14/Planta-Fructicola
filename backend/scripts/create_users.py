@@ -58,7 +58,7 @@ try:
     """, (PASSWORD_HASH,))
     
     actualizados = cursor.rowcount
-    print(f"\n✓ {actualizados} usuarios existentes actualizados con contraseña")
+    print(f"\nOK {actualizados} usuarios existentes actualizados con contraseña")
     
     # Crear usuarios de prueba si no existen
     for usuario in usuarios:
@@ -73,14 +73,14 @@ try:
                 SET nombre = %s, password_hash = %s, rol = %s, estado = %s
                 WHERE correo = %s
             """, (usuario['nombre'], PASSWORD_HASH, usuario['rol'], usuario['estado'], usuario['correo']))
-            print(f"✓ Usuario actualizado: {usuario['correo']} ({usuario['rol']})")
+            print(f"OK Usuario actualizado: {usuario['correo']} ({usuario['rol']})")
         else:
             # Insertar
             cursor.execute("""
                 INSERT INTO usuarios (nombre, correo, password_hash, rol, estado)
                 VALUES (%s, %s, %s, %s, %s)
             """, (usuario['nombre'], usuario['correo'], PASSWORD_HASH, usuario['rol'], usuario['estado']))
-            print(f"✓ Usuario creado: {usuario['correo']} ({usuario['rol']})")
+            print(f"OK Usuario creado: {usuario['correo']} ({usuario['rol']})")
     
     # Confirmar cambios
     conexion.commit()
@@ -112,15 +112,15 @@ try:
         print(f"  Contraseña: {PASSWORD}")
     
     print("\n" + "="*60)
-    print("✅ Usuarios de prueba configurados correctamente")
+    print("OK Usuarios de prueba configurados correctamente")
     print("="*60)
     
     cursor.close()
     conexion.close()
     
 except pymysql.Error as e:
-    print(f"\n❌ Error de MySQL: {e}")
+    print(f"\nX Error de MySQL: {e}")
     sys.exit(1)
 except Exception as e:
-    print(f"\n❌ Error: {e}")
+    print(f"\nX Error: {e}")
     sys.exit(1)

@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Función para esperar a que MySQL esté listo
 wait_for_mysql() {
-    echo -e "${YELLOW}⏳ Esperando a que MySQL esté disponible...${NC}"
+    echo -e "${YELLOW}Esperando a que MySQL esté disponible...${NC}"
     
     MAX_TRIES=30
     COUNT=0
@@ -42,7 +42,7 @@ try:
 except Exception as e:
     sys.exit(1)
 " 2>/dev/null; then
-            echo -e "${GREEN}✓ MySQL está listo!${NC}"
+            echo -e "${GREEN}OK MySQL está listo!${NC}"
             return 0
         fi
         
@@ -51,13 +51,13 @@ except Exception as e:
         sleep 2
     done
     
-    echo -e "${RED}✗ ERROR: MySQL no respondió después de $MAX_TRIES intentos${NC}"
+    echo -e "${RED}X ERROR: MySQL no respondió después de $MAX_TRIES intentos${NC}"
     exit 1
 }
 
 # Función para verificar si la base de datos está inicializada
 check_database_initialized() {
-    echo -e "${YELLOW}🔍 Verificando estado de la base de datos...${NC}"
+    echo -e "${YELLOW}Verificando estado de la base de datos...${NC}"
     
     TABLES_COUNT=$(python -c "
 import pymysql
@@ -85,10 +85,10 @@ except Exception as e:
 " 2>/dev/null)
     
     if [ "$TABLES_COUNT" -gt "5" ]; then
-        echo -e "${GREEN}✓ Base de datos ya está inicializada ($TABLES_COUNT tablas encontradas)${NC}"
+        echo -e "${GREEN}OK Base de datos ya está inicializada ($TABLES_COUNT tablas encontradas)${NC}"
         return 0
     else
-        echo -e "${YELLOW}⚠ Base de datos parece estar vacía o incompleta ($TABLES_COUNT tablas)${NC}"
+        echo -e "${YELLOW}! Base de datos parece estar vacía o incompleta ($TABLES_COUNT tablas)${NC}"
         return 1
     fi
 }
@@ -100,12 +100,12 @@ wait_for_mysql
 check_database_initialized
 
 # Pequeña pausa adicional para asegurar que MySQL esté completamente listo
-echo -e "${YELLOW}⏳ Esperando estabilización del servicio...${NC}"
+echo -e "${YELLOW}Esperando estabilización del servicio...${NC}"
 sleep 3
 
 echo ""
 echo -e "${GREEN}=========================================="
-echo "  ✓ Inicialización completada"
+echo "  OK Inicialización completada"
 echo "==========================================${NC}"
 echo ""
 

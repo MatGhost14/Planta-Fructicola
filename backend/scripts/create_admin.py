@@ -29,21 +29,21 @@ def validar_contrasena(password: str) -> tuple[bool, str]:
     - Al menos 1 símbolo especial
     """
     if len(password) < 8:
-        return False, "❌ La contraseña debe tener al menos 8 caracteres"
+        return False, "X La contraseña debe tener al menos 8 caracteres"
     
     if not re.search(r'[A-Z]', password):
-        return False, "❌ La contraseña debe contener al menos una mayúscula"
+        return False, "X La contraseña debe contener al menos una mayúscula"
     
     if not re.search(r'[a-z]', password):
-        return False, "❌ La contraseña debe contener al menos una minúscula"
+        return False, "X La contraseña debe contener al menos una minúscula"
     
     if not re.search(r'[0-9]', password):
-        return False, "❌ La contraseña debe contener al menos un número"
+        return False, "X La contraseña debe contener al menos un número"
     
     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        return False, "❌ La contraseña debe contener al menos un símbolo especial (!@#$%^&*...)"
+        return False, "X La contraseña debe contener al menos un símbolo especial (!@#$%^&*...)"
     
-    return True, "✅ Contraseña válida"
+    return True, "OK Contraseña válida"
 
 
 def validar_correo(email: str) -> bool:
@@ -54,7 +54,7 @@ def validar_correo(email: str) -> bool:
 
 def eliminar_usuarios_prueba(db: Session):
     """Elimina usuarios de prueba del sistema"""
-    print("\n🔍 Buscando usuarios de prueba...")
+    print("\nBuscando usuarios de prueba...")
     
     usuarios_prueba = db.query(Usuario).filter(
         Usuario.correo.in_([
@@ -65,10 +65,10 @@ def eliminar_usuarios_prueba(db: Session):
     ).all()
     
     if not usuarios_prueba:
-        print("✅ No se encontraron usuarios de prueba")
+        print("OK No se encontraron usuarios de prueba")
         return
     
-    print(f"\n⚠️  Se encontraron {len(usuarios_prueba)} usuarios de prueba:")
+    print(f"\n! Se encontraron {len(usuarios_prueba)} usuarios de prueba:")
     for u in usuarios_prueba:
         print(f"  - {u.correo} ({u.rol})")
     
@@ -78,15 +78,15 @@ def eliminar_usuarios_prueba(db: Session):
         for usuario in usuarios_prueba:
             db.delete(usuario)
         db.commit()
-        print(f"✅ {len(usuarios_prueba)} usuarios de prueba eliminados")
+        print(f"OK {len(usuarios_prueba)} usuarios de prueba eliminados")
     else:
-        print("⏭️  Usuarios de prueba conservados")
+        print("SALTAR Usuarios de prueba conservados")
 
 
 def crear_admin():
     """Función principal para crear administrador"""
     print("=" * 60)
-    print("🔐 CREACIÓN DE USUARIO ADMINISTRADOR")
+    print("CREACION DE USUARIO ADMINISTRADOR")
     print("=" * 60)
     
     # Conectar a BD
@@ -97,7 +97,7 @@ def crear_admin():
         eliminar_usuarios_prueba(db)
         
         print("\n" + "=" * 60)
-        print("📝 CREAR NUEVO ADMINISTRADOR")
+        print("CREAR NUEVO ADMINISTRADOR")
         print("=" * 60)
         
         # Paso 2: Solicitar datos del nuevo admin
@@ -105,24 +105,24 @@ def crear_admin():
             nombre = input("\nNombre completo: ").strip()
             if len(nombre) >= 3:
                 break
-            print("❌ El nombre debe tener al menos 3 caracteres")
+            print("X El nombre debe tener al menos 3 caracteres")
         
         while True:
             correo = input("Correo electrónico: ").strip().lower()
             if not validar_correo(correo):
-                print("❌ Formato de correo inválido")
+                print("X Formato de correo inválido")
                 continue
             
             # Verificar que no exista
             usuario_existe = db.query(Usuario).filter(Usuario.correo == correo).first()
             if usuario_existe:
-                print(f"❌ Ya existe un usuario con el correo {correo}")
+                print(f"X Ya existe un usuario con el correo {correo}")
                 continue
             
             break
         
         # Paso 3: Solicitar contraseña segura
-        print("\n📋 Política de contraseñas:")
+        print("\nPolítica de contraseñas:")
         print("  • Mínimo 8 caracteres")
         print("  • Al menos 1 mayúscula (A-Z)")
         print("  • Al menos 1 minúscula (a-z)")
@@ -140,14 +140,14 @@ def crear_admin():
             password_confirm = getpass("Confirmar contraseña: ")
             
             if password != password_confirm:
-                print("❌ Las contraseñas no coinciden")
+                print("X Las contraseñas no coinciden")
                 continue
             
             print(mensaje)
             break
         
         # Paso 4: Crear usuario admin
-        print("\n⏳ Creando usuario administrador...")
+        print("\nCreando usuario administrador...")
         
         nuevo_admin = Usuario(
             nombre=nombre,
@@ -164,18 +164,18 @@ def crear_admin():
         db.refresh(nuevo_admin)
         
         print("\n" + "=" * 60)
-        print("✅ ¡ADMINISTRADOR CREADO EXITOSAMENTE!")
+        print("OK ADMINISTRADOR CREADO EXITOSAMENTE!")
         print("=" * 60)
-        print(f"\n📧 Correo: {nuevo_admin.correo}")
-        print(f"👤 Nombre: {nuevo_admin.nombre}")
-        print(f"🔑 Rol: {nuevo_admin.rol}")
-        print(f"✅ Estado: {nuevo_admin.estado}")
-        print(f"\n🚀 Ya puedes iniciar sesión con estas credenciales")
+        print(f"\nCorreo: {nuevo_admin.correo}")
+        print(f"Nombre: {nuevo_admin.nombre}")
+        print(f"Rol: {nuevo_admin.rol}")
+        print(f"Estado: {nuevo_admin.estado}")
+        print(f"\nYa puedes iniciar sesión con estas credenciales")
         print("=" * 60)
         
     except Exception as e:
         db.rollback()
-        print(f"\n❌ ERROR: {str(e)}")
+        print(f"\nX ERROR: {str(e)}")
         sys.exit(1)
     finally:
         db.close()
@@ -185,5 +185,5 @@ if __name__ == "__main__":
     try:
         crear_admin()
     except KeyboardInterrupt:
-        print("\n\n⚠️  Operación cancelada por el usuario")
+        print("\n\n! Operación cancelada por el usuario")
         sys.exit(0)

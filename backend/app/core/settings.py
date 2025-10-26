@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     # ==========================================
     # SEGURIDAD Y AUTENTICACIÓN JWT
     # ==========================================
-    SECRET_KEY: str  # ⚠️ OBLIGATORIO - Generar una clave aleatoria segura
+    SECRET_KEY: str  # OBLIGATORIO - Generar una clave aleatoria segura
     ALGORITHM: str = "HS256"  # Algoritmo de encriptación JWT
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480  # Duración del token (8 horas)
     
@@ -71,7 +71,7 @@ class Settings(BaseSettings):
     # ==========================================
     # GESTIÓN DE ARCHIVOS
     # ==========================================
-    CAPTURAS_DIR: str = "/app/capturas"  # Directorio de imágenes de inspecciones
+    CAPTURAS_DIR: str = "../capturas"  # Directorio de imágenes de inspecciones
     MAX_FILE_SIZE: int = 10485760  # Tamaño máximo de archivo: 10MB
     
     # ==========================================

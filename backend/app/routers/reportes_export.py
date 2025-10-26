@@ -154,9 +154,9 @@ def crear_pdf_inspecciones(inspecciones: list, filtros: dict) -> io.BytesIO:
     
     resumen_data = [
         ['ESTADO', 'CANTIDAD', 'PORCENTAJE'],
-        ['✅ Aprobadas', str(aprobadas), f'{porcentaje_aprobadas:.1f}%'],
-        ['⏳ Pendientes', str(pendientes), f'{porcentaje_pendientes:.1f}%'],
-        ['❌ Rechazadas', str(rechazadas), f'{porcentaje_rechazadas:.1f}%'],
+        ['OK Aprobadas', str(aprobadas), f'{porcentaje_aprobadas:.1f}%'],
+        ['Pendientes', str(pendientes), f'{porcentaje_pendientes:.1f}%'],
+        ['X Rechazadas', str(rechazadas), f'{porcentaje_rechazadas:.1f}%'],
         ['TOTAL', str(total), '100%']
     ]
     
@@ -203,7 +203,7 @@ def crear_pdf_inspecciones(inspecciones: list, filtros: dict) -> io.BytesIO:
     
     # ========== DETALLE DE INSPECCIONES ==========
     if inspecciones:
-        elementos.append(Paragraph("📋 DETALLE DE INSPECCIONES", titulo_seccion))
+        elementos.append(Paragraph("DETALLE DE INSPECCIONES", titulo_seccion))
         elementos.append(Spacer(1, 0.15*inch))
         
         # Encabezados
@@ -213,8 +213,8 @@ def crear_pdf_inspecciones(inspecciones: list, filtros: dict) -> io.BytesIO:
         for insp in inspecciones[:100]:  # Limitar a 100 registros
             estado_texto = {
                 'pending': '⏳ Pendiente',
-                'approved': '✅ Aprobado',
-                'rejected': '❌ Rechazado'
+                'approved': 'OK Aprobado',
+                'rejected': 'X Rechazado'
             }.get(insp.estado, insp.estado)
             
             fecha = insp.inspeccionado_en.strftime("%d/%m/%Y") if insp.inspeccionado_en else 'N/A'

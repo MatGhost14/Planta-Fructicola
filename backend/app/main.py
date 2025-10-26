@@ -30,7 +30,7 @@ from .schemas import HealthResponse
 setup_logging()
 logger = logging.getLogger(__name__)
 
-logger.info(f"🚀 Iniciando {settings.APP_NAME} v{settings.APP_VERSION}")
+logger.info(f"Iniciando {settings.APP_NAME} v{settings.APP_VERSION}")
 logger.info(f"Entorno: {settings.ENVIRONMENT}")
 logger.info(f"Debug mode: {settings.DEBUG}")
 
@@ -48,10 +48,7 @@ app = FastAPI(
     redoc_url="/redoc" if settings.DEBUG else None
 )
 
-# Middleware de logging (debe ir PRIMERO)
-app.add_middleware(LoggingMiddleware)
-
-# Configurar CORS
+# Configurar CORS (DEBE IR PRIMERO - antes de otros middlewares)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -62,14 +59,10 @@ app.add_middleware(
     max_age=3600,
 )
 
-logger.info(f"CORS configurado: {', '.join(settings.cors_origins)}")
+# Middleware de logging
+app.add_middleware(LoggingMiddleware)
 
-# Montar archivos estáticos
-app.mount(
-    "/capturas",
-    StaticFiles(directory=settings.CAPTURAS_DIR),
-    name="capturas"
-)
+logger.info(f"CORS configurado: {', '.join(settings.cors_origins)}")
 
 # Health check
 @app.get("/api/health", response_model=HealthResponse, tags=["Health"])
@@ -91,7 +84,21 @@ app.include_router(preferencias_router, prefix="/api")
 app.include_router(estadisticas_router, prefix="/api")
 app.include_router(reportes_export_router, prefix="/api/reportes/export")
 
-logger.info("✅ Todos los routers registrados")
+logger.info("Todos los routers registrados")
+
+# Montar archivos estáticos AL FINAL (después de los routers API)
+capturas_path = os.path.abspath(settings.CAPTURAS_DIR)
+logger.info(f"Directorio de capturas: {capturas_path}")
+
+if os.path.exists(capturas_path):
+    app.mount(
+        "/capturas",
+        StaticFiles(directory=capturas_path),
+        name="capturas"
+    )
+    logger.info("Archivos estaticos montados correctamente")
+else:
+    logger.warning(f"Directorio de capturas no existe: {capturas_path}")
 
 
 # Root endpoint

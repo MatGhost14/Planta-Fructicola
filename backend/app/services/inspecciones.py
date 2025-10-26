@@ -126,13 +126,23 @@ class InspeccionService:
             full_path = os.path.join(settings.CAPTURAS_DIR, firma_path)
             delete_file_safe(full_path)
         
-        # Eliminar directorio de la inspección
-        dir_path = os.path.join(settings.CAPTURAS_DIR, "inspecciones", str(id_inspeccion))
+        # Intentar eliminar directorio de la inspección (puede estar en cualquier fecha)
+        # La estructura es: capturas/inspecciones/dd-mm-yyyy/id_inspeccion/
+        insp_dir_base = os.path.join(settings.CAPTURAS_DIR, "inspecciones")
         try:
-            if os.path.exists(dir_path):
-                os.rmdir(dir_path)
-        except:
-            pass
+            # Buscar en todos los subdirectorios de fecha
+            if os.path.exists(insp_dir_base):
+                for fecha_dir in os.listdir(insp_dir_base):
+                    dir_path = os.path.join(insp_dir_base, fecha_dir, str(id_inspeccion))
+                    if os.path.exists(dir_path):
+                        # Eliminar archivos dentro del directorio
+                        for file in os.listdir(dir_path):
+                            file_path = os.path.join(dir_path, file)
+                            delete_file_safe(file_path)
+                        # Eliminar directorio vacío
+                        os.rmdir(dir_path)
+        except Exception as e:
+            print(f"Error al eliminar directorio de inspección: {e}")
         
         # Eliminar de BD
         inspeccion_repository.delete(db, inspeccion)
@@ -146,10 +156,14 @@ class InspeccionService:
         """Sube múltiples fotos para una inspección"""
         inspeccion = self.obtener_inspeccion(db, id_inspeccion)
         
-        # Directorio destino
+        # Obtener fecha actual en formato dd-mm-yyyy
+        fecha_carpeta = datetime.now().strftime("%d-%m-%Y")
+        
+        # Directorio destino organizado por fecha
         dest_dir = os.path.join(
             settings.CAPTURAS_DIR,
             "inspecciones",
+            fecha_carpeta,
             str(id_inspeccion)
         )
         

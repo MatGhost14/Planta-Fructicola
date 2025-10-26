@@ -1,10 +1,12 @@
 import React from 'react';
 import { useStore } from '../store';
 import { useToast } from '../components/ToastProvider';
+import { useAuth } from '../contexts/AuthContext';
 
 const Configuracion: React.FC = () => {
-  const { theme, setTheme, usuarioActual } = useStore();
+  const { theme, setTheme } = useStore();
   const { showSuccess } = useToast();
+  const { user, loading } = useAuth();
 
   const handleThemeChange = (newTheme: 'light' | 'dark') => {
     console.log('Cambiando tema a:', newTheme);
@@ -12,6 +14,18 @@ const Configuracion: React.FC = () => {
     console.log('Clase dark en HTML:', document.documentElement.classList.contains('dark'));
     showSuccess(`Tema ${newTheme === 'dark' ? 'oscuro' : 'claro'} activado`);
   };
+
+  // Si está cargando o no hay usuario, mostrar mensaje de carga
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-500 dark:text-gray-400">Cargando perfil...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-2">
@@ -43,7 +57,7 @@ const Configuracion: React.FC = () => {
               </label>
               <input
                 type="text"
-                value={usuarioActual.nombre}
+                value={user.nombre}
                 disabled
                 className="input-field bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 cursor-not-allowed"
               />
@@ -54,7 +68,7 @@ const Configuracion: React.FC = () => {
               </label>
               <input
                 type="email"
-                value={usuarioActual.correo}
+                value={user.correo}
                 disabled
                 className="input-field bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 cursor-not-allowed"
               />
@@ -65,7 +79,7 @@ const Configuracion: React.FC = () => {
               </label>
               <input
                 type="text"
-                value={usuarioActual.rol.charAt(0).toUpperCase() + usuarioActual.rol.slice(1)}
+                value={user.rol.charAt(0).toUpperCase() + user.rol.slice(1)}
                 disabled
                 className="input-field bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 cursor-not-allowed"
               />

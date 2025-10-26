@@ -55,7 +55,7 @@ limiter = Limiter(key_func=get_remote_address)
 # ENDPOINT: LOGIN
 # ==========================================
 @router.post("/login", response_model=LoginResponse)
-@limiter.limit("5/minute")  # ⚠️ Rate limiting: Máximo 5 intentos por minuto por IP
+@limiter.limit("5/minute")  # Rate limiting: Máximo 5 intentos por minuto por IP
 async def login(request: Request, credentials: LoginRequest, db: Session = Depends(get_db)):
     """
     Iniciar sesión y obtener token JWT
@@ -113,7 +113,7 @@ async def login(request: Request, credentials: LoginRequest, db: Session = Depen
     usuario = db.query(Usuario).filter(Usuario.correo == credentials.correo).first()
     
     if not usuario:
-        # ⚠️ Seguridad: No revelar si el usuario existe
+        # Seguridad: No revelar si el usuario existe
         security_event_logger.log_login_failure(credentials.correo, client_ip, "Usuario no existe")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

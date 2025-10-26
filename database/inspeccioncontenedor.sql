@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-10-2025 a las 16:06:36
+-- Tiempo de generación: 26-10-2025 a las 21:42:31
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -57,7 +57,36 @@ CREATE TABLE `bitacora_auditoria` (
 --
 
 INSERT INTO `bitacora_auditoria` (`id_evento`, `id_usuario`, `accion`, `detalles`, `creado_en`) VALUES
-(1, 2, 'LOGOUT', 'Logout desde aplicación web', '2025-10-21 11:05:37');
+(1, 2, 'LOGOUT', 'Logout desde aplicación web', '2025-10-21 11:05:37'),
+(2, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 14:32:48'),
+(3, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 14:36:14'),
+(4, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 14:39:06'),
+(5, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 14:40:38'),
+(6, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 14:41:04'),
+(7, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:02:31'),
+(8, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:12:49'),
+(9, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:13:54'),
+(10, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:14:56'),
+(11, 1, 'LOGOUT', 'Logout desde aplicación web', '2025-10-26 15:25:33'),
+(12, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:25:42'),
+(13, 1, 'LOGOUT', 'Logout desde aplicación web', '2025-10-26 15:25:59'),
+(14, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:26:07'),
+(15, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:37:49'),
+(16, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:44:50'),
+(17, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:45:04'),
+(18, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 15:50:14'),
+(19, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 16:56:59'),
+(20, 1, 'Inspección creada', 'Contenedor: HAHR756 (INS_1761508699738)', '2025-10-26 16:58:19'),
+(21, 1, 'LOGOUT', 'Logout desde aplicación web', '2025-10-26 17:02:29'),
+(22, 1, 'LOGOUT', 'Logout desde aplicación web', '2025-10-26 17:06:46'),
+(23, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 17:22:15'),
+(24, 1, 'Inspección creada', 'Contenedor: HAHR756 (INS_1761510206650)', '2025-10-26 17:23:26'),
+(25, 2, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 17:24:41'),
+(26, 2, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 17:37:19'),
+(27, 2, 'LOGOUT', 'Logout desde aplicación web', '2025-10-26 17:41:26'),
+(28, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 17:41:33'),
+(29, 1, 'LOGOUT', 'Logout desde aplicación web', '2025-10-26 17:41:39'),
+(30, 2, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 17:41:44');
 
 -- --------------------------------------------------------
 
@@ -75,6 +104,13 @@ CREATE TABLE `fotos_inspeccion` (
   `tomada_en` datetime DEFAULT NULL,
   `creado_en` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `fotos_inspeccion`
+--
+
+INSERT INTO `fotos_inspeccion` (`id_foto`, `id_inspeccion`, `foto_path`, `mime_type`, `hash_hex`, `orden`, `tomada_en`, `creado_en`) VALUES
+(2, 2, '/capturas/inspecciones/26-10-2025/2/20251026_172326_722641.jpg', 'image/jpeg', '20e81549ed22c3c97509e88e13fff18886a7aa3f0f7eabbebf87e9076632066e', 0, '2025-10-26 17:23:26', '2025-10-26 17:23:26');
 
 -- --------------------------------------------------------
 
@@ -97,6 +133,13 @@ CREATE TABLE `inspecciones` (
   `creado_en` datetime NOT NULL DEFAULT current_timestamp(),
   `actualizado_en` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `inspecciones`
+--
+
+INSERT INTO `inspecciones` (`id_inspeccion`, `codigo`, `numero_contenedor`, `id_planta`, `id_navieras`, `temperatura_c`, `observaciones`, `firma_path`, `id_inspector`, `estado`, `inspeccionado_en`, `creado_en`, `actualizado_en`) VALUES
+(2, 'INS_1761510206650', 'HAHR756', 3, 3, 18.00, 'de prueba', '/capturas/firmas/2_1761510206.png', 1, 'pending', '2025-10-26 17:23:26', '2025-10-26 17:23:26', '2025-10-26 17:23:26');
 
 --
 -- Disparadores `inspecciones`
@@ -168,8 +211,7 @@ INSERT INTO `plantas` (`id_planta`, `codigo`, `nombre`, `ubicacion`, `creado_en`
 (1, 'norte', 'Planta Norte', 'Sector Norte', '2025-10-14 00:44:45', '2025-10-14 00:44:45'),
 (2, 'sur', 'Planta Sur', 'Sector Sur', '2025-10-14 00:44:45', '2025-10-14 00:44:45'),
 (3, 'este', 'Planta Este', 'Sector Este', '2025-10-14 00:44:45', '2025-10-14 00:44:45'),
-(4, 'oeste', 'Planta Oeste', 'Sector Oeste', '2025-10-14 00:44:45', '2025-10-14 00:44:45'),
-(5, '', 'Planta Norte', 'Monterrey', '2025-10-14 01:34:54', '2025-10-14 01:34:54');
+(4, 'oeste', 'Planta Oeste', 'Sector Oeste', '2025-10-14 00:44:45', '2025-10-14 00:44:45');
 
 -- --------------------------------------------------------
 
@@ -231,9 +273,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `password_hash`, `rol`, `estado`, `ultimo_acceso`, `creado_en`, `actualizado_en`) VALUES
-(1, 'Juan Díaz', 'juan.diaz@empresa.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/7QzK8K2', 'inspector', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:03:02'),
-(2, 'María López', 'maria.lopez@empresa.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/7QzK8K2', 'supervisor', 'active', '2025-10-21 11:05:37', '2025-10-14 00:44:46', '2025-10-21 11:05:37'),
-(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/7QzK8K2', 'admin', 'active', NULL, '2025-10-14 00:44:46', '2025-10-21 11:00:30');
+(1, 'Juan Díaz', 'juan.diaz@empresa.com', '$2b$12$1rgcK27AcvHI0J78Zrla5ur1F.nGH0AhwN0RfsKE/kHldnynysncC', 'inspector', 'active', '2025-10-26 17:41:39', '2025-10-14 00:44:46', '2025-10-26 17:41:39'),
+(2, 'María López', 'maria.lopez@empresa.com', '$2b$12$1rgcK27AcvHI0J78Zrla5ur1F.nGH0AhwN0RfsKE/kHldnynysncC', 'supervisor', 'active', '2025-10-26 17:41:55', '2025-10-14 00:44:46', '2025-10-26 17:41:55'),
+(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', '$2b$12$1rgcK27AcvHI0J78Zrla5ur1F.nGH0AhwN0RfsKE/kHldnynysncC', 'admin', 'active', '2025-10-26 15:45:13', '2025-10-14 00:44:46', '2025-10-26 15:45:13');
 
 -- --------------------------------------------------------
 
@@ -367,19 +409,19 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `bitacora_auditoria`
 --
 ALTER TABLE `bitacora_auditoria`
-  MODIFY `id_evento` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_evento` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT de la tabla `fotos_inspeccion`
 --
 ALTER TABLE `fotos_inspeccion`
-  MODIFY `id_foto` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_foto` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `inspecciones`
 --
 ALTER TABLE `inspecciones`
-  MODIFY `id_inspeccion` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_inspeccion` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `navieras`

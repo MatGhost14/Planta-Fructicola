@@ -11,14 +11,6 @@ interface AppState {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
-  
-  // Usuario actual (mock)
-  usuarioActual: {
-    id_usuario: number;
-    nombre: string;
-    correo: string;
-    rol: string;
-  };
 }
 
 export const useStore = create<AppState>()(
@@ -73,14 +65,6 @@ export const useStore = create<AppState>()(
           console.log('✅ Tema toggled a:', newTheme, '| Clase dark:', html.classList.contains('dark'));
           return { theme: newTheme };
         });
-      },
-      
-      // Usuario actual (mock - en producción vendría de auth)
-      usuarioActual: {
-        id_usuario: 1,
-        nombre: 'Juan Díaz',
-        correo: 'juan.diaz@empresa.com',
-        rol: 'inspector',
       },
     }),
     {

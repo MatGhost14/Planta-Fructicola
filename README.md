@@ -1,213 +1,129 @@
-# 🚢 Sistema de Inspección de Contenedores Frutícolas
+# 🍊 Sistema de Inspección de Contenedores Frutícolas
 
-Sistema completo de gestión de inspecciones con autenticación JWT, control de permisos por roles, captura de fotos, firmas digitales y reportes en tiempo real.
-
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688?logo=fastapi)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)](https://reactjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript)](https://www.typescriptlang.org)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql)](https://www.mysql.com)
-[![Docker](https://img.shields.io/badge/Docker-4.0+-2496ED?logo=docker)](https://www.docker.com)
+Sistema web completo para la gestión y control de inspecciones de contenedores de productos frutícolas, con captura de fotos, firmas digitales, generación de reportes y exportación a PDF/Excel.
 
 ---
 
-## 📋 Tabla de Contenidos
+## 📋 Descripción General
 
-- [Características](#-características)
-- [Roles y Permisos](#-roles-y-permisos)
-- [Instalación](#-instalación)
-- [Inicio Rápido](#-inicio-rápido)
-- [Credenciales de Prueba](#-credenciales-de-prueba)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Tecnologías](#-tecnologías)
-- [Solución de Problemas](#-solución-de-problemas)
-- [Mantenimiento](#-mantenimiento)
+Este sistema permite a inspectores, supervisores y administradores gestionar el proceso completo de inspección de contenedores frutícolas de manera digital, eliminando el uso de papel y mejorando la trazabilidad de las operaciones.
 
----
+### ✨ Características Principales
 
-## ✨ Características
+#### 🔐 **Autenticación y Roles**
+- Sistema de autenticación JWT con bcrypt
+- 3 niveles de acceso: Inspector, Supervisor y Administrador
+- Control de permisos por rol
+- Sesiones seguras con tokens de 8 horas
 
-### 🔐 Sistema de Autenticación
-- ✅ **Login con JWT**: Tokens con expiración de 8 horas
-- ✅ **Contraseñas encriptadas**: bcrypt con 12 rounds
-- ✅ **Control de sesiones**: localStorage con interceptores axios
-- ✅ **Protección de rutas**: HOC ProtectedRoute por rol
-- ✅ **Auditoría**: Registro de login/logout en bitácora
+#### 📸 **Gestión de Inspecciones**
+- Creación de inspecciones con datos del contenedor
+- Captura de fotos directamente desde la cámara web
+- Firma digital del inspector
+- Registro de temperatura y observaciones
+- Organización automática de fotos por fecha (dd-mm-yyyy)
+- Almacenamiento estructurado: `capturas/inspecciones/26-10-2025/[id]/`
 
-### 👥 Gestión por Roles
-- **Inspector**: CRUD de inspecciones propias, subir fotos, firmar
-- **Supervisor**: Gestión completa de planta, aprobar/rechazar
-- **Admin**: Acceso total, gestión de usuarios y sistema
+#### 📊 **Reportes y Estadísticas**
+- Dashboard con métricas en tiempo real
+- Estadísticas por planta, naviera y estado
+- Gráficos interactivos de tendencias
+- Exportación a PDF con formato profesional
+- Exportación a Excel para análisis
 
-### 📸 Inspecciones
-- ✅ **Modal de detalle**: Galería de fotos con lightbox
-- ✅ **Captura múltiple**: Soporte para múltiples fotos
-- ✅ **Firma digital**: Canvas HTML5 (mouse y touch)
-- ✅ **Estados**: Pending, Approved, Rejected
-- ✅ **Filtros avanzados**: Por estado, fecha, planta, contenedor
+#### 🏭 **Gestión de Catálogos**
+- Administración de plantas
+- Gestión de navieras
+- Control de usuarios
+- Configuración de preferencias
 
-### 📊 Dashboard
-- ✅ **KPIs en tiempo real**: Contadores por estado
-- ✅ **Gráficos**: Visualización de estadísticas
-- ✅ **Reportes**: Filtros personalizados
-- ✅ **Notificaciones**: Sistema de mensajes modales centrados
-
-### 🎨 Sistema de Notificaciones
-- ✅ **Popups Modales**: Mensajes centrados en pantalla
-- ✅ **No Auto-Cierre**: Requieren interacción del usuario
-- ✅ **Múltiples Opciones de Cierre**: Botón "Aceptar", clic fuera, o tecla ESC
-- ✅ **Sistema de Cola**: Un mensaje a la vez, con indicador de pendientes
-- ✅ **Tema Oscuro**: Soporte completo para tema claro/oscuro
-- ✅ **4 Tipos**: Éxito (verde), Error (rojo), Advertencia (amarillo), Info (azul)
-
-### 🐳 Docker & Contenedores
-- ✅ **Docker Compose**: Orquestación completa de servicios
-- ✅ **Base de datos MySQL**: Contenedor con datos de prueba
-- ✅ **Backend FastAPI**: Contenedor con dependencias Python
-- ✅ **Frontend React**: Contenedor con build optimizado
-- ✅ **CORS configurado**: Comunicación entre contenedores
-- ✅ **Volúmenes persistentes**: Datos y archivos subidos
+#### 🔍 **Búsqueda y Filtros**
+- Búsqueda por número de contenedor
+- Filtros por planta, naviera, estado y fecha
+- Paginación de resultados
+- Ordenamiento personalizable
 
 ---
 
-## 🔑 Roles y Permisos
+## 🏗️ Arquitectura del Sistema
 
-### Inspector (Nivel 1)
-| Módulo | Ver | Crear | Editar | Eliminar |
-|--------|-----|-------|--------|----------|
-| Mis Inspecciones | ✅ | ✅ | ✅ | ❌ |
-| Otras Inspecciones | ❌ | ❌ | ❌ | ❌ |
-| Subir Fotos | ✅ | ✅ | ❌ | ❌ |
-| Cambiar Estado | ❌ | ❌ | ❌ | ❌ |
+### **Backend**
+- **Framework**: FastAPI 0.104+
+- **Base de Datos**: MySQL/MariaDB
+- **ORM**: SQLAlchemy 2.0+
+- **Autenticación**: JWT + bcrypt
+- **Validación**: Pydantic v2
+- **Documentación**: Swagger UI / ReDoc
 
-### Supervisor (Nivel 2)
-| Módulo | Ver | Crear | Editar | Eliminar |
-|--------|-----|-------|--------|----------|
-| Todas las Inspecciones | ✅ | ✅ | ✅ | ✅ |
-| Aprobar/Rechazar | ✅ | ✅ | ✅ | ✅ |
-| Catálogos | ✅ | ✅ | ✅ | ✅ |
+### **Frontend**
+- **Framework**: React 18 + TypeScript
+- **Build Tool**: Vite 5
+- **Estilos**: Tailwind CSS 3
+- **Estado**: Zustand
+- **HTTP Client**: Axios
+- **Routing**: React Router v6
 
-### Admin (Nivel 3)
-- ✅ **Acceso total** sin restricciones
-
----
-
-## 🚀 Instalación
-
-### Requisitos Previos
-
-**Opción 1: Instalación Tradicional**
-
-| Software | Versión | Descarga |
-|----------|---------|----------|
-| Python | 3.10+ | [python.org](https://python.org) |
-| Node.js | 18.0+ | [nodejs.org](https://nodejs.org) |
-| MySQL | 8.0+ | XAMPP recomendado |
-
-**Opción 2: Docker (Recomendado para Colaboradores)**
-
-| Software | Versión | Descarga |
-|----------|---------|----------|
-| Docker Desktop | 4.0+ | [docker.com](https://www.docker.com/products/docker-desktop/) |
-
-### Instalación Automática
-
-**Opción 1: Docker (Recomendado)**
-```cmd
-# 1. Navegar al directorio del proyecto
-cd "C:\Users\HP\Desktop\Planta-Fruticola"
-
-# 2. Ejecutar con Docker
-.\start-docker.bat
+### **Base de Datos**
 ```
-
-**Opción 2: Docker Compose Manual**
-```cmd
-# 1. Navegar al directorio del proyecto
-cd "C:\Users\HP\Desktop\Planta-Fruticola"
-
-# 2. Iniciar todos los servicios
-docker-compose up -d
-
-# 3. Ver logs en tiempo real
-docker-compose logs -f
-```
-
-**Docker automáticamente:**
-- ✅ Instala todas las dependencias
-- ✅ Configura MySQL en contenedor
-- ✅ Inicia backend (FastAPI) en puerto 8000
-- ✅ Inicia frontend (React) en puerto 5173
-- ✅ Configura CORS correctamente
-- ✅ Sin problemas de dependencias
-
----
-
-## ⚡ Inicio Rápido
-
-### 1. Iniciar Servicios
-
-**Opción A: Script Automático (Recomendado)**
-```cmd
-# Desde el directorio raíz del proyecto
-.\start-docker.bat
-```
-
-**Opción B: Docker Compose Manual**
-```cmd
-# Desde el directorio raíz del proyecto
-docker-compose up -d
-```
-
-### 2. Scripts Disponibles
-
-| Script | Descripción | Uso |
-|--------|-------------|-----|
-| `start-docker.bat` | **Iniciar todo el sistema** | `.\start-docker.bat` |
-| `stop-docker.bat` | Detener todos los servicios | `.\stop-docker.bat` |
-| `docker-restart.bat` | Reiniciar servicios | `.\docker-restart.bat` |
-| `docker-status.bat` | Verificar estado del sistema | `.\docker-status.bat` |
-| `docker-logs.bat` | Ver logs en tiempo real | `.\docker-logs.bat` |
-| `docker-clean.bat` | Limpieza completa (elimina datos) | `.\docker-clean.bat` |
-| `docker-dev.bat` | Modo desarrollo (solo BD) | `.\docker-dev.bat` |
-| `verify-users.bat` | Verificar usuarios de prueba | `.\verify-users.bat` |
-| `init-users.bat` | Inicializar usuarios si faltan | `.\init-users.bat` |
-| `test-system.bat` | **Prueba completa del sistema** | `.\test-system.bat` |
-
-### 3. Acceder a la Aplicación
-
-| Servicio | URL | Descripción |
-|----------|-----|-------------|
-| **Frontend** | http://localhost:5173 | Interfaz de usuario |
-| **API** | http://localhost:8000 | Backend FastAPI |
-| **API Docs** | http://localhost:8000/docs | Documentación interactiva |
-
-### 4. Login
-
-```
-Inspector:
-📧 juan.diaz@empresa.com
-🔑 123456
-
-Supervisor:
-📧 maria.lopez@empresa.com
-🔑 123456
-
-Admin:
-📧 carlos.ruiz@empresa.com
-🔑 123456
+├── usuarios (inspectores, supervisores, admins)
+├── plantas (ubicaciones de inspección)
+├── navieras (compañías navieras)
+├── inspecciones (registros principales)
+├── fotos_inspeccion (imágenes capturadas)
+├── bitacora_auditoria (logs de sistema)
+└── preferencias_usuario (configuración)
 ```
 
 ---
 
-## 🎯 Credenciales de Prueba
+## 🚀 Inicio Rápido
 
-| Rol | Email | Password |
-|-----|-------|----------|
-| **Inspector** | juan.diaz@empresa.com | 123456 |
+### **Requisitos Previos**
+- Python 3.8 o superior
+- Node.js 16 o superior
+- MySQL/MariaDB (XAMPP recomendado)
+- Git
+
+### **Instalación Automática**
+
+Ejecuta el script de instalación que configura todo automáticamente:
+
+```bash
+start-local.bat
+```
+
+Este script:
+1. ✅ Verifica requisitos del sistema
+2. ✅ Crea el archivo `.env` con configuración
+3. ✅ Instala dependencias de Python
+4. ✅ Instala dependencias de Node.js
+5. ✅ Importa la base de datos
+6. ✅ Inicia el backend (puerto 8001)
+7. ✅ Inicia el frontend (puerto 5173)
+8. ✅ Abre el navegador automáticamente
+
+### **Instalación Manual**
+
+Si prefieres instalar manualmente, consulta [INSTALACION.md](INSTALACION.md) para instrucciones detalladas paso a paso.
+
+---
+
+## 🌐 Acceso al Sistema
+
+Una vez iniciado el sistema:
+
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8001
+- **Documentación API**: http://localhost:8001/docs
+- **ReDoc**: http://localhost:8001/redoc
+
+### **Credenciales de Prueba**
+
+| Rol | Correo | Contraseña |
+|-----|--------|------------|
+| **Administrador** | carlos.ruiz@empresa.com | 123456 |
 | **Supervisor** | maria.lopez@empresa.com | 123456 |
-| **Admin** | carlos.ruiz@empresa.com | 123456 |
-
-> ⚠️ **IMPORTANTE**: Cambia estas contraseñas en producción
+| **Inspector** | juan.diaz@empresa.com | 123456 |
 
 ---
 
@@ -215,286 +131,192 @@ Admin:
 
 ```
 Planta-Fruticola/
-├── backend/                    # Backend FastAPI
+├── backend/                    # API FastAPI
 │   ├── app/
 │   │   ├── core/              # Configuración central
-│   │   ├── routers/           # Endpoints con permisos
 │   │   ├── models/            # Modelos SQLAlchemy
-│   │   ├── schemas/           # Schemas Pydantic
-│   │   ├── services/          # Lógica de negocio
+│   │   ├── schemas/           # Esquemas Pydantic
+│   │   ├── routers/           # Endpoints API
 │   │   ├── repositories/      # Acceso a datos
+│   │   ├── services/          # Lógica de negocio
 │   │   ├── middleware/        # Middleware personalizado
-│   │   ├── utils/             # Utilidades
-│   │   └── main.py
-│   ├── alembic/               # Migraciones de BD
-│   ├── scripts/               # Scripts de administración
-│   ├── tests/                 # Tests unitarios
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   └── wait_for_db.py
-│
-├── frontend/                   # Frontend React
-│   ├── src/
-│   │   ├── api/               # Servicios API
-│   │   ├── components/        # Componentes reutilizables
-│   │   ├── contexts/          # Contextos React
-│   │   ├── pages/             # Páginas principales
-│   │   ├── store/             # Estado global (Zustand)
-│   │   ├── types/             # Definiciones TypeScript
 │   │   └── utils/             # Utilidades
-│   ├── Dockerfile
-│   └── package.json
-│
+│   ├── scripts/               # Scripts de utilidad
+│   ├── requirements.txt       # Dependencias Python
+│   └── env.example            # Plantilla de configuración
+├── frontend/                   # Aplicación React
+│   ├── src/
+│   │   ├── api/               # Clientes API
+│   │   ├── components/        # Componentes React
+│   │   ├── contexts/          # Context API
+│   │   ├── pages/             # Páginas
+│   │   ├── store/             # Estado global
+│   │   ├── types/             # TypeScript types
+│   │   └── utils/             # Utilidades
+│   ├── package.json           # Dependencias Node.js
+│   └── vite.config.ts         # Configuración Vite
+├── database/                   # Scripts SQL
+│   └── inspeccioncontenedor.sql
 ├── capturas/                   # Archivos subidos
-│   ├── inspecciones/          # Fotos de inspecciones
+│   ├── inspecciones/          # Fotos por fecha
 │   └── firmas/                # Firmas digitales
-├── database/
-│   └── inspeccioncontenedor.sql # Schema de BD
-├── docker-compose.yml          # Orquestación Docker
-├── start-docker.bat           # Script de inicio Docker
-├── stop-docker.bat            # Script de parada Docker
-├── docker-restart.bat         # Script de reinicio
-├── docker-status.bat          # Script de verificación de estado
-├── docker-logs.bat            # Script para ver logs
-├── docker-clean.bat           # Script de limpieza completa
-├── docker-dev.bat             # Script de modo desarrollo
-├── INICIO-RAPIDO.md           # Guía rápida para colaboradores
-└── README.md
+├── start-local.bat            # Script de inicio automático
+├── README.md                  # Este archivo
+└── INSTALACION.md             # Guía de instalación
 ```
 
 ---
 
-## 🛠️ Tecnologías
+## 🔧 Configuración
 
-### Backend
-- **FastAPI** - Framework web
-- **SQLAlchemy** - ORM
-- **python-jose** - JWT
-- **bcrypt** - Encriptación
+### **Variables de Entorno**
 
-### Frontend
-- **React 18** - UI library
-- **TypeScript** - Tipado
-- **TailwindCSS** - Estilos
-- **Axios** - HTTP client
-- **Lucide React** - Iconos
-- **Zustand** - State management
-- **React Router** - Navegación
+El archivo `.env` se genera automáticamente con `start-local.bat`, pero puedes personalizarlo:
+
+```env
+# Base de datos
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=inspeccioncontenedor
+
+# Seguridad
+SECRET_KEY=tu-clave-secreta-super-segura
+ACCESS_TOKEN_EXPIRE_MINUTES=480
+
+# CORS
+ALLOWED_ORIGINS=http://localhost:5173
+
+# Servidor
+BACKEND_PORT=8001
+```
 
 ---
 
-## 📚 API Endpoints
+## 📚 Documentación Adicional
 
-### Autenticación
-```http
-POST   /api/auth/login           # Login
-GET    /api/auth/me              # Info sesión
-POST   /api/auth/logout          # Logout
-POST   /api/auth/change-password # Cambiar password
-```
-
-### Inspecciones (Autenticado)
-```http
-GET    /api/inspecciones         # Listar (filtrado por rol)
-GET    /api/inspecciones/{id}    # Detalle
-POST   /api/inspecciones         # Crear
-PUT    /api/inspecciones/{id}    # Actualizar
-DELETE /api/inspecciones/{id}    # Eliminar
-POST   /api/inspecciones/{id}/fotos  # Subir fotos
-```
-
-**Documentación interactiva**: http://localhost:8000/docs
+- **[INSTALACION.md](INSTALACION.md)** - Guía completa de instalación manual
+- **[API Docs](http://localhost:8001/docs)** - Documentación interactiva de la API (cuando el backend esté ejecutándose)
 
 ---
 
-## 🔒 Seguridad
+## 🛠️ Desarrollo
 
-- ✅ JWT Tokens (HS256, 8h expiración)
-- ✅ Passwords bcrypt (12 rounds)
-- ✅ CORS configurado
-- ✅ Validación Pydantic
-- ✅ Auditoría de acciones
-- ✅ Protección SQL Injection
-- ✅ Verificación de usuario activo
+### **Comandos Útiles**
+
+#### Backend
+```bash
+cd backend
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Ejecutar servidor de desarrollo
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
+
+# Crear usuario administrador
+python scripts/create_admin.py
+```
+
+#### Frontend
+```bash
+cd frontend
+
+# Instalar dependencias
+npm install
+
+# Ejecutar servidor de desarrollo
+npm run dev
+
+# Build para producción
+npm run build
+```
 
 ---
 
-## 🔧 Solución de Problemas
+## 🧪 Testing
 
-### "Error al cargar catálogos" / CORS Policy Blocking
-```cmd
-# Verificar estado del sistema
-.\docker-status.bat
-
-# Reiniciar el backend para aplicar configuración CORS
-docker restart planta_backend
-
-# Ver logs en tiempo real
-.\docker-logs.bat
-```
-
-### "Error de login" / "Credenciales incorrectas"
-```cmd
-# Verificar usuarios de prueba
-.\verify-users.bat
-
-# Si no hay usuarios, inicializar
-.\init-users.bat
-
-# Limpiar y reiniciar desde cero
-.\docker-clean.bat
-.\start-docker.bat
-```
-
-### "No se pudo validar las credenciales"
-Token expirado. Cierra sesión y vuelve a ingresar.
-
-### "500 Internal Server Error" en /api/plantas
-```cmd
-# Verificar datos en la base de datos
-docker exec planta-mysql mysql -u planta_user -pplanta_password inspeccioncontenedor -e "SELECT * FROM plantas;"
-
-# Si hay registros con código vacío, corregirlos
-docker exec planta-mysql mysql -u planta_user -pplanta_password inspeccioncontenedor -e "UPDATE plantas SET codigo = 'centro' WHERE codigo = '';"
-```
-
-### "Sin respuesta del servidor"
-```cmd
-# Verificar estado del sistema
-.\docker-status.bat
-
-# Reiniciar todos los servicios
-.\docker-restart.bat
-
-# Ver logs en tiempo real
-.\docker-logs.bat
-```
-
-### "Module not found" en desarrollo local
-```powershell
+```bash
 # Backend
 cd backend
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+pytest
 
 # Frontend
 cd frontend
-npm install
-npm run dev -- --port 5173
+npm run test
 ```
 
 ---
 
-## 📝 Archivos Principales
+## 📦 Tecnologías Utilizadas
 
-| Archivo | Descripción |
-|---------|-------------|
-| `start-docker.bat` | **Script principal Docker** - Inicio automático |
-| `stop-docker.bat` | Script para detener servicios |
-| `docker-restart.bat` | Script para reiniciar servicios |
-| `docker-status.bat` | Script para verificar estado del sistema |
-| `docker-logs.bat` | Script para ver logs en tiempo real |
-| `docker-clean.bat` | Script de limpieza completa (elimina datos) |
-| `docker-dev.bat` | Script de modo desarrollo (solo BD) |
-| `INICIO-RAPIDO.md` | **Guía rápida para colaboradores** |
-| `docker-compose.yml` | Configuración de contenedores Docker |
-| `README.md` | Documentación completa del proyecto |
-| `backend/Dockerfile` | Configuración Docker para backend |
-| `frontend/Dockerfile` | Configuración Docker para frontend |
-| `database/inspeccioncontenedor.sql` | Schema de la base de datos |
+### Backend
+- FastAPI - Framework web moderno
+- SQLAlchemy - ORM para Python
+- Pydantic - Validación de datos
+- python-jose - JWT tokens
+- passlib - Hash de contraseñas
+- ReportLab - Generación de PDFs
+- OpenPyXL - Generación de Excel
 
----
-
-## 🛠️ Mantenimiento
-
-### Scripts de Gestión
-
-```cmd
-# Iniciar todo el sistema
-.\start-docker.bat
-
-# Verificar estado del sistema
-.\docker-status.bat
-
-# Ver logs en tiempo real
-.\docker-logs.bat
-
-# Reiniciar servicios
-.\docker-restart.bat
-
-# Detener todos los servicios
-.\stop-docker.bat
-
-# Limpieza completa (elimina datos)
-.\docker-clean.bat
-
-# Modo desarrollo (solo BD)
-.\docker-dev.bat
-```
-
-### Comandos Docker Manuales
-
-```cmd
-# Ver estado de contenedores
-docker ps
-
-# Ver logs de un servicio específico
-docker logs planta_backend
-docker logs planta_frontend
-docker logs planta-mysql
-
-# Reiniciar un servicio
-docker restart planta_backend
-
-# Detener todos los servicios
-docker-compose down
-
-# Limpiar contenedores no utilizados
-docker system prune -f
-
-# Ver logs en tiempo real
-docker-compose logs -f
-```
-
-### Backup de Base de Datos
-
-```cmd
-# Crear backup
-docker exec planta-mysql mysqldump -u planta_user -pplanta_password inspeccioncontenedor > backup.sql
-
-# Restaurar backup
-docker exec -i planta-mysql mysql -u planta_user -pplanta_password inspeccioncontenedor < backup.sql
-```
+### Frontend
+- React - Librería UI
+- TypeScript - Tipado estático
+- Vite - Build tool
+- Tailwind CSS - Framework CSS
+- Zustand - Gestión de estado
+- Axios - Cliente HTTP
+- React Router - Enrutamiento
 
 ---
 
-## 👥 Para Colaboradores
+## 🤝 Contribución
 
-### 🚀 Inicio Rápido
-1. **Clonar el repositorio**
-2. **Ejecutar**: `.\start-docker.bat`
-3. **Acceder**: http://localhost:5173
-4. **Login**: juan.diaz@empresa.com / 123456
+Este es un proyecto privado. Para contribuir:
 
-### 📋 Guía Completa
-- **Inicio rápido**: Ver `INICIO-RAPIDO.md`
-- **Scripts disponibles**: Ver tabla de scripts arriba
-- **Solución de problemas**: Ver sección de troubleshooting
-
-### 🔧 Desarrollo
-```cmd
-# Modo desarrollo (solo BD)
-.\docker-dev.bat
-
-# Luego iniciar backend y frontend localmente
-cd backend && python -m venv venv && .\venv\Scripts\Activate.ps1 && pip install -r requirements.txt && uvicorn app.main:app --reload
-cd frontend && npm install && npm run dev
-```
+1. Crea una rama para tu feature: `git checkout -b feature/nueva-funcionalidad`
+2. Commit tus cambios: `git commit -m 'Agrega nueva funcionalidad'`
+3. Push a la rama: `git push origin feature/nueva-funcionalidad`
+4. Abre un Pull Request
 
 ---
 
-**Desarrollado con ❤️ usando FastAPI + React + Docker**
+## 📄 Licencia
 
-**Última actualización:** 25 de octubre de 2025
+Este proyecto es propietario y confidencial. Todos los derechos reservados.
+
+---
+
+## 👥 Soporte
+
+Para soporte técnico o consultas:
+- Revisa la documentación en [INSTALACION.md](INSTALACION.md)
+- Consulta los logs del sistema
+- Contacta al equipo de desarrollo
+
+---
+
+## 🎯 Roadmap
+
+### Versión Actual: 2.1.0
+- ✅ Sistema de autenticación completo
+- ✅ Gestión de inspecciones
+- ✅ Captura de fotos y firmas
+- ✅ Reportes y estadísticas
+- ✅ Exportación PDF/Excel
+- ✅ Organización de fotos por fecha
+
+### Próximas Versiones
+- 📱 Aplicación móvil nativa
+- 🌐 Modo offline con sincronización
+- 📧 Notificaciones por email
+- 🔔 Alertas en tiempo real
+- 📊 Dashboard avanzado con BI
+- 🌍 Soporte multiidioma
+
+---
+
+**Desarrollado con ❤️ para la industria frutícola**
+
+*Última actualización: Octubre 2025*

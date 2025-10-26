@@ -12,6 +12,14 @@ from ..utils.auth import get_current_user, require_supervisor
 router = APIRouter(prefix="/plantas", tags=["Plantas"])
 
 
+@router.get("/test")
+def listar_plantas_test():
+    """
+    Endpoint de prueba sin autenticación
+    """
+    return {"mensaje": "Endpoint de prueba funcionando", "plantas": 5}
+
+
 @router.get("", response_model=List[Planta])
 def listar_plantas(
     db: Session = Depends(get_db),

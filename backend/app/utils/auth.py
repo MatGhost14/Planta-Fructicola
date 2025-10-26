@@ -12,8 +12,8 @@ from ..models import Usuario
 from ..schemas.auth import TokenData
 
 
-# Contexto de encriptación - usando pbkdf2_sha256 que es más confiable
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+# Contexto de encriptación - usando bcrypt para compatibilidad con datos existentes
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Security scheme
 security = HTTPBearer()
@@ -110,8 +110,6 @@ async def get_current_user(
         raise
     except Exception:
         raise credentials_exception
-    
-    return usuario
 
 
 async def get_current_active_user(
