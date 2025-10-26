@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 from typing import Optional, Literal
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -12,21 +12,25 @@ from ..models import Usuario
 from ..schemas.auth import TokenData
 
 
-# Contexto de encriptación - usando bcrypt para compatibilidad con datos existentes
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 # Security scheme
 security = HTTPBearer()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verificar contraseña"""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verificar contraseña usando bcrypt directamente"""
+    try:
+        # Decodificar el hash y verificar la contraseña
+        return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    except Exception:
+        return False
 
 
 def get_password_hash(password: str) -> str:
-    """Generar hash de contraseña"""
-    return pwd_context.hash(password)
+    """Generar hash de contraseña usando bcrypt directamente"""
+    # Generar salt y hash
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed.decode('utf-8')
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:

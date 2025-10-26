@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { inspeccionesApi, plantasApi, navierasApi } from '../api';
-import { useStore } from '../store';
+import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/ToastProvider';
 import CamaraPreview from '../components/CamaraPreview';
 import FirmaCanvas from '../components/FirmaCanvas';
@@ -10,7 +10,7 @@ import type { Planta, Naviera } from '../types';
 
 const InspeccionNueva: React.FC = () => {
   const navigate = useNavigate();
-  const { usuarioActual } = useStore();
+  const { user } = useAuth();
   const { showSuccess, showError, showWarning } = useToast();
   
   const [plantas, setPlantas] = useState<Planta[]>([]);
@@ -78,6 +78,11 @@ const InspeccionNueva: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!user) {
+      showError('No se encontró información del usuario. Por favor, inicie sesión nuevamente.');
+      return;
+    }
+
     if (fotos.length === 0) {
       showWarning('Debes capturar al menos una foto');
       return;
@@ -98,7 +103,7 @@ const InspeccionNueva: React.FC = () => {
         id_navieras: parseInt(formData.id_navieras),
         temperatura_c: formData.temperatura_c ? parseFloat(formData.temperatura_c) : undefined,
         observaciones: formData.observaciones || undefined,
-        id_inspector: usuarioActual.id_usuario
+        id_inspector: user?.id_usuario
       };
 
       const inspeccionCreada = await inspeccionesApi.crear(inspeccionData);
