@@ -24,3 +24,5 @@ htmlcov/
 *.db
 *.sqlite
 .DS_Store
+# Notification JSON (runtime file)
+app/notifications.json

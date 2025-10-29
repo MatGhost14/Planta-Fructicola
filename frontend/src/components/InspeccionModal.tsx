@@ -2,12 +2,26 @@
  * Modal de detalle de inspección
  * Muestra toda la información de la inspección incluyendo fotos y firma
  */
-import React, { useState } from 'react';
-import { X, Image as ImageIcon, FileText, MapPin, Ship, Thermometer, Calendar, User, CheckCircle, XCircle, Clock, ThumbsUp, ThumbsDown } from 'lucide-react';
-import type { InspeccionDetalle } from '../types';
-import { inspeccionesApi } from '../api/inspecciones';
-import { useAuth } from '../contexts/AuthContext';
-import { useToast } from './ToastProvider';
+import React, { useState } from "react";
+import {
+  X,
+  Image as ImageIcon,
+  FileText,
+  MapPin,
+  Ship,
+  Thermometer,
+  Calendar,
+  User,
+  CheckCircle,
+  XCircle,
+  Clock,
+  ThumbsUp,
+  ThumbsDown,
+} from "lucide-react";
+import type { InspeccionDetalle } from "../types";
+import { inspeccionesApi } from "../api/inspecciones";
+import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "./ToastProvider";
 
 interface InspeccionModalProps {
   inspeccion: InspeccionDetalle | null;
@@ -16,30 +30,54 @@ interface InspeccionModalProps {
   onUpdate?: () => void;
 }
 
-const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, onClose, onUpdate }) => {
+const InspeccionModal: React.FC<InspeccionModalProps> = ({
+  inspeccion,
+  isOpen,
+  onClose,
+  onUpdate,
+}) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
-  const [comentario, setComentario] = useState('');
+  const [comentario, setComentario] = useState("");
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const { showSuccess, showError, showWarning } = useToast();
 
   if (!isOpen || !inspeccion) return null;
 
-  const canChangeStatus = user && (user.rol === 'supervisor' || user.rol === 'admin') && inspeccion.estado === 'pending';
+  const canChangeStatus =
+    user &&
+    (user.rol === "supervisor" || user.rol === "admin") &&
+    inspeccion.estado === "pending";
 
   const handleAprobar = async () => {
     setLoading(true);
     try {
-      await inspeccionesApi.cambiarEstado(inspeccion.id_inspeccion, 'approved', comentario || undefined);
+      await inspeccionesApi.cambiarEstado(
+        inspeccion.id_inspeccion,
+        "approved",
+        comentario || undefined
+      );
+      // Notify other UI parts that an inspection changed state so notifications refresh
+      try {
+        window.dispatchEvent(
+          new CustomEvent("inspeccion:estado_cambiado", {
+            detail: { id: inspeccion.id_inspeccion, estado: "approved" },
+          })
+        );
+      } catch (e) {
+        // ignore if dispatch fails in some environments
+      }
       setShowApprovalModal(false);
-      setComentario('');
-      showSuccess('Inspección aprobada exitosamente');
+      setComentario("");
+      showSuccess("Inspección aprobada exitosamente");
       if (onUpdate) onUpdate();
       onClose();
     } catch (error: any) {
-      showError(error.response?.data?.detail || 'Error al aprobar la inspección');
+      showError(
+        error.response?.data?.detail || "Error al aprobar la inspección"
+      );
     } finally {
       setLoading(false);
     }
@@ -47,19 +85,35 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
 
   const handleRechazar = async () => {
     if (!comentario.trim()) {
-      showWarning('Debe proporcionar un comentario al rechazar');
+      showWarning("Debe proporcionar un comentario al rechazar");
       return;
     }
     setLoading(true);
     try {
-      await inspeccionesApi.cambiarEstado(inspeccion.id_inspeccion, 'rejected', comentario);
+      await inspeccionesApi.cambiarEstado(
+        inspeccion.id_inspeccion,
+        "rejected",
+        comentario
+      );
+      // Notify other UI parts that an inspection changed state so notifications refresh
+      try {
+        window.dispatchEvent(
+          new CustomEvent("inspeccion:estado_cambiado", {
+            detail: { id: inspeccion.id_inspeccion, estado: "rejected" },
+          })
+        );
+      } catch (e) {
+        // ignore if dispatch fails in some environments
+      }
       setShowRejectionModal(false);
-      setComentario('');
-      showSuccess('Inspección rechazada');
+      setComentario("");
+      showSuccess("Inspección rechazada");
       if (onUpdate) onUpdate();
       onClose();
     } catch (error: any) {
-      showError(error.response?.data?.detail || 'Error al rechazar la inspección');
+      showError(
+        error.response?.data?.detail || "Error al rechazar la inspección"
+      );
     } finally {
       setLoading(false);
     }
@@ -67,25 +121,25 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'approved':
-        return 'bg-green-100 text-green-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getEstadoTexto = (estado: string) => {
     switch (estado) {
-      case 'approved':
-        return 'Aprobada';
-      case 'rejected':
-        return 'Rechazada';
-      case 'pending':
-        return 'Pendiente';
+      case "approved":
+        return "Aprobada";
+      case "rejected":
+        return "Rechazada";
+      case "pending":
+        return "Pendiente";
       default:
         return estado;
     }
@@ -93,11 +147,11 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
 
   const getEstadoIcon = (estado: string) => {
     switch (estado) {
-      case 'approved':
+      case "approved":
         return <CheckCircle className="w-5 h-5" />;
-      case 'rejected':
+      case "rejected":
         return <XCircle className="w-5 h-5" />;
-      case 'pending':
+      case "pending":
         return <Clock className="w-5 h-5" />;
       default:
         return null;
@@ -158,7 +212,9 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
                     {inspeccion.planta.nombre}
                   </p>
                   {inspeccion.planta.ubicacion && (
-                    <p className="text-sm text-gray-600">{inspeccion.planta.ubicacion}</p>
+                    <p className="text-sm text-gray-600">
+                      {inspeccion.planta.ubicacion}
+                    </p>
                   )}
                 </div>
               </div>
@@ -186,32 +242,40 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
               <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
                 <Calendar className="w-5 h-5 text-blue-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Fecha de Inspección</p>
+                  <p className="text-sm font-medium text-gray-500">
+                    Fecha de Inspección
+                  </p>
                   <p className="text-base font-semibold text-gray-900">
-                    {new Date(inspeccion.inspeccionado_en).toLocaleDateString('es-ES', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+                    {new Date(inspeccion.inspeccionado_en).toLocaleDateString(
+                      "es-ES",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }
+                    )}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Temperatura */}
-            {inspeccion.temperatura_c !== null && inspeccion.temperatura_c !== undefined && (
-              <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
-                <Thermometer className="w-5 h-5 text-blue-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Temperatura</p>
-                  <p className="text-2xl font-bold text-blue-900">
-                    {inspeccion.temperatura_c}°C
-                  </p>
+            {inspeccion.temperatura_c !== null &&
+              inspeccion.temperatura_c !== undefined && (
+                <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
+                  <Thermometer className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">
+                      Temperatura
+                    </p>
+                    <p className="text-2xl font-bold text-blue-900">
+                      {inspeccion.temperatura_c}°C
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Observaciones */}
             {inspeccion.observaciones && (
@@ -219,7 +283,9 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
                 <div className="flex items-start gap-3">
                   <FileText className="w-5 h-5 text-gray-600 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-500 mb-2">Observaciones</p>
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Observaciones
+                    </p>
                     <p className="text-gray-700 whitespace-pre-wrap">
                       {inspeccion.observaciones}
                     </p>
@@ -261,7 +327,9 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
             {/* Firma */}
             {inspeccion.firma_path && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Firma Digital</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Firma Digital
+                </h3>
                 <div className="border-2 border-gray-200 rounded-lg p-4 bg-white inline-block">
                   <img
                     src={inspeccion.firma_path}
@@ -331,17 +399,23 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
       {/* Modal de aprobación */}
       {showApprovalModal && (
         <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-[70]" onClick={() => setShowApprovalModal(false)} />
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-[70]"
+            onClick={() => setShowApprovalModal(false)}
+          />
           <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                   <CheckCircle className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Aprobar Inspección</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Aprobar Inspección
+                </h3>
               </div>
               <p className="text-gray-600 mb-4">
-                ¿Está seguro que desea aprobar la inspección <strong>{inspeccion.codigo}</strong>?
+                ¿Está seguro que desea aprobar la inspección{" "}
+                <strong>{inspeccion.codigo}</strong>?
               </p>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -368,7 +442,7 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
                   disabled={loading}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
                 >
-                  {loading ? 'Aprobando...' : 'Confirmar Aprobación'}
+                  {loading ? "Aprobando..." : "Confirmar Aprobación"}
                 </button>
               </div>
             </div>
@@ -379,17 +453,23 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
       {/* Modal de rechazo */}
       {showRejectionModal && (
         <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-[70]" onClick={() => setShowRejectionModal(false)} />
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-[70]"
+            onClick={() => setShowRejectionModal(false)}
+          />
           <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                   <XCircle className="w-6 h-6 text-red-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Rechazar Inspección</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Rechazar Inspección
+                </h3>
               </div>
               <p className="text-gray-600 mb-4">
-                ¿Está seguro que desea rechazar la inspección <strong>{inspeccion.codigo}</strong>?
+                ¿Está seguro que desea rechazar la inspección{" "}
+                <strong>{inspeccion.codigo}</strong>?
               </p>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -403,13 +483,15 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
                   rows={4}
                   required
                 />
-                <p className="text-sm text-gray-500 mt-1">Este comentario será visible para el inspector</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Este comentario será visible para el inspector
+                </p>
               </div>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => {
                     setShowRejectionModal(false);
-                    setComentario('');
+                    setComentario("");
                   }}
                   disabled={loading}
                   className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
@@ -421,7 +503,7 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({ inspeccion, isOpen, o
                   disabled={loading || !comentario.trim()}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Rechazando...' : 'Confirmar Rechazo'}
+                  {loading ? "Rechazando..." : "Confirmar Rechazo"}
                 </button>
               </div>
             </div>

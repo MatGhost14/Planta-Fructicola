@@ -6,6 +6,7 @@ from fastapi import UploadFile, HTTPException, status
 from typing import List, Optional, Tuple
 
 from ..repositories import inspeccion_repository, foto_repository
+from .notification_manager import notification_manager
 from ..schemas import InspeccionCreate, InspeccionUpdate
 from ..models import Inspeccion, FotoInspeccion
 from ..utils import save_upload_file, delete_file_safe, get_mime_type
@@ -37,7 +38,27 @@ class InspeccionService:
         if not data_dict.get("inspeccionado_en"):
             data_dict["inspeccionado_en"] = datetime.now()
         
-        return inspeccion_repository.create(db, data_dict)
+        created = inspeccion_repository.create(db, data_dict)
+
+        # Si la inspección quedó en estado 'pending', emitir notificación a revisores/admins (MVP sin DB)
+        try:
+            estado = getattr(created, "estado", None)
+            if estado == "pending":
+                title = "Inspección en revisión"
+                message = f"La inspección {created.codigo} ha sido creada y está pendiente de revisión."
+                notification_manager.create(
+                    recipients=[{"role": "supervisor"}, {"role": "admin"}],
+                    title=title,
+                    message=message,
+                    link=f"/inspecciones/{created.id_inspeccion}",
+                    payload={"id_inspeccion": created.id_inspeccion, "codigo": created.codigo},
+                    event="INSPECCION_EN_REVISION"
+                )
+        except Exception:
+            import logging
+            logging.getLogger("inspecciones").exception("Error emitiendo notificación de nueva inspección")
+
+        return created
     
     def listar_inspecciones(
         self,
@@ -107,7 +128,46 @@ class InspeccionService:
         """Actualiza una inspección"""
         inspeccion = self.obtener_inspeccion(db, id_inspeccion)
         update_dict = inspeccion_data.model_dump(exclude_unset=True)
-        return inspeccion_repository.update(db, inspeccion, update_dict)
+
+        # Detectar cambio de estado para emitir notificaciones (MVP sin DB)
+        old_estado = getattr(inspeccion, "estado", None)
+        new_estado = update_dict.get("estado", old_estado)
+
+        updated = inspeccion_repository.update(db, inspeccion, update_dict)
+
+        # Normalizar eventos: 'pending' -> INSPECCION_EN_REVISION, 'rejected' -> INSPECCION_RECHAZADA
+        try:
+            if old_estado != new_estado:
+                if new_estado == "pending":
+                    # Notificar a supervisores y admins que hay una inspección en revisión
+                    title = "Inspección en revisión"
+                    message = f"La inspección {updated.codigo} ha sido enviada para revisión."
+                    notification_manager.create(
+                        recipients=[{"role": "supervisor"}, {"role": "admin"}],
+                        title=title,
+                        message=message,
+                        link=f"/inspecciones/{updated.id_inspeccion}",
+                        payload={"id_inspeccion": updated.id_inspeccion, "codigo": updated.codigo},
+                        event="INSPECCION_EN_REVISION"
+                    )
+                elif new_estado == "rejected":
+                    # Notificar al inspector que su inspección fue rechazada
+                    title = "Inspección rechazada"
+                    message = f"La inspección {updated.codigo} ha sido rechazada. Revise las observaciones."
+                    notification_manager.create(
+                        recipients=[{"user_id": updated.id_inspector}],
+                        title=title,
+                        message=message,
+                        link=f"/inspecciones/{updated.id_inspeccion}",
+                        payload={"id_inspeccion": updated.id_inspeccion, "codigo": updated.codigo},
+                        event="INSPECCION_RECHAZADA"
+                    )
+        except Exception:
+            # No interrumpir la operación si la notificación falla
+            import logging
+            logging.getLogger("inspecciones").exception("Error emitiendo notificación de estado")
+
+        return updated
     
     def eliminar_inspeccion(self, db: Session, id_inspeccion: int) -> None:
         """Elimina una inspección y sus archivos asociados"""
