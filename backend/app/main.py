@@ -21,6 +21,7 @@ from .routers import (
     reportes_router,
     preferencias_router,
     auth_router,
+    notifications_router,
     estadisticas_router,
     reportes_export_router
 )
@@ -81,6 +82,7 @@ app.include_router(usuarios_router, prefix="/api")
 app.include_router(inspecciones_router, prefix="/api")
 app.include_router(reportes_router, prefix="/api")
 app.include_router(preferencias_router, prefix="/api")
+app.include_router(notifications_router, prefix="/api")
 app.include_router(estadisticas_router, prefix="/api")
 app.include_router(reportes_export_router, prefix="/api/reportes/export")
 

@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useToast } from './ToastProvider';
-import { 
-  LayoutDashboard, 
-  Plus, 
-  FileText, 
-  BarChart3, 
-  Building, 
-  Ship, 
-  Users, 
+import React, { useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "./ToastProvider";
+import NotificationsBell from "./NotificationsBell";
+import {
+  LayoutDashboard,
+  Plus,
+  FileText,
+  BarChart3,
+  Building,
+  Ship,
+  Users,
   Settings,
   LogOut,
   Menu,
-  X
-} from 'lucide-react';
+  X,
+} from "lucide-react";
 
 const Layout: React.FC = () => {
   const location = useLocation();
@@ -23,11 +24,11 @@ const Layout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => {
-    return location.pathname === path ? 'bg-blue-700' : '';
+    return location.pathname === path ? "bg-blue-700" : "";
   };
 
   const handleLogout = async () => {
-    const confirmed = await confirm('¿Está seguro que desea cerrar sesión?');
+    const confirmed = await confirm("¿Está seguro que desea cerrar sesión?");
     if (confirmed) {
       logout();
     }
@@ -35,18 +36,53 @@ const Layout: React.FC = () => {
 
   // Menú basado en roles
   const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['inspector', 'supervisor', 'admin'] },
-    { path: '/inspeccion-nueva', label: 'Nueva Inspección', icon: Plus, roles: ['inspector', 'supervisor', 'admin'] },
-    { path: '/inspecciones', label: 'Inspecciones', icon: FileText, roles: ['inspector', 'supervisor', 'admin'] },
-    { path: '/reportes', label: 'Reportes', icon: BarChart3, roles: ['inspector', 'supervisor', 'admin'] },
-    { path: '/plantas', label: 'Plantas', icon: Building, roles: ['supervisor', 'admin'] },
-    { path: '/navieras', label: 'Navieras', icon: Ship, roles: ['supervisor', 'admin'] },
-    { path: '/usuarios', label: 'Usuarios', icon: Users, roles: ['admin'] },
-    { path: '/configuracion', label: 'Configuración', icon: Settings, roles: ['inspector', 'supervisor', 'admin'] },
+    {
+      path: "/dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      roles: ["inspector", "supervisor", "admin"],
+    },
+    {
+      path: "/inspeccion-nueva",
+      label: "Nueva Inspección",
+      icon: Plus,
+      roles: ["inspector", "supervisor", "admin"],
+    },
+    {
+      path: "/inspecciones",
+      label: "Inspecciones",
+      icon: FileText,
+      roles: ["inspector", "supervisor", "admin"],
+    },
+    {
+      path: "/reportes",
+      label: "Reportes",
+      icon: BarChart3,
+      roles: ["inspector", "supervisor", "admin"],
+    },
+    {
+      path: "/plantas",
+      label: "Plantas",
+      icon: Building,
+      roles: ["supervisor", "admin"],
+    },
+    {
+      path: "/navieras",
+      label: "Navieras",
+      icon: Ship,
+      roles: ["supervisor", "admin"],
+    },
+    { path: "/usuarios", label: "Usuarios", icon: Users, roles: ["admin"] },
+    {
+      path: "/configuracion",
+      label: "Configuración",
+      icon: Settings,
+      roles: ["inspector", "supervisor", "admin"],
+    },
   ];
 
-  const visibleMenuItems = menuItems.filter(item => 
-    user && item.roles.includes(user.rol)
+  const visibleMenuItems = menuItems.filter(
+    (item) => user && item.roles.includes(user.rol)
   );
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
@@ -61,46 +97,62 @@ const Layout: React.FC = () => {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 hover:bg-blue-700 dark:hover:bg-blue-800 rounded-lg transition-colors"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
             <div>
               <h1 className="text-lg font-bold">Inspección</h1>
-              <p className="text-xs text-blue-200 dark:text-blue-300">Contenedores</p>
+              <p className="text-xs text-blue-200 dark:text-blue-300">
+                Contenedores
+              </p>
             </div>
           </div>
-          <div className="w-8 h-8 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-semibold">
-              {user?.nombre?.charAt(0) || 'U'}
-            </span>
+          <div className="flex items-center gap-3">
+            <NotificationsBell />
+            <div className="w-8 h-8 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-semibold">
+                {user?.nombre?.charAt(0) || "U"}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-20"
           onClick={closeMobileMenu}
         />
       )}
 
       {/* Sidebar - Desktop y Mobile */}
-      <div className={`
+      <div
+        className={`
         fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-blue-600 to-blue-800 dark:from-blue-700 dark:to-blue-900 text-white shadow-lg z-40
         transform transition-transform duration-300 ease-in-out
-        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0
-      `}>
+      `}
+      >
         {/* Desktop Header (oculto en mobile) */}
         <div className="hidden lg:block p-6">
           <h1 className="text-2xl font-bold mb-2">Inspección</h1>
-          <p className="text-blue-200 dark:text-blue-300 text-sm">Contenedores Frutícolas</p>
+          <p className="text-blue-200 dark:text-blue-300 text-sm">
+            Contenedores Frutícolas
+          </p>
         </div>
 
         {/* Mobile Header spacing */}
         <div className="lg:hidden h-16" />
 
-        <nav className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 240px)' }}>
+        <nav
+          className="flex-1 overflow-y-auto"
+          style={{ maxHeight: "calc(100vh - 240px)" }}
+        >
           {visibleMenuItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -108,7 +160,9 @@ const Layout: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 onClick={closeMobileMenu}
-                className={`flex items-center px-6 py-3 hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors ${isActive(item.path)}`}
+                className={`flex items-center px-6 py-3 hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors ${isActive(
+                  item.path
+                )}`}
               >
                 <Icon className="w-5 h-5 mr-3" />
                 <span className="text-sm sm:text-base">{item.label}</span>
@@ -122,12 +176,16 @@ const Layout: React.FC = () => {
             <div className="flex items-center mb-3">
               <div className="w-10 h-10 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-semibold">
-                  {user?.nombre?.charAt(0) || 'U'}
+                  {user?.nombre?.charAt(0) || "U"}
                 </span>
               </div>
               <div className="ml-3 flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user?.nombre || 'Usuario'}</p>
-                <p className="text-xs text-blue-200 dark:text-blue-300 capitalize">{user?.rol || 'inspector'}</p>
+                <p className="text-sm font-medium truncate">
+                  {user?.nombre || "Usuario"}
+                </p>
+                <p className="text-xs text-blue-200 dark:text-blue-300 capitalize">
+                  {user?.rol || "inspector"}
+                </p>
               </div>
             </div>
             <button
@@ -143,6 +201,9 @@ const Layout: React.FC = () => {
 
       {/* Main Content */}
       <div className="pt-16 lg:pt-0 lg:ml-64 p-4 sm:p-6 lg:p-8">
+        <div className="flex justify-end mb-4">
+          <NotificationsBell />
+        </div>
         <Outlet />
       </div>
     </div>
