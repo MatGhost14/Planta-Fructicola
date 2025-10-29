@@ -1,3 +1,18 @@
+import hashlib
+from fastapi.responses import HTMLResponse
+def calcular_hash_reporte(inspecciones, filtros):
+    """
+    Calcula un hash determinista del reporte, usando los datos principales y los hashes de evidencias (fotos).
+    """
+    manifest = []
+    for insp in inspecciones:
+        fotos_hashes = sorted([f.hash_hex or '' for f in getattr(insp, 'fotos', [])])
+        manifest.append(f"{insp.id_inspeccion}|{insp.codigo}|{insp.numero_contenedor}|{insp.estado}|{insp.inspeccionado_en}|{','.join(fotos_hashes)}")
+    manifest_str = '\n'.join(sorted(manifest))
+    filtros_str = str(sorted(filtros.items()))
+    hash_input = (manifest_str + filtros_str).encode('utf-8')
+    return hashlib.sha256(hash_input).hexdigest()
+
 """
 Router para exportación de reportes en PDF y Excel
 """
@@ -14,7 +29,8 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image
+import qrcode
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 
 # Importaciones para Excel
@@ -33,82 +49,265 @@ def crear_pdf_inspecciones(inspecciones: list, filtros: dict) -> io.BytesIO:
     """
     Genera un PDF profesional y moderno con el reporte de inspecciones
     """
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(
-        buffer, 
-        pagesize=A4,
-        topMargin=0.5*inch,
-        bottomMargin=0.5*inch,
-        leftMargin=0.5*inch,
-        rightMargin=0.5*inch
-    )
-    elementos = []
-    
-    # Definir colores corporativos
-    COLOR_PRIMARY = colors.HexColor('#2563eb')  # Azul moderno
-    COLOR_SUCCESS = colors.HexColor('#10b981')  # Verde (Aprobado)
-    COLOR_WARNING = colors.HexColor('#f59e0b')  # Amarillo (Pendiente)
-    COLOR_DANGER = colors.HexColor('#ef4444')   # Rojo (Rechazado)
-    COLOR_DARK = colors.HexColor('#1e293b')
-    COLOR_LIGHT_BG = colors.HexColor('#f8fafc')
-    COLOR_BORDER = colors.HexColor('#e2e8f0')
-    
-    # Estilos personalizados
-    styles = getSampleStyleSheet()
-    
-    # Título principal
-    titulo_principal = ParagraphStyle(
-        'TituloPrincipal',
-        parent=styles['Heading1'],
-        fontSize=24,
-        textColor=COLOR_PRIMARY,
-        fontName='Helvetica-Bold',
-        spaceAfter=10,
-        alignment=TA_CENTER,
-        leading=28
-    )
-    
-    # Subtítulo
-    subtitulo_style = ParagraphStyle(
-        'Subtitulo',
-        parent=styles['Normal'],
-        fontSize=11,
-        textColor=colors.HexColor('#64748b'),
-        alignment=TA_CENTER,
-        spaceAfter=25,
-        leading=14
-    )
-    
-    # Título de sección
-    titulo_seccion = ParagraphStyle(
-        'TituloSeccion',
-        parent=styles['Heading2'],
-        fontSize=14,
-        textColor=COLOR_DARK,
-        fontName='Helvetica-Bold',
-        spaceAfter=12,
-        spaceBefore=20,
-        leading=17
-    )
-    
-    # ========== ENCABEZADO ==========
-    # Logo/Título de la empresa
-    elementos.append(Paragraph("🏭 INSPECCIÓN DE CONTENEDORES", titulo_principal))
-    elementos.append(Paragraph("Sistema de Control de Calidad", subtitulo_style))
-    
-    # Línea decorativa
-    elementos.append(Spacer(1, 0.1*inch))
-    line_data = [['', '', '', '']]
-    line_table = Table(line_data, colWidths=[2*inch, 2*inch, 2*inch, 1.2*inch])
-    line_table.setStyle(TableStyle([
-        ('LINEABOVE', (0, 0), (-1, 0), 3, COLOR_PRIMARY),
-    ]))
-    elementos.append(line_table)
-    elementos.append(Spacer(1, 0.2*inch))
-    
-    # ========== INFORMACIÓN DEL REPORTE ==========
-    fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M")
-    
+    try:
+        buffer = io.BytesIO()
+        # Definir colores corporativos
+        COLOR_PRIMARY = colors.HexColor('#2563eb')  # Azul moderno
+        COLOR_SUCCESS = colors.HexColor('#10b981')  # Verde (Aprobado)
+        COLOR_WARNING = colors.HexColor('#f59e0b')  # Amarillo (Pendiente)
+        COLOR_DANGER = colors.HexColor('#ef4444')   # Rojo (Rechazado)
+        COLOR_DARK = colors.HexColor('#1e293b')
+        COLOR_LIGHT_BG = colors.HexColor('#f8fafc')
+        COLOR_BORDER = colors.HexColor('#e2e8f0')
+        # Estilos personalizados
+        styles = getSampleStyleSheet()
+        # Título principal
+        titulo_principal = ParagraphStyle(
+            'TituloPrincipal',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=COLOR_PRIMARY,
+            fontName='Helvetica-Bold',
+            spaceAfter=10,
+            alignment=TA_CENTER,
+            leading=28)
+        # Subtítulo
+        subtitulo_style = ParagraphStyle(
+            'Subtitulo',
+            parent=styles['Normal'],
+            fontSize=11,
+            textColor=colors.HexColor('#64748b'),
+            alignment=TA_CENTER,
+            spaceAfter=25,
+            leading=14)
+        # Título de sección
+        titulo_seccion = ParagraphStyle(
+            'TituloSeccion',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=COLOR_DARK,
+            fontName='Helvetica-Bold',
+            spaceAfter=12,
+            spaceBefore=20,
+            leading=17)
+
+        doc = SimpleDocTemplate(
+            buffer, 
+            pagesize=A4,
+            topMargin=0.5*inch,
+            bottomMargin=0.5*inch,
+            leftMargin=0.5*inch,
+            rightMargin=0.5*inch
+        )
+        elementos = []
+
+        # ========== ENCABEZADO ========== 
+        # Logo/Título de la empresa
+        elementos.append(Paragraph("🏭 INSPECCIÓN DE CONTENEDORES", titulo_principal))
+        elementos.append(Paragraph("Sistema de Control de Calidad", subtitulo_style))
+        # Línea decorativa
+        elementos.append(Spacer(1, 0.1*inch))
+        line_data = [['', '', '', '']]
+        line_table = Table(line_data, colWidths=[2*inch, 2*inch, 2*inch, 1.2*inch])
+        line_table.setStyle(TableStyle([
+            ('LINEABOVE', (0, 0), (-1, 0), 3, COLOR_PRIMARY),
+        ]))
+        elementos.append(line_table)
+        elementos.append(Spacer(1, 0.2*inch))
+
+        # ========== CÓDIGO QR DE VERIFICACIÓN ========== 
+        id_reporte = inspecciones[0].id_inspeccion if inspecciones else 0
+        try:
+            hash_reporte = calcular_hash_reporte(inspecciones, filtros)
+        except Exception:
+            hash_reporte = "errorhash"
+        url_verificacion = f"https://tuservidor/verificar-reporte/{id_reporte}/{hash_reporte}"
+        try:
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_M,
+                box_size=4,
+                border=2,
+            )
+            qr.add_data(url_verificacion)
+            qr.make(fit=True)
+            img_qr = qr.make_image(fill_color="black", back_color="white")
+            qr_buffer = io.BytesIO()
+            img_qr.save(qr_buffer, format="PNG")
+            qr_buffer.seek(0)
+            qr_img = Image(qr_buffer, width=1*inch, height=1*inch)
+            qr_table = Table([[qr_img]], colWidths=[1*inch], rowHeights=[1*inch])
+            qr_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ('TOPPADDING', (0, 0), (-1, -1), 0),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ]))
+            elementos.append(qr_table)
+            elementos.append(Spacer(1, 0.1*inch))
+        except Exception:
+            pass
+
+        # ========== INFORMACIÓN DEL REPORTE ========== 
+        fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M")
+        info_data = [
+            ['📅 Fecha de Generación:', fecha_actual, '📊 Total de Registros:', str(len(inspecciones))]
+        ]
+        if filtros.get('fecha_desde') and filtros.get('fecha_hasta'):
+            info_data.append([
+                '📆 Período:', 
+                f"{filtros['fecha_desde']} al {filtros['fecha_hasta']}", 
+                '', 
+                ''
+            ])
+        info_table = Table(info_data, colWidths=[1.8*inch, 2.5*inch, 1.8*inch, 1.1*inch])
+        info_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), COLOR_LIGHT_BG),
+            ('TEXTCOLOR', (0, 0), (-1, -1), COLOR_DARK),
+            ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+            ('ALIGN', (2, 0), (2, -1), 'RIGHT'),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+            ('BOX', (0, 0), (-1, -1), 1, COLOR_BORDER),
+        ]))
+        elementos.append(info_table)
+        elementos.append(Spacer(1, 0.3*inch))
+
+        # ========== RESUMEN ESTADÍSTICO ========== 
+        elementos.append(Paragraph("📈 RESUMEN ESTADÍSTICO", titulo_seccion))
+        elementos.append(Spacer(1, 0.15*inch))
+        total = len(inspecciones)
+        aprobadas = sum(1 for i in inspecciones if i.estado == 'approved')
+        rechazadas = sum(1 for i in inspecciones if i.estado == 'rejected')
+        pendientes = sum(1 for i in inspecciones if i.estado == 'pending')
+        porcentaje_aprobadas = (aprobadas / total * 100) if total > 0 else 0
+        porcentaje_rechazadas = (rechazadas / total * 100) if total > 0 else 0
+        porcentaje_pendientes = (pendientes / total * 100) if total > 0 else 0
+        resumen_data = [
+            ['ESTADO', 'CANTIDAD', 'PORCENTAJE'],
+            ['OK Aprobadas', str(aprobadas), f'{porcentaje_aprobadas:.1f}%'],
+            ['Pendientes', str(pendientes), f'{porcentaje_pendientes:.1f}%'],
+            ['X Rechazadas', str(rechazadas), f'{porcentaje_rechazadas:.1f}%'],
+            ['TOTAL', str(total), '100%']
+        ]
+        resumen_table = Table(resumen_data, colWidths=[3*inch, 1.8*inch, 1.8*inch])
+        resumen_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), COLOR_PRIMARY),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 11),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#ecfdf5')),
+            ('TEXTCOLOR', (0, 1), (-1, 1), COLOR_SUCCESS),
+            ('FONTNAME', (0, 1), (0, 1), 'Helvetica-Bold'),
+            ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#fffbeb')),
+            ('TEXTCOLOR', (0, 2), (-1, 2), COLOR_WARNING),
+            ('FONTNAME', (0, 2), (0, 2), 'Helvetica-Bold'),
+            ('BACKGROUND', (0, 3), (-1, 3), colors.HexColor('#fef2f2')),
+            ('TEXTCOLOR', (0, 3), (-1, 3), COLOR_DANGER),
+            ('FONTNAME', (0, 3), (0, 3), 'Helvetica-Bold'),
+            ('BACKGROUND', (0, 4), (-1, 4), COLOR_DARK),
+            ('TEXTCOLOR', (0, 4), (-1, 4), colors.white),
+            ('FONTNAME', (0, 4), (-1, 4), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 0.5, COLOR_BORDER),
+        ]))
+        elementos.append(resumen_table)
+        elementos.append(Spacer(1, 0.4*inch))
+
+        # ========== DETALLE DE INSPECCIONES ========== 
+        if inspecciones:
+            elementos.append(Paragraph("DETALLE DE INSPECCIONES", titulo_seccion))
+            elementos.append(Spacer(1, 0.15*inch))
+            data = [['CÓDIGO', 'CONTENEDOR', 'PLANTA', 'FECHA', 'ESTADO', 'INSPECTOR']]
+            for insp in inspecciones[:100]:
+                estado_texto = {
+                    'pending': '⏳ Pendiente',
+                    'approved': 'OK Aprobado',
+                    'rejected': 'X Rechazado'
+                }.get(insp.estado, insp.estado)
+                fecha = insp.inspeccionado_en.strftime("%d/%m/%Y") if insp.inspeccionado_en else 'N/A'
+                planta_nombre = insp.planta.nombre if insp.planta else 'N/A'
+                inspector_nombre = insp.inspector.nombre if insp.inspector else 'N/A'
+                data.append([
+                    insp.codigo[:18] if insp.codigo else 'N/A',
+                    insp.numero_contenedor[:15] if insp.numero_contenedor else 'N/A',
+                    planta_nombre[:18],
+                    fecha,
+                    estado_texto,
+                    inspector_nombre[:18]
+                ])
+            col_widths = [1.3*inch, 1.4*inch, 1.3*inch, 0.9*inch, 1.1*inch, 1.2*inch]
+            tabla = Table(data, colWidths=col_widths)
+            table_style = [
+                ('BACKGROUND', (0, 0), (-1, 0), COLOR_PRIMARY),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                ('TOPPADDING', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
+                ('ALIGN', (0, 1), (5, -1), 'LEFT'),
+                ('ALIGN', (3, 1), (3, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('TOPPADDING', (0, 1), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+                ('LEFTPADDING', (0, 0), (-1, -1), 8),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+                ('GRID', (0, 0), (-1, -1), 0.5, COLOR_BORDER),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, COLOR_LIGHT_BG]),
+            ]
+            for i, insp in enumerate(inspecciones[:100], start=1):
+                if insp.estado == 'approved':
+                    table_style.append(('TEXTCOLOR', (4, i), (4, i), COLOR_SUCCESS))
+                    table_style.append(('FONTNAME', (4, i), (4, i), 'Helvetica-Bold'))
+                elif insp.estado == 'rejected':
+                    table_style.append(('TEXTCOLOR', (4, i), (4, i), COLOR_DANGER))
+                    table_style.append(('FONTNAME', (4, i), (4, i), 'Helvetica-Bold'))
+                elif insp.estado == 'pending':
+                    table_style.append(('TEXTCOLOR', (4, i), (4, i), COLOR_WARNING))
+                    table_style.append(('FONTNAME', (4, i), (4, i), 'Helvetica-Bold'))
+            tabla.setStyle(TableStyle(table_style))
+            elementos.append(tabla)
+            elementos.append(Spacer(1, 0.3*inch))
+            pie_style = ParagraphStyle(
+                'Pie',
+                parent=styles['Normal'],
+                fontSize=8,
+                textColor=colors.HexColor('#94a3b8'),
+                alignment=TA_CENTER
+            )
+            elementos.append(Paragraph(
+                "Este reporte ha sido generado automáticamente por el Sistema de Inspección de Contenedores",
+                pie_style
+            ))
+            elementos.append(Paragraph(
+                f"Hash de verificación: {hash_reporte[:16]}...",
+                pie_style
+            ))
+
+        doc.build(elementos)
+        buffer.seek(0)
+        return buffer
+    except Exception as e:
+        buffer_err = io.BytesIO()
+        doc = SimpleDocTemplate(buffer_err, pagesize=A4)
+        styles = getSampleStyleSheet()
+        doc.build([Paragraph(f"Error generando PDF: {str(e)}", styles['Normal'])])
+        buffer_err.seek(0)
+        return buffer_err
     info_data = [
         ['📅 Fecha de Generación:', fecha_actual, '📊 Total de Registros:', str(len(inspecciones))]
     ]
@@ -288,11 +487,32 @@ def crear_pdf_inspecciones(inspecciones: list, filtros: dict) -> io.BytesIO:
             "Este reporte ha sido generado automáticamente por el Sistema de Inspección de Contenedores",
             pie_style
         ))
-    
-    # Construir PDF
-    doc.build(elementos)
-    buffer.seek(0)
-    return buffer
+        elementos.append(Paragraph(
+            f"Hash de verificación: {hash_reporte[:16]}...",
+            pie_style
+        ))
+@router.get("/verificar-reporte/{id_reporte}/{hash_reporte}", response_class=HTMLResponse)
+def verificar_reporte(id_reporte: int, hash_reporte: str, db: Session = Depends(get_db)):
+    # Buscar todas las inspecciones con el mismo id_reporte (puede ser un lote, aquí solo una)
+    inspecciones = db.query(Inspeccion).filter(Inspeccion.id_inspeccion == id_reporte).all()
+    if not inspecciones:
+        return HTMLResponse("<h2>Reporte no encontrado</h2>", status_code=404)
+    # Para demo, usar filtros vacíos (en producción, reconstruir los filtros usados)
+    filtros = {}
+    hash_actual = calcular_hash_reporte(inspecciones, filtros)
+    if hash_actual == hash_reporte:
+        estado = "<span style='color:green;font-weight:bold'>VÁLIDO</span>"
+    else:
+        estado = "<span style='color:red;font-weight:bold'>ALTERADO</span>"
+    html = f"""
+    <html><head><title>Verificación de Reporte</title></head><body>
+    <h2>Verificación de Reporte #{id_reporte}</h2>
+    <p>Estado: {estado}</p>
+    <p>Hash esperado: <code>{hash_reporte}</code></p>
+    <p>Hash actual: <code>{hash_actual}</code></p>
+    </body></html>
+    """
+    return HTMLResponse(html)
 
 
 def crear_excel_inspecciones(inspecciones: list, filtros: dict) -> io.BytesIO:
