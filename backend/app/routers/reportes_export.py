@@ -29,6 +29,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
+
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image
 import qrcode
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT

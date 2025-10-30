@@ -48,6 +48,10 @@ app = FastAPI(
     redoc_url="/redoc" if settings.DEBUG else None
 )
 
+# Montar carpeta de capturas como estática
+capturas_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../capturas'))
+app.mount("/capturas", StaticFiles(directory=capturas_path), name="capturas")
+
 # Configurar CORS (DEBE IR PRIMERO - antes de otros middlewares)
 app.add_middleware(
     CORSMiddleware,

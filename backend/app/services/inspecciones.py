@@ -155,10 +155,14 @@ class InspeccionService:
     ) -> List[FotoInspeccion]:
         """Sube múltiples fotos para una inspección"""
         inspeccion = self.obtener_inspeccion(db, id_inspeccion)
-        
+        # Bloqueo si la inspección está aprobada
+        if inspeccion.estado == 'approved':
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="La evidencia es inmutable (inspección aprobada)"
+            )
         # Obtener fecha actual en formato dd-mm-yyyy
         fecha_carpeta = datetime.now().strftime("%d-%m-%Y")
-        
         # Directorio destino organizado por fecha
         dest_dir = os.path.join(
             settings.CAPTURAS_DIR,
@@ -166,17 +170,14 @@ class InspeccionService:
             fecha_carpeta,
             str(id_inspeccion)
         )
-        
         fotos_creadas = []
         orden_actual = len(inspeccion.fotos)
-        
         for idx, archivo in enumerate(archivos):
             # Guardar archivo
             full_path, relative_path, file_hash = await save_upload_file(
                 archivo,
                 dest_dir
             )
-            
             # Crear registro en BD
             foto_data = {
                 "id_inspeccion": id_inspeccion,
@@ -186,10 +187,8 @@ class InspeccionService:
                 "orden": orden_actual + idx,
                 "tomada_en": datetime.now()
             }
-            
             foto = foto_repository.create(db, foto_data)
             fotos_creadas.append(foto)
-        
         return fotos_creadas
     
     def eliminar_foto(
@@ -199,9 +198,13 @@ class InspeccionService:
         id_foto: int
     ) -> None:
         """Elimina una foto específica"""
-        # Verificar que la inspección existe
-        self.obtener_inspeccion(db, id_inspeccion)
-        
+        inspeccion = self.obtener_inspeccion(db, id_inspeccion)
+        # Bloqueo si la inspección está aprobada
+        if inspeccion.estado == 'approved':
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="La evidencia es inmutable (inspección aprobada)"
+            )
         # Obtener foto
         foto = foto_repository.get_by_id(db, id_foto)
         if not foto or foto.id_inspeccion != id_inspeccion:
@@ -209,12 +212,10 @@ class InspeccionService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Foto no encontrada"
             )
-        
         # Eliminar archivo físico
         foto_path = foto.foto_path.replace("/capturas/", "")
         full_path = os.path.join(settings.CAPTURAS_DIR, foto_path)
         delete_file_safe(full_path)
-        
         # Eliminar de BD
         foto_repository.delete(db, foto)
     
