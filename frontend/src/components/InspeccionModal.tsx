@@ -17,6 +17,8 @@ import {
   Clock,
   ThumbsUp,
   ThumbsDown,
+  Trash2,
+  AlertCircle,
 } from "lucide-react";
 import type { InspeccionDetalle } from "../types";
 import { inspeccionesApi } from "../api/inspecciones";
@@ -41,6 +43,7 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [comentario, setComentario] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deletingFoto, setDeletingFoto] = useState<number | null>(null);
   const { user } = useAuth();
   const { showSuccess, showError, showWarning } = useToast();
 
@@ -118,6 +121,30 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
       setLoading(false);
     }
   };
+
+  const handleEliminarFoto = async (idFoto: number) => {
+    if (!confirm("¿Está seguro de eliminar esta evidencia?")) {
+      return;
+    }
+
+    setDeletingFoto(idFoto);
+    try {
+      await inspeccionesApi.eliminarFoto(inspeccion!.id_inspeccion, idFoto);
+      showSuccess("Evidencia eliminada exitosamente");
+      if (onUpdate) onUpdate();
+    } catch (error: any) {
+      const detail = error.response?.data?.detail || "Error al eliminar evidencia";
+      if (error.response?.status === 409) {
+        showError(detail);
+      } else {
+        showError(detail);
+      }
+    } finally {
+      setDeletingFoto(null);
+    }
+  };
+
+  const isEvidenciaInmutable = inspeccion?.estado === "approved";
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
@@ -302,22 +329,52 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
                   <h3 className="text-lg font-semibold text-gray-900">
                     Fotografías ({inspeccion.fotos.length})
                   </h3>
+                  {isEvidenciaInmutable && (
+                    <div className="flex items-center gap-1 text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded-full">
+                      <AlertCircle className="w-3 h-3" />
+                      <span>Evidencias bloqueadas (inspección aprobada)</span>
+                    </div>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {inspeccion.fotos.map((foto) => (
                     <div
                       key={foto.id_foto}
-                      className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group"
-                      onClick={() => setSelectedPhoto(foto.foto_path)}
+                      className="relative aspect-square rounded-lg overflow-hidden group"
                     >
                       <img
                         src={foto.foto_path}
                         alt={`Foto de inspección ${inspeccion.codigo}`}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                        className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-110"
+                        onClick={() => setSelectedPhoto(foto.foto_path)}
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ImageIcon className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                       </div>
+                      {/* Botón eliminar */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEliminarFoto(foto.id_foto);
+                        }}
+                        disabled={isEvidenciaInmutable || deletingFoto === foto.id_foto}
+                        title={
+                          isEvidenciaInmutable
+                            ? "No se puede eliminar: inspección aprobada"
+                            : "Eliminar evidencia"
+                        }
+                        className={`absolute top-2 right-2 p-2 rounded-full transition-all ${
+                          isEvidenciaInmutable
+                            ? "bg-gray-400 cursor-not-allowed opacity-50"
+                            : "bg-red-600 hover:bg-red-700"
+                        } text-white shadow-lg opacity-0 group-hover:opacity-100 disabled:cursor-not-allowed`}
+                      >
+                        {deletingFoto === foto.id_foto ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </button>
                     </div>
                   ))}
                 </div>

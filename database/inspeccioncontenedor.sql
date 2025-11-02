@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 26-10-2025 a las 21:42:31
+-- Tiempo de generación: 02-11-2025 a las 14:30:06
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -21,6 +21,14 @@ SET time_zone = "+00:00";
 -- Base de datos: `inspeccioncontenedor`
 --
 
+-- Crear base de datos si no existe
+CREATE DATABASE IF NOT EXISTS `inspeccioncontenedor` 
+DEFAULT CHARACTER SET utf8mb4 
+COLLATE utf8mb4_unicode_ci;
+
+-- Usar la base de datos
+USE `inspeccioncontenedor`;
+
 -- --------------------------------------------------------
 
 --
@@ -36,7 +44,7 @@ CREATE TABLE `alembic_version` (
 --
 
 INSERT INTO `alembic_version` (`version_num`) VALUES
-('001');
+('002');
 
 -- --------------------------------------------------------
 
@@ -86,7 +94,12 @@ INSERT INTO `bitacora_auditoria` (`id_evento`, `id_usuario`, `accion`, `detalles
 (27, 2, 'LOGOUT', 'Logout desde aplicación web', '2025-10-26 17:41:26'),
 (28, 1, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 17:41:33'),
 (29, 1, 'LOGOUT', 'Logout desde aplicación web', '2025-10-26 17:41:39'),
-(30, 2, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 17:41:44');
+(30, 2, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-10-26 17:41:44'),
+(31, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-11-02 08:30:17'),
+(32, 1, 'Estado actualizado', 'Contenedor: HAHR756 -> approved', '2025-11-02 08:46:38'),
+(33, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-11-02 08:59:19'),
+(34, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-11-02 09:31:52'),
+(35, 3, 'LOGIN', 'Login exitoso desde 127.0.0.1', '2025-11-02 10:19:05');
 
 -- --------------------------------------------------------
 
@@ -139,7 +152,7 @@ CREATE TABLE `inspecciones` (
 --
 
 INSERT INTO `inspecciones` (`id_inspeccion`, `codigo`, `numero_contenedor`, `id_planta`, `id_navieras`, `temperatura_c`, `observaciones`, `firma_path`, `id_inspector`, `estado`, `inspeccionado_en`, `creado_en`, `actualizado_en`) VALUES
-(2, 'INS_1761510206650', 'HAHR756', 3, 3, 18.00, 'de prueba', '/capturas/firmas/2_1761510206.png', 1, 'pending', '2025-10-26 17:23:26', '2025-10-26 17:23:26', '2025-10-26 17:23:26');
+(2, 'INS_1761510206650', 'HAHR756', 3, 3, 18.00, 'de prueba', '/capturas/firmas/2_1761510206.png', 1, 'approved', '2025-10-26 17:23:26', '2025-10-26 17:23:26', '2025-11-02 08:46:38');
 
 --
 -- Disparadores `inspecciones`
@@ -239,6 +252,21 @@ INSERT INTO `preferencias_usuario` (`id_usuario`, `auto_sync`, `notificaciones`,
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `reportes`
+--
+
+CREATE TABLE `reportes` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `uuid_reporte` varchar(36) NOT NULL,
+  `id_inspeccion` bigint(20) UNSIGNED NOT NULL,
+  `pdf_ruta` varchar(500) NOT NULL,
+  `hash_global` varchar(64) NOT NULL,
+  `creado_en` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `tokens_api`
 --
 
@@ -275,7 +303,7 @@ CREATE TABLE `usuarios` (
 INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `password_hash`, `rol`, `estado`, `ultimo_acceso`, `creado_en`, `actualizado_en`) VALUES
 (1, 'Juan Díaz', 'juan.diaz@empresa.com', '$2b$12$KucH7A.w1Lwro8NnNgdU3uh28rlyHoYcKAq6ocQVPup2CSiDi8wNG', 'inspector', 'active', '2025-10-26 17:41:39', '2025-10-14 00:44:46', '2025-10-26 17:41:39'),
 (2, 'María López', 'maria.lopez@empresa.com', '$2b$12$KucH7A.w1Lwro8NnNgdU3uh28rlyHoYcKAq6ocQVPup2CSiDi8wNG', 'supervisor', 'active', '2025-10-26 17:41:55', '2025-10-14 00:44:46', '2025-10-26 17:41:55'),
-(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', '$2b$12$KucH7A.w1Lwro8NnNgdU3uh28rlyHoYcKAq6ocQVPup2CSiDi8wNG', 'admin', 'active', '2025-10-26 15:45:13', '2025-10-14 00:44:46', '2025-10-26 15:45:13');
+(3, 'Carlos Ruiz', 'carlos.ruiz@empresa.com', '$2b$12$KucH7A.w1Lwro8NnNgdU3uh28rlyHoYcKAq6ocQVPup2CSiDi8wNG', 'admin', 'active', '2025-11-02 10:23:26', '2025-10-14 00:44:46', '2025-11-02 10:23:26');
 
 -- --------------------------------------------------------
 
@@ -385,6 +413,15 @@ ALTER TABLE `preferencias_usuario`
   ADD PRIMARY KEY (`id_usuario`);
 
 --
+-- Indices de la tabla `reportes`
+--
+ALTER TABLE `reportes`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ux_reportes_uuid` (`uuid_reporte`),
+  ADD KEY `ix_reportes_inspeccion` (`id_inspeccion`),
+  ADD KEY `ix_reportes_fecha` (`creado_en`);
+
+--
 -- Indices de la tabla `tokens_api`
 --
 ALTER TABLE `tokens_api`
@@ -409,7 +446,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `bitacora_auditoria`
 --
 ALTER TABLE `bitacora_auditoria`
-  MODIFY `id_evento` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id_evento` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT de la tabla `fotos_inspeccion`
@@ -434,6 +471,12 @@ ALTER TABLE `navieras`
 --
 ALTER TABLE `plantas`
   MODIFY `id_planta` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT de la tabla `reportes`
+--
+ALTER TABLE `reportes`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `tokens_api`
@@ -476,6 +519,12 @@ ALTER TABLE `inspecciones`
 --
 ALTER TABLE `preferencias_usuario`
   ADD CONSTRAINT `fk_pref_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `reportes`
+--
+ALTER TABLE `reportes`
+  ADD CONSTRAINT `fk_reportes_inspeccion` FOREIGN KEY (`id_inspeccion`) REFERENCES `inspecciones` (`id_inspeccion`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `tokens_api`

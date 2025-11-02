@@ -43,7 +43,14 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const showToast = useCallback((message: string, type: ToastType = 'info') => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
-  }, []);
+    
+    // Auto-cerrar toasts de tipo 'info' después de 2 segundos
+    if (type === 'info') {
+      setTimeout(() => {
+        removeToast(id);
+      }, 2000);
+    }
+  }, [removeToast]);
 
   // Cerrar toast con tecla ESC
   useEffect(() => {

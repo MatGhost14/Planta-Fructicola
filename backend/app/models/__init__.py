@@ -111,6 +111,10 @@ class Inspeccion(Base):
     fotos: Mapped[List["FotoInspeccion"]] = relationship(
         "FotoInspeccion", back_populates="inspeccion", cascade="all, delete-orphan"
     )
+    # NOTA: Relación con reportes definida desde el modelo Reporte (abajo) para evitar error de orden
+    # reportes: Mapped[List["Reporte"]] = relationship(
+    #     "Reporte", back_populates="inspeccion", cascade="all, delete-orphan"
+    # )
 
 
 # Índices compuestos
@@ -178,3 +182,25 @@ class PreferenciaUsuario(Base):
     
     # Relaciones
     usuario: Mapped["Usuario"] = relationship("Usuario", back_populates="preferencias")
+
+
+class Reporte(Base):
+    """Tabla reportes - almacena PDFs generados de inspecciones"""
+    __tablename__ = "reportes"
+    
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    uuid_reporte: Mapped[str] = mapped_column(String(36), nullable=False, unique=True)
+    id_inspeccion: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("inspecciones.id_inspeccion", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False
+    )
+    pdf_ruta: Mapped[str] = mapped_column(String(500), nullable=False)
+    hash_global: Mapped[str] = mapped_column(String(64), nullable=False)
+    creado_en: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
+    
+    # NO usar back_populates para evitar error de configuración circular
+
+
+# Índice para mejorar búsquedas por inspección
+Index('ix_reportes_inspeccion', Reporte.id_inspeccion)

@@ -142,6 +142,15 @@ def require_role(*roles: Literal['inspector', 'supervisor', 'admin']):
     return role_checker
 
 
+def require_roles(current_user: Usuario, roles: list[str]) -> None:
+    """Función helper para verificar roles (no async)"""
+    if current_user.rol not in roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Se requiere rol: {', '.join(roles)}"
+        )
+
+
 # Aliases para facilitar uso
 require_inspector = require_role('inspector', 'supervisor', 'admin')
 require_supervisor = require_role('supervisor', 'admin')

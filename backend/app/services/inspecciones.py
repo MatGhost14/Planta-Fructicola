@@ -216,6 +216,13 @@ class InspeccionService:
         """Sube múltiples fotos para una inspección"""
         inspeccion = self.obtener_inspeccion(db, id_inspeccion)
         
+        # Validar que la inspección no esté aprobada
+        if inspeccion.estado == 'approved':
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="La evidencia es inmutable (inspección aprobada)"
+            )
+        
         # Obtener fecha actual en formato dd-mm-yyyy
         fecha_carpeta = datetime.now().strftime("%d-%m-%Y")
         
@@ -260,7 +267,14 @@ class InspeccionService:
     ) -> None:
         """Elimina una foto específica"""
         # Verificar que la inspección existe
-        self.obtener_inspeccion(db, id_inspeccion)
+        inspeccion = self.obtener_inspeccion(db, id_inspeccion)
+        
+        # Validar que la inspección no esté aprobada
+        if inspeccion.estado == 'approved':
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="La evidencia es inmutable (inspección aprobada)"
+            )
         
         # Obtener foto
         foto = foto_repository.get_by_id(db, id_foto)

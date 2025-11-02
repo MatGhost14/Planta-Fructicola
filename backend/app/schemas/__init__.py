@@ -225,6 +225,35 @@ class ResumenReporte(BaseModel):
     periodo_hasta: Optional[str] = None
 
 
+class ReporteBase(BaseModel):
+    """Esquema base de reporte PDF"""
+    id_inspeccion: int
+
+
+class ReporteCreate(ReporteBase):
+    """Esquema para crear reporte PDF"""
+    pass
+
+
+class Reporte(ReporteBase):
+    """Esquema completo de reporte (respuesta)"""
+    id_reporte: int
+    uuid_reporte: str
+    pdf_ruta: str
+    hash_global: Optional[str] = None
+    creado_en: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ReporteCreated(BaseModel):
+    """Respuesta al crear reporte"""
+    id_reporte: int
+    uuid_reporte: str
+    pdf_ruta: str
+    mensaje: str = "Reporte PDF generado exitosamente"
+
+
 # ===== PAGINACIÓN =====
 
 class PaginatedResponse(BaseModel):
