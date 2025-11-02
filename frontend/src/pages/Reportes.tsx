@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { reportesApi, axios } from '../api';
+import { reportesApi, axios, plantasApi, navierasApi, usuariosApi } from '../api';
 import { useToast } from '../components/ToastProvider';
-import type { ConteoEstado, ResumenReporte } from '../types';
+import type { ConteoEstado, ResumenReporte, Planta, Naviera, Usuario } from '../types';
 import { textoEstado } from '../utils';
 
 const Reportes: React.FC = () => {
@@ -11,18 +11,49 @@ const Reportes: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
+  const [plantaSeleccionada, setPlantaSeleccionada] = useState<number | undefined>(undefined);
+  const [navieraSeleccionada, setNavieraSeleccionada] = useState<number | undefined>(undefined);
+  const [inspectorSeleccionado, setInspectorSeleccionado] = useState<number | undefined>(undefined);
   const [exportando, setExportando] = useState(false);
+  
+  // Listas para los selectores
+  const [plantas, setPlantas] = useState<Planta[]>([]);
+  const [navieras, setNavieras] = useState<Naviera[]>([]);
+  const [inspectores, setInspectores] = useState<Usuario[]>([]);
 
   useEffect(() => {
+    cargarOpcionesFiltros();
     cargarDatos();
   }, []);
+
+  const cargarOpcionesFiltros = async () => {
+    try {
+      const [plantasData, navierasData, usuariosData] = await Promise.all([
+        plantasApi.listar(),
+        navierasApi.listar(),
+        usuariosApi.listar(false)
+      ]);
+      
+      setPlantas(plantasData);
+      setNavieras(navierasData);
+      setInspectores(usuariosData);
+    } catch (error) {
+      console.error('Error al cargar opciones de filtros:', error);
+    }
+  };
 
   const cargarDatos = async () => {
     try {
       setLoading(true);
       
       const [resumenData, conteoData] = await Promise.all([
-        reportesApi.resumen(fechaDesde || undefined, fechaHasta || undefined),
+        reportesApi.resumen(
+          fechaDesde || undefined, 
+          fechaHasta || undefined,
+          plantaSeleccionada,
+          navieraSeleccionada,
+          inspectorSeleccionado
+        ),
         reportesApi.conteoEstado()
       ]);
       
@@ -39,6 +70,15 @@ const Reportes: React.FC = () => {
     cargarDatos();
   };
 
+  const handleLimpiarFiltros = () => {
+    setFechaDesde('');
+    setFechaHasta('');
+    setPlantaSeleccionada(undefined);
+    setNavieraSeleccionada(undefined);
+    setInspectorSeleccionado(undefined);
+    setTimeout(cargarDatos, 100);
+  };
+
   const exportarPDF = async () => {
     try {
       setExportando(true);
@@ -46,6 +86,9 @@ const Reportes: React.FC = () => {
       const params = new URLSearchParams();
       if (fechaDesde) params.append('fecha_desde', fechaDesde);
       if (fechaHasta) params.append('fecha_hasta', fechaHasta);
+      if (plantaSeleccionada) params.append('id_planta', plantaSeleccionada.toString());
+      if (navieraSeleccionada) params.append('id_navieras', navieraSeleccionada.toString());
+      if (inspectorSeleccionado) params.append('id_inspector', inspectorSeleccionado.toString());
       
       const response = await axios.get(`/reportes/export/pdf?${params.toString()}`, {
         responseType: 'blob'
@@ -75,6 +118,9 @@ const Reportes: React.FC = () => {
       const params = new URLSearchParams();
       if (fechaDesde) params.append('fecha_desde', fechaDesde);
       if (fechaHasta) params.append('fecha_hasta', fechaHasta);
+      if (plantaSeleccionada) params.append('id_planta', plantaSeleccionada.toString());
+      if (navieraSeleccionada) params.append('id_navieras', navieraSeleccionada.toString());
+      if (inspectorSeleccionado) params.append('id_inspector', inspectorSeleccionado.toString());
       
       const response = await axios.get(`/reportes/export/excel?${params.toString()}`, {
         responseType: 'blob'
@@ -142,9 +188,10 @@ const Reportes: React.FC = () => {
 
       {/* Filtros de Fecha */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card p-5 sm:p-6 mb-6 sm:mb-8">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-5 sm:mb-6">🔍 Filtros</h2>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-5 sm:mb-6">🔍 Filtros</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {/* Fecha Desde */}
+          <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Desde
             </label>
@@ -155,7 +202,9 @@ const Reportes: React.FC = () => {
               className="input-field"
             />
           </div>
-          <div className="flex-1">
+          
+          {/* Fecha Hasta */}
+          <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Hasta
             </label>
@@ -166,21 +215,76 @@ const Reportes: React.FC = () => {
               className="input-field"
             />
           </div>
-          <div className="flex items-end gap-3">
-            <button onClick={handleFiltrar} className="btn-primary">
-              Aplicar Filtros
-            </button>
-            <button 
-              onClick={() => {
-                setFechaDesde('');
-                setFechaHasta('');
-                setTimeout(cargarDatos, 100);
-              }} 
-              className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 rounded-lg hover:bg-gray-300"
+          
+          {/* Planta */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Planta
+            </label>
+            <select
+              value={plantaSeleccionada || ''}
+              onChange={(e) => setPlantaSeleccionada(e.target.value ? Number(e.target.value) : undefined)}
+              className="input-field"
             >
-              Limpiar
-            </button>
+              <option value="">Todas las plantas</option>
+              {plantas.map((planta) => (
+                <option key={planta.id_planta} value={planta.id_planta}>
+                  {planta.nombre}
+                </option>
+              ))}
+            </select>
           </div>
+          
+          {/* Naviera */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Naviera
+            </label>
+            <select
+              value={navieraSeleccionada || ''}
+              onChange={(e) => setNavieraSeleccionada(e.target.value ? Number(e.target.value) : undefined)}
+              className="input-field"
+            >
+              <option value="">Todas las navieras</option>
+              {navieras.map((naviera) => (
+                <option key={naviera.id_navieras} value={naviera.id_navieras}>
+                  {naviera.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Inspector */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Inspector
+            </label>
+            <select
+              value={inspectorSeleccionado || ''}
+              onChange={(e) => setInspectorSeleccionado(e.target.value ? Number(e.target.value) : undefined)}
+              className="input-field"
+            >
+              <option value="">Todos los inspectores</option>
+              {inspectores.map((inspector) => (
+                <option key={inspector.id_usuario} value={inspector.id_usuario}>
+                  {inspector.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        
+        {/* Botones de filtros */}
+        <div className="flex gap-3 mt-4">
+          <button onClick={handleFiltrar} className="btn-primary">
+            Aplicar Filtros
+          </button>
+          <button 
+            onClick={handleLimpiarFiltros} 
+            className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 rounded-lg hover:bg-gray-300"
+          >
+            Limpiar
+          </button>
         </div>
       </div>
 

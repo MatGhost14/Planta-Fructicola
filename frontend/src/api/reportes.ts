@@ -40,9 +40,21 @@ export const reportesApi = {
   /**
    * Obtener resumen de inspecciones
    */
-  resumen: async (desde?: string, hasta?: string): Promise<ResumenReporte> => {
+  resumen: async (
+    desde?: string, 
+    hasta?: string,
+    idPlanta?: number,
+    idNavieras?: number,
+    idInspector?: number
+  ): Promise<ResumenReporte> => {
     const response = await axios.get<ResumenReporte>('/reportes/resumen', {
-      params: { desde, hasta },
+      params: { 
+        desde, 
+        hasta,
+        id_planta: idPlanta,
+        id_navieras: idNavieras,
+        id_inspector: idInspector
+      },
     });
     return response.data;
   },

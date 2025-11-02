@@ -34,6 +34,9 @@ def obtener_conteo_por_estado(db: Session = Depends(get_db)):
 def obtener_resumen(
     desde: Optional[str] = None,
     hasta: Optional[str] = None,
+    id_planta: Optional[int] = None,
+    id_navieras: Optional[int] = None,
+    id_inspector: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
     """
@@ -41,10 +44,20 @@ def obtener_resumen(
     
     - **desde**: Fecha desde (YYYY-MM-DD) - opcional
     - **hasta**: Fecha hasta (YYYY-MM-DD) - opcional
+    - **id_planta**: Filtrar por planta - opcional
+    - **id_navieras**: Filtrar por naviera - opcional
+    - **id_inspector**: Filtrar por inspector - opcional
     
     Retorna estadísticas generales: total, aprobadas, pendientes, rechazadas y tasa de aprobación
     """
-    return reporte_service.obtener_resumen(db, fecha_desde=desde, fecha_hasta=hasta)
+    return reporte_service.obtener_resumen(
+        db, 
+        fecha_desde=desde, 
+        fecha_hasta=hasta,
+        id_planta=id_planta,
+        id_navieras=id_navieras,
+        id_inspector=id_inspector
+    )
 
 
 # ===== GENERACIÓN DE PDF =====

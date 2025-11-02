@@ -28,7 +28,10 @@ class ReporteService:
         self,
         db: Session,
         fecha_desde: Optional[str] = None,
-        fecha_hasta: Optional[str] = None
+        fecha_hasta: Optional[str] = None,
+        id_planta: Optional[int] = None,
+        id_navieras: Optional[int] = None,
+        id_inspector: Optional[int] = None
     ) -> Dict:
         """Obtiene resumen general de inspecciones"""
         # Convertir fechas
@@ -53,7 +56,10 @@ class ReporteService:
             skip=0,
             limit=100000,  # Traer todas
             fecha_desde=fecha_desde_dt,
-            fecha_hasta=fecha_hasta_dt
+            fecha_hasta=fecha_hasta_dt,
+            id_planta=id_planta,
+            id_navieras=id_navieras,
+            id_inspector=id_inspector
         )
         
         # Calcular estadísticas
