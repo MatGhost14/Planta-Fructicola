@@ -16,6 +16,7 @@ class InspeccionRepository:
         limit: int = 100,
         q: Optional[str] = None,
         id_planta: Optional[int] = None,
+        id_navieras: Optional[int] = None,
         estado: Optional[str] = None,
         fecha_desde: Optional[datetime] = None,
         fecha_hasta: Optional[datetime] = None,
@@ -37,6 +38,9 @@ class InspeccionRepository:
         
         if id_planta:
             query = query.filter(Inspeccion.id_planta == id_planta)
+        
+        if id_navieras:
+            query = query.filter(Inspeccion.id_navieras == id_navieras)
         
         if estado:
             query = query.filter(Inspeccion.estado == estado)

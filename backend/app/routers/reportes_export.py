@@ -664,6 +664,7 @@ async def exportar_pdf(
     fecha_hasta: Optional[str] = Query(None, description="Fecha hasta (YYYY-MM-DD)"),
     estado: Optional[str] = Query(None, description="Estado: pending, approved, rejected"),
     id_planta: Optional[int] = Query(None, description="ID de la planta"),
+    id_navieras: Optional[int] = Query(None, description="ID de la naviera"),
     id_inspector: Optional[int] = Query(None, description="ID del inspector"),
     current_user: Usuario = Depends(get_current_active_user),
     db: Session = Depends(get_db)
@@ -699,6 +700,9 @@ async def exportar_pdf(
         
         if id_planta:
             query = query.filter(Inspeccion.id_planta == id_planta)
+        
+        if id_navieras:
+            query = query.filter(Inspeccion.id_navieras == id_navieras)
         
         if id_inspector:
             query = query.filter(Inspeccion.id_inspector == id_inspector)
@@ -742,6 +746,7 @@ async def exportar_excel(
     fecha_hasta: Optional[str] = Query(None, description="Fecha hasta (YYYY-MM-DD)"),
     estado: Optional[str] = Query(None, description="Estado: pending, approved, rejected"),
     id_planta: Optional[int] = Query(None, description="ID de la planta"),
+    id_navieras: Optional[int] = Query(None, description="ID de la naviera"),
     id_inspector: Optional[int] = Query(None, description="ID del inspector"),
     current_user: Usuario = Depends(get_current_active_user),
     db: Session = Depends(get_db)
@@ -777,6 +782,9 @@ async def exportar_excel(
         
         if id_planta:
             query = query.filter(Inspeccion.id_planta == id_planta)
+        
+        if id_navieras:
+            query = query.filter(Inspeccion.id_navieras == id_navieras)
         
         if id_inspector:
             query = query.filter(Inspeccion.id_inspector == id_inspector)
