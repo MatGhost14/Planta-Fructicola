@@ -147,8 +147,23 @@ const Inspecciones: React.FC = () => {
     setFiltros((prev) => (prev.estado ? { estado: prev.estado } : {}));
   };
 
+  const handleExportarCSV = async () => {
+    try {
+      showInfo("Generando archivo CSV...");
+      await inspeccionesApi.exportarCSV(filtros);
+      showSuccess("CSV descargado exitosamente");
+    } catch (error: any) {
+      console.error("Error al exportar CSV:", error);
+      const mensaje =
+        error.response?.data?.detail || "Error al exportar el CSV";
+      showError(mensaje);
+    }
+  };
+
   // Verificar si el usuario puede generar PDFs (admin o inspector)
   const puedeGenerarPdf = user?.rol === "admin" || user?.rol === "inspector";
+  // Verificar si el usuario puede exportar CSV (solo admin)
+  const puedeExportarCSV = user?.rol === "admin";
 
   return (
     <div className="py-2">
@@ -156,22 +171,46 @@ const Inspecciones: React.FC = () => {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">
           Inspecciones
         </h1>
-        <Link to="/inspeccion-nueva" className="btn-primary">
-          <svg
-            className="w-5 h-5 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          Nueva Inspección
-        </Link>
+        <div className="flex gap-3">
+          {puedeExportarCSV && (
+            <button
+              onClick={handleExportarCSV}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              title="Exportar a CSV"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Exportar CSV
+            </button>
+          )}
+          <Link to="/inspeccion-nueva" className="btn-primary">
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Nueva Inspección
+          </Link>
+        </div>
       </div>
 
       {/* Filtros */}

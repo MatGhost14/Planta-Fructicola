@@ -80,6 +80,17 @@ class Settings(BaseSettings):
     BACKEND_HOST: str = "0.0.0.0"  # 0.0.0.0 permite conexiones externas
     BACKEND_PORT: int = 8000
     
+    @property
+    def BACKEND_URL(self) -> str:
+        """
+        Genera la URL base del backend
+        
+        Returns:
+            str: URL en formato http://host:port
+        """
+        host = "localhost" if self.BACKEND_HOST == "0.0.0.0" else self.BACKEND_HOST
+        return f"http://{host}:{self.BACKEND_PORT}"
+    
     # ==========================================
     # LOGGING
     # ==========================================
