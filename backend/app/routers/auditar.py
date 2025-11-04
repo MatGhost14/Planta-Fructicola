@@ -60,6 +60,13 @@ def descargar_cadena_custodia(
         bottomMargin=50,
     )
     styles = getSampleStyleSheet()
+    # Estilos auxiliares para texto que debe envolver y evitar solapamientos
+    small_wrap = ParagraphStyle(
+        'SmallWrap', parent=styles['Normal'], fontSize=8, leading=9, wordWrap='CJK'
+    )
+    normal_wrap = ParagraphStyle(
+        'NormalWrap', parent=styles['Normal'], fontSize=9, leading=11, wordWrap='CJK'
+    )
     story = []
 
     # Encabezado
@@ -73,18 +80,19 @@ def descargar_cadena_custodia(
 
     # Identificación
     story.append(Paragraph("Identificación", styles['Heading2']))
+    width = doc.width  # ancho útil de la página (página - márgenes)
     ident_data = [
-        ["ID Reporte", str(reporte.id)],
-        ["UUID Reporte", reporte.uuid_reporte or ""],
-        ["ID Inspección", str(inspeccion.id_inspeccion)],
-        ["Código Inspección", inspeccion.codigo],
-        ["Contenedor", inspeccion.numero_contenedor],
-        ["Planta", inspeccion.planta.nombre if inspeccion.planta else ""],
-        ["Naviera", inspeccion.naviera.nombre if inspeccion.naviera else ""],
-        ["Fecha Inspección", inspeccion.inspeccionado_en.strftime('%d/%m/%Y %H:%M')],
-        ["Fecha Reporte", reporte.creado_en.strftime('%d/%m/%Y %H:%M')],
+        ["ID Reporte", Paragraph(str(reporte.id), normal_wrap)],
+        ["UUID Reporte", Paragraph(reporte.uuid_reporte or "", normal_wrap)],
+        ["ID Inspección", Paragraph(str(inspeccion.id_inspeccion), normal_wrap)],
+        ["Código Inspección", Paragraph(inspeccion.codigo, normal_wrap)],
+        ["Contenedor", Paragraph(inspeccion.numero_contenedor, normal_wrap)],
+        ["Planta", Paragraph(inspeccion.planta.nombre if inspeccion.planta else "", normal_wrap)],
+        ["Naviera", Paragraph(inspeccion.naviera.nombre if inspeccion.naviera else "", normal_wrap)],
+        ["Fecha Inspección", Paragraph(inspeccion.inspeccionado_en.strftime('%d/%m/%Y %H:%M'), normal_wrap)],
+        ["Fecha Reporte", Paragraph(reporte.creado_en.strftime('%d/%m/%Y %H:%M'), normal_wrap)],
     ]
-    t_ident = Table(ident_data, colWidths=[160, 360])
+    t_ident = Table(ident_data, colWidths=[0.33*width, 0.67*width])
     t_ident.setStyle(TableStyle([
         ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
         ('BACKGROUND', (0,0), (0,-1), colors.HexColor('#e8f4f8')),
@@ -98,10 +106,10 @@ def descargar_cadena_custodia(
     story.append(Paragraph("Integridad", styles['Heading2']))
     plantilla_ver = "PDF Plantilla v1.0"
     integ_data = [
-        ["Hash SHA-256 (reporte)", (reporte.hash_global or '').upper()],
-        ["Versión de plantilla", plantilla_ver],
+        ["Hash SHA-256 (reporte)", Paragraph((reporte.hash_global or '').upper(), small_wrap)],
+        ["Versión de plantilla", Paragraph(plantilla_ver, normal_wrap)],
     ]
-    t_integ = Table(integ_data, colWidths=[160, 360])
+    t_integ = Table(integ_data, colWidths=[0.33*width, 0.67*width])
     t_integ.setStyle(TableStyle([
         ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
         ('BACKGROUND', (0,0), (0,-1), colors.HexColor('#f5f5f5')),
@@ -144,16 +152,31 @@ def descargar_cadena_custodia(
 
         fecha_evi = foto.creado_en.strftime('%d/%m/%Y %H:%M') if foto.creado_en else (foto.tomada_en.strftime('%d/%m/%Y %H:%M') if foto.tomada_en else "")
         creado_por = inspeccion.inspector.nombre if inspeccion.inspector else ""
-        ev_rows.append([str(foto.id_foto), rel, hash_hex, size_str, fecha_evi, creado_por])
+        ev_rows.append([
+            Paragraph(str(foto.id_foto), small_wrap),
+            Paragraph(rel, small_wrap),
+            Paragraph(hash_hex, small_wrap),
+            Paragraph(size_str, small_wrap),
+            Paragraph(fecha_evi, small_wrap),
+            Paragraph(creado_por, small_wrap),
+        ])
 
-    t_evi = Table(ev_rows, colWidths=[40, 180, 150, 70, 80, 100])
+    # Distribuir el ancho útil entre columnas para evitar desbordes
+    t_evi = Table(
+        ev_rows,
+        colWidths=[0.07*width, 0.33*width, 0.25*width, 0.10*width, 0.12*width, 0.13*width],
+        repeatRows=1,
+    )
     t_evi.setStyle(TableStyle([
         ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#2c3e50')),
         ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
         ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('FONTSIZE', (0,0), (-1,0), 9),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('FONTSIZE', (0,1), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,1), (-1,-1), 4),
+        ('TOPPADDING', (0,1), (-1,-1), 4),
     ]))
     story.append(t_evi)
     story.append(Spacer(1, 14))
@@ -187,14 +210,15 @@ def descargar_cadena_custodia(
             eventos.append(["APROBACION", inspeccion.actualizado_en.strftime('%d/%m/%Y %H:%M'), "Supervisor/Admin", "N/D"])
 
     ev_rows = [["Evento", "Timestamp", "Usuario", "IP/UA"]] + eventos
-    t_evt = Table(ev_rows, colWidths=[150, 120, 150, 100])
+    t_evt = Table(ev_rows, colWidths=[0.35*width, 0.20*width, 0.30*width, 0.15*width], repeatRows=1)
     t_evt.setStyle(TableStyle([
         ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#2c3e50')),
         ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
         ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('FONTSIZE', (0,0), (-1,0), 9),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('FONTSIZE', (0,1), (-1,-1), 9),
     ]))
     story.append(t_evt)
     story.append(Spacer(1, 14))
@@ -202,7 +226,16 @@ def descargar_cadena_custodia(
     # Estado/Bloqueo
     bloqueado = "Sí (evidencias bloqueadas)" if inspeccion.estado == 'approved' else "No"
     story.append(Paragraph("Estado", styles['Heading2']))
-    t_estado = Table([["Inspección aprobada", "Sí" if inspeccion.estado == 'approved' else "No"], ["Bloqueo de evidencias", bloqueado]], colWidths=[200, 320])
+    t_estado = Table(
+        [[
+            "Inspección aprobada",
+            Paragraph("Sí" if inspeccion.estado == 'approved' else "No", normal_wrap),
+        ], [
+            "Bloqueo de evidencias",
+            Paragraph(bloqueado, normal_wrap),
+        ]],
+        colWidths=[0.33*width, 0.67*width]
+    )
     t_estado.setStyle(TableStyle([
         ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
         ('BACKGROUND', (0,0), (0,-1), colors.HexColor('#f5f5f5')),
