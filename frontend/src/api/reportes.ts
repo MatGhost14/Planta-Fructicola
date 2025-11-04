@@ -26,6 +26,12 @@ export interface ReporteCreated {
   mensaje: string;
 }
 
+export interface FirmarReporteResponse {
+  mensaje: string;
+  id_reporte?: number;
+  pdf_ruta?: string;
+}
+
 // ===== API de Reportes =====
 
 export const reportesApi = {
@@ -107,6 +113,20 @@ export const reportesApi = {
    */
   listarReportesInspeccion: async (idInspeccion: number): Promise<Reporte[]> => {
     const response = await axios.get<Reporte[]>(`/reportes/inspeccion/${idInspeccion}/pdfs`);
+    return response.data;
+  },
+
+  /**
+   * Firmar digitalmente un reporte aprobado (admin/supervisor)
+   */
+  firmarReporte: async (idReporte: number, archivo: File, regenerarPdf = true): Promise<FirmarReporteResponse> => {
+    const formData = new FormData();
+    formData.append('archivo', archivo);
+    formData.append('regenerar_pdf', String(regenerarPdf));
+
+    const response = await axios.post<FirmarReporteResponse>(`/reportes/pdf/${idReporte}/firmar`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
 };

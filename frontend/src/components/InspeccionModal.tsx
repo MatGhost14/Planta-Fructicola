@@ -22,8 +22,10 @@ import {
 } from "lucide-react";
 import type { InspeccionDetalle } from "../types";
 import { inspeccionesApi } from "../api/inspecciones";
+import { reportesApi } from "../api/reportes";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "./ToastProvider";
+import FirmaCanvas from "./FirmaCanvas";
 
 interface InspeccionModalProps {
   inspeccion: InspeccionDetalle | null;
@@ -44,6 +46,7 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
   const [comentario, setComentario] = useState("");
   const [loading, setLoading] = useState(false);
   const [deletingFoto, setDeletingFoto] = useState<number | null>(null);
+  const [showSignModal, setShowSignModal] = useState(false);
   const { user } = useAuth();
   const { showSuccess, showError, showWarning } = useToast();
 
@@ -83,6 +86,41 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const puedeFirmarRevision =
+    user && (user.rol === "supervisor" || user.rol === "admin") && inspeccion.estado === "approved";
+
+  const dataURLtoFile = (dataUrl: string, filename: string): File => {
+    const arr = dataUrl.split(',');
+    const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  };
+
+  const handleGuardarFirmaRevision = async (imageDataUrl: string) => {
+    try {
+      // Obtener el último reporte generado para esta inspección
+      const reportes = await reportesApi.listarReportesInspeccion(inspeccion.id_inspeccion);
+      if (!reportes || reportes.length === 0) {
+        showWarning("Primero debe generar el PDF del reporte antes de firmar");
+        return;
+      }
+      const ultimo = reportes[0];
+      const archivo = dataURLtoFile(imageDataUrl, `firma_revisor_${inspeccion.id_inspeccion}.png`);
+
+      const resp = await reportesApi.firmarReporte(ultimo.id_reporte, archivo, true);
+      showSuccess(resp.mensaje || "Reporte firmado y actualizado");
+      setShowSignModal(false);
+    } catch (error: any) {
+      const msg = error?.response?.data?.detail || "Error al firmar el reporte";
+      showError(msg);
     }
   };
 
@@ -422,6 +460,14 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
               </div>
             )}
             <div className="flex-1"></div>
+            {puedeFirmarRevision && (
+              <button
+                onClick={() => setShowSignModal(true)}
+                className="mr-3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Firmar revisión
+              </button>
+            )}
             <button
               onClick={onClose}
               className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -508,6 +554,32 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
       )}
 
       {/* Modal de rechazo */}
+      {/* Modal de firma de revisión */}
+      {showSignModal && (
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-[70]"
+            onClick={() => setShowSignModal(false)}
+          />
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900">Firma de Revisión</h3>
+                <button
+                  onClick={() => setShowSignModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Dibuje su firma para acreditar la revisión de esta inspección aprobada.
+              </p>
+              <FirmaCanvas onSave={handleGuardarFirmaRevision} />
+            </div>
+          </div>
+        </>
+      )}
       {showRejectionModal && (
         <>
           <div

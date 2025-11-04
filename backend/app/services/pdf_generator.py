@@ -1,5 +1,6 @@
 """Servicio para generación de PDFs de inspecciones"""
 import os
+import json
 import uuid
 import hashlib
 from datetime import datetime
@@ -210,7 +211,7 @@ class PDFGeneratorService:
         story.append(tabla_info)
         story.append(Spacer(1, 0.3*inch))
         
-        # === RESUMEN CHECKLIST ===
+    # === RESUMEN CHECKLIST ===
         story.append(Paragraph("Resumen de Inspección", subtitulo_style))
         
         # Determinar resultado del checklist
@@ -250,6 +251,74 @@ class PDFGeneratorService:
         
         story.append(tabla_checklist)
         
+        # === FIRMA DE REVISIÓN (si existe) ===
+        try:
+            firma_dir = self.capturas_base / "firmas" / "revisiones"
+            # Priorizar PNG, luego JPG
+            posibles = [
+                firma_dir / f"inspeccion_{inspeccion.id_inspeccion}.png",
+                firma_dir / f"inspeccion_{inspeccion.id_inspeccion}.jpg",
+                firma_dir / f"inspeccion_{inspeccion.id_inspeccion}.jpeg",
+            ]
+            firma_path = next((p for p in posibles if p.exists()), None)
+
+            if firma_path and firma_path.exists():
+                story.append(Spacer(1, 0.2*inch))
+                story.append(Paragraph("Aprobación y Firma de Revisión", subtitulo_style))
+
+                # Cargar metadatos si existen
+                meta_path = firma_dir / f"inspeccion_{inspeccion.id_inspeccion}_revisor.json"
+                meta = None
+                if meta_path.exists():
+                    try:
+                        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                    except Exception:
+                        meta = None
+
+                # Construir imagen de firma (ajustar tamaño)
+                try:
+                    img_pil = PILImage.open(firma_path)
+                    max_w = 3.0 * inch
+                    ratio = img_pil.width / img_pil.height if img_pil.height else 3.0
+                    width = max_w
+                    height = max_w / ratio if ratio else 1.0 * inch
+                    img_buffer = BytesIO()
+                    img_pil.save(img_buffer, format='PNG')
+                    img_buffer.seek(0)
+                    firma_img = Image(img_buffer, width=width, height=height)
+                except Exception:
+                    firma_img = Paragraph("[Firma no disponible]", styles['Normal'])
+
+                datos_revisor = []
+                if meta:
+                    datos_revisor = [
+                        ["Revisado por:", meta.get("nombre", "")],
+                        ["Rol:", meta.get("rol", "")],
+                        ["Fecha de firma:", meta.get("firmado_en", "")],
+                    ]
+                else:
+                    datos_revisor = [
+                        ["Revisado por:", ""],
+                        ["Rol:", ""],
+                        ["Fecha de firma:", ""],
+                    ]
+
+                tabla_firma = Table(
+                    [[firma_img, Table(datos_revisor, colWidths=[2.0*inch, 3.0*inch])]],
+                    colWidths=[3.5*inch, 3.0*inch]
+                )
+                tabla_firma.setStyle(TableStyle([
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 8),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+                    ('TOPPADDING', (0, 0), (-1, -1), 6),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                ]))
+                story.append(tabla_firma)
+        except Exception:
+            # No interrumpir si falla la sección de firma
+            pass
+
         # Observaciones completas si existen
         if inspeccion.observaciones:
             story.append(Spacer(1, 0.2*inch))
@@ -387,6 +456,40 @@ class PDFGeneratorService:
         
         # Generar PDF
         doc.build(story)
+
+    def regenerar_pdf_con_firma(self, db: Session, id_reporte: int) -> Reporte:
+        """Regenera el PDF del reporte incorporando (si existe) la firma del revisor.
+        Actualiza la ruta y el hash del reporte existente.
+        """
+        reporte = reporte_repository.get_by_id(db, id_reporte)
+        if not reporte:
+            raise ValueError("Reporte no encontrado")
+
+        inspeccion = inspeccion_repository.get_by_id(db, reporte.id_inspeccion)
+        if not inspeccion:
+            raise ValueError("Inspección asociada no encontrada")
+
+        fotos = foto_repository.get_by_inspeccion(db, reporte.id_inspeccion)
+
+        # Crear nuevo nombre de archivo firmado
+        fecha_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        pdf_filename = f"reporte_{inspeccion.codigo}_{fecha_str}_firmado.pdf"
+        pdf_path = self.pdf_storage_path / pdf_filename
+
+        # Reusar el mismo uuid del reporte para mantener la referencia del QR
+        uuid_corto = reporte.uuid_reporte.split('-')[0] if reporte.uuid_reporte else ""
+
+        # Generar nuevo PDF (con _crear_pdf que ahora incluye sección de firma si existe)
+        self._crear_pdf(inspeccion, fotos, pdf_path, uuid_corto, uuid_reporte=reporte.uuid_reporte)
+
+        # Calcular nuevo hash y actualizar registro
+        hash_global = self._calcular_hash_pdf(pdf_path)
+        reporte.pdf_ruta = str(pdf_path)
+        reporte.hash_global = hash_global
+        db.commit()
+        db.refresh(reporte)
+
+        return reporte
     
     def _crear_celda_foto(self, foto: FotoInspeccion, size: float) -> list:
         """Crea una celda con la foto y sus metadatos"""
