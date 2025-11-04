@@ -121,6 +121,31 @@ def descargar_pdf(
     return FileResponse(path=reporte.pdf_ruta, media_type="application/pdf", filename=filename)
 
 
+def _reporte_to_schema(reporte_obj) -> dict:
+    """Convierte un objeto ORM Reporte al esquema de respuesta esperado"""
+    return {
+        "id_reporte": reporte_obj.id,
+        "uuid_reporte": reporte_obj.uuid_reporte,
+        "id_inspeccion": reporte_obj.id_inspeccion,
+        "pdf_ruta": reporte_obj.pdf_ruta,
+        "hash_global": reporte_obj.hash_global,
+        "creado_en": reporte_obj.creado_en,
+    }
+
+
+@router.get("/pdf/{reporte_id}", response_model=Reporte)
+def obtener_reporte(
+    reporte_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """Obtiene la información de un reporte por su ID"""
+    reporte = _reporte_repo.get_by_id(db, reporte_id)
+    if not reporte:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reporte no encontrado")
+    return _reporte_to_schema(reporte)
+
+
 @router.post("/pdf/{reporte_id}/firmar")
 async def firmar_reporte(
     reporte_id: int,
@@ -197,5 +222,21 @@ async def firmar_reporte(
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Firma guardada pero error al regenerar PDF: {e}")
 
     return {"mensaje": "Firma guardada exitosamente"}
+
+
+@router.get("/inspeccion/{id_inspeccion}/pdfs", response_model=List[Reporte])
+def listar_reportes_por_inspeccion(
+    id_inspeccion: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """Lista todos los reportes PDF generados para una inspección, ordenados por fecha de creación (desc)."""
+    # Validar que la inspección exista (opcional pero útil para devolver 404 clara)
+    inspeccion = inspeccion_repository.get_by_id(db, id_inspeccion)
+    if not inspeccion:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inspección no encontrada")
+
+    reportes = _reporte_repo.get_by_inspeccion(db, id_inspeccion)
+    return [_reporte_to_schema(r) for r in reportes]
 
 
