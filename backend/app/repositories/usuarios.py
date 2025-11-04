@@ -15,6 +15,13 @@ class UsuarioRepository:
         if not include_inactive:
             query = query.filter(Usuario.estado == 'active')
         return query.order_by(Usuario.nombre).all()
+
+    def get_by_rol(self, db: Session, rol: str, include_inactive: bool = False) -> List[Usuario]:
+        """Obtener usuarios por rol"""
+        query = db.query(Usuario).filter(Usuario.rol == rol)
+        if not include_inactive:
+            query = query.filter(Usuario.estado == 'active')
+        return query.order_by(Usuario.nombre).all()
     
     def get_by_id(self, db: Session, id_usuario: int) -> Optional[Usuario]:
         """Obtener usuario por ID"""

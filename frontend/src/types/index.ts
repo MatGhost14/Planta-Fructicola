@@ -3,9 +3,9 @@
  * Alineados con schemas Pydantic del backend
  */
 
-export type RolUsuario = 'inspector' | 'supervisor' | 'admin';
-export type EstadoUsuario = 'active' | 'inactive';
-export type EstadoInspeccion = 'pending' | 'approved' | 'rejected';
+export type RolUsuario = "inspector" | "supervisor" | "admin";
+export type EstadoUsuario = "active" | "inactive";
+export type EstadoInspeccion = "pending" | "approved" | "rejected";
 
 // ===== USUARIOS =====
 
@@ -190,11 +190,13 @@ export interface InspeccionesPaginadas extends PaginatedResponse<Inspeccion> {}
 export interface FiltrosInspeccion {
   q?: string;
   planta?: number;
+  naviera?: number;
   estado?: EstadoInspeccion;
   fecha_desde?: string;
   fecha_hasta?: string;
+  inspector?: number;
   order_by?: string;
-  order_dir?: 'asc' | 'desc';
+  order_dir?: "asc" | "desc";
   page?: number;
   page_size?: number;
 }
@@ -216,4 +218,3 @@ export interface FotoCapturada {
   data: string; // Data URL
   timestamp: string;
 }
-
