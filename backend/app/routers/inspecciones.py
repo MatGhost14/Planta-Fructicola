@@ -1,7 +1,11 @@
 """Router para inspecciones"""
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
+import io
+import csv
+from datetime import datetime
 
 from ..core import get_db
 from ..models import Usuario
@@ -17,7 +21,11 @@ from ..schemas import (
     Message
 )
 from ..services import inspeccion_service
+from ..repositories.plantas import planta_repository
+from ..repositories.navieras import naviera_repository
+from ..repositories.usuarios import usuario_repository
 from ..utils.auth import get_current_user
+from ..core.settings import settings
 
 router = APIRouter(prefix="/inspecciones", tags=["Inspecciones"])
 
@@ -313,3 +321,177 @@ def generar_pdf(id_inspeccion: int, db: Session = Depends(get_db)):
         "numero_contenedor": inspeccion.numero_contenedor,
         "mensaje": "Use el frontend para generar el PDF con jsPDF"
     }
+
+
+@router.get("/export/csv")
+def exportar_inspecciones_csv(
+    q: Optional[str] = None,
+    planta: Optional[int] = None,
+    naviera: Optional[int] = None,
+    estado: Optional[str] = None,
+    fecha_desde: Optional[str] = None,
+    fecha_hasta: Optional[str] = None,
+    inspector: Optional[int] = None,
+    order_by: str = "inspeccionado_en",
+    order_dir: str = "desc",
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """
+    Exportar inspecciones a CSV con los mismos filtros que el listado
+    
+    - **Requiere rol**: Admin
+    - Incluye: Fecha, Contenedor, Planta, Naviera, Inspector, Estado, ReportePDF
+    - Usa los mismos filtros que el endpoint de listado
+    """
+    try:
+        # Solo admin puede exportar
+        if current_user.rol != 'admin':
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Solo administradores pueden exportar inspecciones a CSV"
+            )
+        
+        # Aplicar filtros según rol (mismo que listado pero sin paginación)
+        id_inspector = None
+        if inspector:
+            id_inspector = inspector
+        
+    # Obtener todas las inspecciones sin paginación (límite razonable)
+        items, total, _ = inspeccion_service.listar_inspecciones(
+            db=db,
+            page=1,
+            page_size=10000,  # Límite alto para exportación
+            q=q,
+            id_planta=planta,
+            id_navieras=naviera,
+            estado=estado,
+            fecha_desde=fecha_desde,
+            fecha_hasta=fecha_hasta,
+            order_by=order_by,
+            order_dir=order_dir,
+            id_inspector=id_inspector
+        )
+        
+        # Crear CSV en memoria
+        output = io.StringIO()
+        # Escribir BOM para compatibilidad con Excel en Windows
+        output.write('\ufeff')
+        # Usar separador ';' común en configuraciones ES y CRLF para Excel
+        writer = csv.writer(
+            output,
+            delimiter=';',
+            lineterminator='\r\n',
+            quoting=csv.QUOTE_ALL
+        )
+
+        # Encabezado de reporte (tipo informe)
+        writer.writerow(["Reporte de Inspecciones"])
+        writer.writerow([f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"])
+        try:
+            writer.writerow([f"Usuario: {getattr(current_user, 'nombre', '')} ({getattr(current_user, 'correo', '')})"])
+        except Exception:
+            writer.writerow(["Usuario:"])
+
+        # Línea de filtros aplicados
+        filtros_aplicados = []
+        if q:
+            filtros_aplicados.append(f"Búsqueda: {q}")
+        if planta:
+            pl = planta_repository.get_by_id(db, int(planta))
+            filtros_aplicados.append(f"Planta: {pl.nombre if pl else planta}")
+        if naviera:
+            nv = naviera_repository.get_by_id(db, int(naviera))
+            filtros_aplicados.append(f"Naviera: {nv.nombre if nv else naviera}")
+        if estado:
+            estado_map = {
+                'pending': 'Pendiente',
+                'approved': 'Aprobada',
+                'rejected': 'Rechazada'
+            }
+            filtros_aplicados.append(f"Estado: {estado_map.get(estado, estado)}")
+        if fecha_desde:
+            filtros_aplicados.append(f"Desde: {fecha_desde}")
+        if fecha_hasta:
+            filtros_aplicados.append(f"Hasta: {fecha_hasta}")
+        if inspector:
+            insp = usuario_repository.get_by_id(db, int(inspector))
+            filtros_aplicados.append(f"Inspector: {insp.nombre if insp else inspector}")
+
+        writer.writerow(["Filtros: " + (", ".join(filtros_aplicados) if filtros_aplicados else "Ninguno")])
+        writer.writerow([])  # Línea en blanco
+
+        # Cabeceras de tabla
+        writer.writerow(['Fecha', 'Contenedor', 'Planta', 'Naviera', 'Inspector', 'Estado', 'ReportePDF'])
+        
+        # Estado en español
+        estado_map = {
+            'pending': 'Pendiente',
+            'approved': 'Aprobada',
+            'rejected': 'Rechazada'
+        }
+        
+        # Datos - procesar cada inspección
+        total_pend = total_apr = total_rech = 0
+        for inspeccion in items:
+            try:
+                # Obtener detalle con relaciones cargadas
+                detalle = inspeccion_service.obtener_inspeccion(db, inspeccion.id_inspeccion)
+                
+                # Formatear fecha
+                fecha = detalle.inspeccionado_en.strftime('%d/%m/%Y %H:%M') if detalle.inspeccionado_en else ''
+                
+                estado_texto = estado_map.get(detalle.estado, detalle.estado)
+                if detalle.estado == 'pending':
+                    total_pend += 1
+                elif detalle.estado == 'approved':
+                    total_apr += 1
+                elif detalle.estado == 'rejected':
+                    total_rech += 1
+                
+                # URL del reporte PDF
+                reporte_pdf = f"{settings.BACKEND_URL}/api/reportes/pdf/generar?id_inspeccion={detalle.id_inspeccion}"
+                
+                writer.writerow([
+                    fecha,
+                    detalle.numero_contenedor or '',
+                    detalle.planta.nombre if hasattr(detalle, 'planta') and detalle.planta else '',
+                    detalle.naviera.nombre if hasattr(detalle, 'naviera') and detalle.naviera else '',
+                    detalle.inspector.nombre if hasattr(detalle, 'inspector') and detalle.inspector else '',
+                    estado_texto,
+                    reporte_pdf
+                ])
+            except Exception as e:
+                # Si falla una inspección individual, continuar con las demás
+                import logging
+                logging.error(f"Error procesando inspección {inspeccion.id_inspeccion}: {e}")
+                continue
+        
+        # Línea de totales
+        writer.writerow([])
+        writer.writerow(["Totales"])
+        writer.writerow([f"Pendientes: {total_pend}"])
+        writer.writerow([f"Aprobadas: {total_apr}"])
+        writer.writerow([f"Rechazadas: {total_rech}"])
+        writer.writerow([f"Total: {total}"])
+
+        # Preparar respuesta
+        output.seek(0)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"reporte_inspecciones_{timestamp}.csv"
+        
+        return StreamingResponse(
+            iter([output.getvalue()]),
+            media_type="text/csv; charset=utf-8",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error general en exportación CSV: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al generar el archivo CSV: {str(e)}"
+        )
