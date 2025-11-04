@@ -7,7 +7,7 @@ from ..core import get_db
 from ..models import Usuario as UsuarioModel
 from ..schemas import Usuario, UsuarioCreate, UsuarioUpdate, UsuarioEstado, Message
 from ..repositories import usuario_repository
-from ..utils.auth import get_current_user, require_admin
+from ..utils.auth import get_current_user, require_admin, require_supervisor
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 
@@ -24,6 +24,20 @@ def listar_usuarios(
     **Requiere rol: Admin**
     """
     return usuario_repository.get_all(db, include_inactive=include_inactive)
+
+
+@router.get("/inspectores", response_model=List[Usuario])
+def listar_inspectores(
+    include_inactive: bool = False,
+    db: Session = Depends(get_db),
+    current_user: UsuarioModel = Depends(require_supervisor)
+):
+    """
+    Obtener usuarios con rol 'inspector'
+
+    - Acceso: Supervisor y Admin
+    """
+    return usuario_repository.get_by_rol(db, rol='inspector', include_inactive=include_inactive)
 
 
 @router.post("", response_model=Usuario, status_code=status.HTTP_201_CREATED)

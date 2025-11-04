@@ -1,15 +1,31 @@
 /**
  * Servicio API para usuarios
  */
-import axios from './axios';
-import type { Usuario, UsuarioCreate, UsuarioUpdate, ApiMessage } from '../types';
+import axios from "./axios";
+import type {
+  Usuario,
+  UsuarioCreate,
+  UsuarioUpdate,
+  ApiMessage,
+} from "../types";
 
 export const usuariosApi = {
   /**
    * Obtener todos los usuarios
    */
   listar: async (includeInactive = false): Promise<Usuario[]> => {
-    const response = await axios.get<Usuario[]>('/usuarios', {
+    const response = await axios.get<Usuario[]>("/usuarios", {
+      params: { include_inactive: includeInactive },
+    });
+    return response.data;
+  },
+
+  /**
+   * Obtener solo los usuarios con rol 'inspector'
+   * Accesible para Supervisor y Admin
+   */
+  listarInspectores: async (includeInactive = false): Promise<Usuario[]> => {
+    const response = await axios.get<Usuario[]>("/usuarios/inspectores", {
       params: { include_inactive: includeInactive },
     });
     return response.data;
@@ -19,7 +35,7 @@ export const usuariosApi = {
    * Crear nuevo usuario
    */
   crear: async (data: UsuarioCreate): Promise<Usuario> => {
-    const response = await axios.post<Usuario>('/usuarios', data);
+    const response = await axios.post<Usuario>("/usuarios", data);
     return response.data;
   },
 
@@ -34,8 +50,13 @@ export const usuariosApi = {
   /**
    * Cambiar estado de usuario
    */
-  cambiarEstado: async (id: number, estado: 'active' | 'inactive'): Promise<Usuario> => {
-    const response = await axios.patch<Usuario>(`/usuarios/${id}/estado`, { estado });
+  cambiarEstado: async (
+    id: number,
+    estado: "active" | "inactive"
+  ): Promise<Usuario> => {
+    const response = await axios.patch<Usuario>(`/usuarios/${id}/estado`, {
+      estado,
+    });
     return response.data;
   },
 

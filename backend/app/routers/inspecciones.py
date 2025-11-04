@@ -28,9 +28,11 @@ def listar_inspecciones(
     page_size: int = 20,
     q: Optional[str] = None,
     planta: Optional[int] = None,
+    naviera: Optional[int] = None,
     estado: Optional[str] = None,
     fecha_desde: Optional[str] = None,
     fecha_hasta: Optional[str] = None,
+    inspector: Optional[int] = None,
     order_by: str = "inspeccionado_en",
     order_dir: str = "desc",
     db: Session = Depends(get_db),
@@ -45,9 +47,11 @@ def listar_inspecciones(
     
     - **q**: Búsqueda por número de contenedor o código
     - **planta**: Filtrar por ID de planta
+    - **naviera**: Filtrar por ID de naviera
     - **estado**: Filtrar por estado (pending/approved/rejected)
     - **fecha_desde**: Fecha desde (YYYY-MM-DD)
     - **fecha_hasta**: Fecha hasta (YYYY-MM-DD)
+    - **inspector**: Filtrar por ID de inspector (solo Admin/Supervisor)
     - **order_by**: Campo para ordenar (inspeccionado_en, numero_contenedor, estado)
     - **order_dir**: Dirección (asc/desc)
     """
@@ -61,7 +65,13 @@ def listar_inspecciones(
         # Supervisor ve todas las inspecciones de sus plantas
         # TODO: Implementar lógica de plantas asignadas al supervisor
         # Por ahora, si especifica planta, solo ve esa planta
-        pass
+        # Permitir filtrar por inspector si se envía explícitamente
+        if inspector:
+            id_inspector = inspector
+    else:
+        # Admin: si se especifica inspector, aplicar filtro
+        if inspector:
+            id_inspector = inspector
     # Admin ve todo sin restricciones
     
     items, total, total_pages = inspeccion_service.listar_inspecciones(
@@ -70,6 +80,7 @@ def listar_inspecciones(
         page_size=page_size,
         q=q,
         id_planta=planta,
+        id_navieras=naviera,
         estado=estado,
         fecha_desde=fecha_desde,
         fecha_hasta=fecha_hasta,
