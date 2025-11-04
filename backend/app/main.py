@@ -85,6 +85,8 @@ app.include_router(preferencias_router, prefix="/api")
 app.include_router(notifications_router, prefix="/api")
 app.include_router(estadisticas_router, prefix="/api")
 app.include_router(reportes_export_router, prefix="/api/reportes/export")
+from .routers.auditar import router as auditar_router
+app.include_router(auditar_router, prefix="/api")
 
 logger.info("Todos los routers registrados")
 

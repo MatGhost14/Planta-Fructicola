@@ -1,8 +1,8 @@
 /**
  * Servicio API para reportes
  */
-import axios from './axios';
-import type { ConteoEstado, ResumenReporte } from '../types';
+import axios from "./axios";
+import type { ConteoEstado, ResumenReporte } from "../types";
 
 // ===== Tipos para PDF =====
 
@@ -39,7 +39,7 @@ export const reportesApi = {
    * Obtener conteo de inspecciones por estado
    */
   conteoEstado: async (): Promise<ConteoEstado[]> => {
-    const response = await axios.get<ConteoEstado[]>('/reportes/conteo-estado');
+    const response = await axios.get<ConteoEstado[]>("/reportes/conteo-estado");
     return response.data;
   },
 
@@ -47,19 +47,19 @@ export const reportesApi = {
    * Obtener resumen de inspecciones
    */
   resumen: async (
-    desde?: string, 
+    desde?: string,
     hasta?: string,
     idPlanta?: number,
     idNavieras?: number,
     idInspector?: number
   ): Promise<ResumenReporte> => {
-    const response = await axios.get<ResumenReporte>('/reportes/resumen', {
-      params: { 
-        desde, 
+    const response = await axios.get<ResumenReporte>("/reportes/resumen", {
+      params: {
+        desde,
         hasta,
         id_planta: idPlanta,
         id_navieras: idNavieras,
-        id_inspector: idInspector
+        id_inspector: idInspector,
       },
     });
     return response.data;
@@ -71,7 +71,10 @@ export const reportesApi = {
    * Generar PDF de inspección (solo ADMIN)
    */
   generarPdf: async (data: ReporteCreate): Promise<ReporteCreated> => {
-    const response = await axios.post<ReporteCreated>('/reportes/pdf/generar', data);
+    const response = await axios.post<ReporteCreated>(
+      "/reportes/pdf/generar",
+      data
+    );
     return response.data;
   },
 
@@ -90,12 +93,12 @@ export const reportesApi = {
     try {
       // Usar la instancia Axios (agrega Authorization automáticamente desde 'auth_token')
       const response = await axios.get(`/reportes/pdf/${idReporte}/descargar`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
-      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const blob = new Blob([response.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `reporte_${idReporte}.pdf`;
       document.body.appendChild(link);
@@ -103,7 +106,7 @@ export const reportesApi = {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error al descargar PDF:', error);
+      console.error("Error al descargar PDF:", error);
       throw error;
     }
   },
@@ -111,23 +114,52 @@ export const reportesApi = {
   /**
    * Listar reportes de una inspección
    */
-  listarReportesInspeccion: async (idInspeccion: number): Promise<Reporte[]> => {
-    const response = await axios.get<Reporte[]>(`/reportes/inspeccion/${idInspeccion}/pdfs`);
+  listarReportesInspeccion: async (
+    idInspeccion: number
+  ): Promise<Reporte[]> => {
+    const response = await axios.get<Reporte[]>(
+      `/reportes/inspeccion/${idInspeccion}/pdfs`
+    );
     return response.data;
   },
 
   /**
    * Firmar digitalmente un reporte aprobado (admin/supervisor)
    */
-  firmarReporte: async (idReporte: number, archivo: File, regenerarPdf = true): Promise<FirmarReporteResponse> => {
+  firmarReporte: async (
+    idReporte: number,
+    archivo: File,
+    regenerarPdf = true
+  ): Promise<FirmarReporteResponse> => {
     const formData = new FormData();
-    formData.append('archivo', archivo);
-    formData.append('regenerar_pdf', String(regenerarPdf));
+    formData.append("archivo", archivo);
+    formData.append("regenerar_pdf", String(regenerarPdf));
 
-    const response = await axios.post<FirmarReporteResponse>(`/reportes/pdf/${idReporte}/firmar`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await axios.post<FirmarReporteResponse>(
+      `/reportes/pdf/${idReporte}/firmar`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
     return response.data;
   },
-};
 
+  /**
+   * Descargar Informe de Cadena de Custodia (PDF)
+   */
+  descargarCadenaCustodia: async (idReporte: number): Promise<void> => {
+    const response = await axios.get(`/auditar/cadena-custodia/${idReporte}`, {
+      responseType: 'blob',
+    });
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `cadena_custodia_${idReporte}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
+};

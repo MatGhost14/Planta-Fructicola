@@ -90,11 +90,15 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
   };
 
   const puedeFirmarRevision =
-    user && (user.rol === "supervisor" || user.rol === "admin") && inspeccion.estado === "approved";
+    user &&
+    (user.rol === "supervisor" || user.rol === "admin") &&
+    inspeccion.estado === "approved";
+
+  const puedeDescargarAuditoria = user && user.rol === "admin";
 
   const dataURLtoFile = (dataUrl: string, filename: string): File => {
-    const arr = dataUrl.split(',');
-    const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+    const arr = dataUrl.split(",");
+    const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
     const bstr = atob(arr[1]);
     let n = bstr.length;
     const u8arr = new Uint8Array(n);
@@ -107,15 +111,24 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
   const handleGuardarFirmaRevision = async (imageDataUrl: string) => {
     try {
       // Obtener el último reporte generado para esta inspección
-      const reportes = await reportesApi.listarReportesInspeccion(inspeccion.id_inspeccion);
+      const reportes = await reportesApi.listarReportesInspeccion(
+        inspeccion.id_inspeccion
+      );
       if (!reportes || reportes.length === 0) {
         showWarning("Primero debe generar el PDF del reporte antes de firmar");
         return;
       }
       const ultimo = reportes[0];
-      const archivo = dataURLtoFile(imageDataUrl, `firma_revisor_${inspeccion.id_inspeccion}.png`);
+      const archivo = dataURLtoFile(
+        imageDataUrl,
+        `firma_revisor_${inspeccion.id_inspeccion}.png`
+      );
 
-      const resp = await reportesApi.firmarReporte(ultimo.id_reporte, archivo, true);
+      const resp = await reportesApi.firmarReporte(
+        ultimo.id_reporte,
+        archivo,
+        true
+      );
       showSuccess(resp.mensaje || "Reporte firmado y actualizado");
       setShowSignModal(false);
     } catch (error: any) {
@@ -171,7 +184,8 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
       showSuccess("Evidencia eliminada exitosamente");
       if (onUpdate) onUpdate();
     } catch (error: any) {
-      const detail = error.response?.data?.detail || "Error al eliminar evidencia";
+      const detail =
+        error.response?.data?.detail || "Error al eliminar evidencia";
       if (error.response?.status === 409) {
         showError(detail);
       } else {
@@ -395,7 +409,9 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
                           e.stopPropagation();
                           handleEliminarFoto(foto.id_foto);
                         }}
-                        disabled={isEvidenciaInmutable || deletingFoto === foto.id_foto}
+                        disabled={
+                          isEvidenciaInmutable || deletingFoto === foto.id_foto
+                        }
                         title={
                           isEvidenciaInmutable
                             ? "No se puede eliminar: inspección aprobada"
@@ -466,6 +482,29 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
                 className="mr-3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
                 Firmar revisión
+              </button>
+            )}
+            {puedeDescargarAuditoria && (
+              <button
+                onClick={async () => {
+                  try {
+                    const reportes = await reportesApi.listarReportesInspeccion(
+                      inspeccion.id_inspeccion
+                    );
+                    if (!reportes || reportes.length === 0) {
+                      showWarning('Primero genere el PDF del reporte para auditar');
+                      return;
+                    }
+                    const ultimo = reportes[0];
+                    await reportesApi.descargarCadenaCustodia(ultimo.id_reporte);
+                  } catch (e: any) {
+                    const msg = e?.response?.data?.detail || 'Error al descargar cadena de custodia';
+                    showError(msg);
+                  }
+                }}
+                className="mr-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Cadena de custodia
               </button>
             )}
             <button
@@ -564,7 +603,9 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
           <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900">Firma de Revisión</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Firma de Revisión
+                </h3>
                 <button
                   onClick={() => setShowSignModal(false)}
                   className="p-2 hover:bg-gray-100 rounded-full"
@@ -573,7 +614,8 @@ const InspeccionModal: React.FC<InspeccionModalProps> = ({
                 </button>
               </div>
               <p className="text-gray-600 mb-4">
-                Dibuje su firma para acreditar la revisión de esta inspección aprobada.
+                Dibuje su firma para acreditar la revisión de esta inspección
+                aprobada.
               </p>
               <FirmaCanvas onSave={handleGuardarFirmaRevision} />
             </div>
