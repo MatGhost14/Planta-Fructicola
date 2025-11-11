@@ -145,7 +145,24 @@ const InspeccionNueva: React.FC = () => {
       navigate("/inspecciones");
     } catch (error: any) {
       console.error("Error al crear inspección:", error);
-      showError(error.response?.data?.detail || "Error al crear inspección");
+
+      // Procesar el error devuelto por el backend
+      if (error.response?.data?.detail) {
+        const detalles = error.response.data.detail;
+        if (Array.isArray(detalles)) {
+          // Si el detalle es una lista de errores, mostrar el primero
+          showError(
+            detalles[0]?.msg || "Error desconocido al crear inspección"
+          );
+        } else if (typeof detalles === "string") {
+          // Si el detalle es un mensaje simple
+          showError(detalles);
+        } else {
+          showError("Error desconocido al crear inspección");
+        }
+      } else {
+        showError("Error al crear inspección");
+      }
     } finally {
       setLoading(false);
     }
